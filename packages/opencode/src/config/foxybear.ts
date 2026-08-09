@@ -123,4 +123,26 @@ export const FoxyBearFields = {
       persona: z.string().default("katya").describe("Default persona for Telegram sessions"),
     })
     .optional(),
+  voice: z
+    .object({
+      apiKeyEnv: z.string().default("ELEVENLABS_API_KEY").describe("Env var name OR {file:/path/to/keyfile} holding the ElevenLabs API key"),
+      voiceId: z.string().default("xVQH621DS3eyBYrseRt5").describe("ElevenLabs voice id"),
+      modelId: z.string().default("eleven_v3").describe("ElevenLabs model id"),
+      stability: z.enum(["creative", "natural", "robust"]).default("natural").describe("Voice stability preset ('robust' is rejected at runtime)"),
+      speed: z.number().min(0.7).max(1.2).default(1.0).describe("Playback speed"),
+      similarityBoost: z.number().min(0).max(1).default(0.75).describe("Similarity boost"),
+      speakerBoost: z.boolean().default(true).describe("Speaker boost"),
+      style: z.number().min(0).max(1).default(0).describe("Style exaggeration"),
+      language: z.string().default("en").describe("Output language"),
+      playerPreference: z.string().optional().describe("Preferred audio player"),
+      pronunciationDictionaryId: z.string().optional(),
+      pronunciationDictionaryVersionId: z.string().optional(),
+      outputFormat: z.string().default("mp3_44100_128").describe("Audio output format"),
+      tagEmissionTempBoost: z.boolean().default(false),
+      tagEmissionTempDelta: z.number().default(0),
+      maxSentenceRetries: z.number().int().min(0).default(3).describe("Per-sentence retry budget"),
+      autoStart: z.boolean().default(false).describe("Auto-enable voice on first assistant text delta"),
+    })
+    .optional()
+    .describe("Katya voice/TTS configuration"),
 }

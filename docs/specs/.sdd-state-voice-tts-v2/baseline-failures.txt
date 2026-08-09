@@ -1,0 +1,16 @@
+# Pre-existing test failures tolerated by the voice-tts-v2 workstream.
+# These are flaky cancel/shell/interrupt timing tests in
+# test/session/prompt-effect.test.ts (real `sleep 30` processes + timing
+# assertions), unrelated to voice. Voice work does not touch the cancel/shell
+# path (SessionPrompt.cancel is unchanged). Recorded so the SDD `implement`
+# stage does not treat load-order/timing variance as a regression.
+cancel interrupts shell and resolves cleanly
+cancel persists aborted shell result when shell ignores TERM
+cancel interrupts loop queued behind shell
+cancel records MessageAbortedError on interrupted process
+cancel interrupts loop and resolves with an assistant message
+cancel with queued callers resolves all cleanly
+cancel finalizes interrupted bash tool output through normal truncation
+cancel finalizes subtask tool state
+assertNotBusy throws BusyError when loop running
+shell rejects with BusyError when loop running

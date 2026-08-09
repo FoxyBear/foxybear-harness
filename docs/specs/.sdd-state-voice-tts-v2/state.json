@@ -1,0 +1,49 @@
+{
+  "stages": {
+    "author": {
+      "status": "passed",
+      "at": "2026-08-07T00:32:48.886Z"
+    },
+    "audit": {
+      "status": "passed",
+      "at": "2026-08-07T00:35:09.174Z"
+    },
+    "gate": {
+      "status": "approved",
+      "at": "2026-08-07T00:43:59.468Z",
+      "approvedBy": "toddenglish"
+    }
+  },
+  "tests": {
+    "sdd-v2-01": {
+      "status": "passed",
+      "at": "2026-08-07T05:28:09.794Z",
+      "retroactive": false
+    },
+    "sdd-v2-02-05": {
+      "status": "passed",
+      "at": "2026-08-07T05:28:56.948Z",
+      "retroactive": false
+    }
+  },
+  "implement": {
+    "sdd-v2-01": {
+      "status": "passed",
+      "at": "2026-08-07T05:32:59.850Z"
+    },
+    "sdd-v2-02-05": {
+      "status": "passed",
+      "at": "2026-08-07T05:47:28.365Z"
+    }
+  },
+  "verify": {
+    "sdd-v2-01": {
+      "status": "passed",
+      "at": "2026-08-07T05:48:53.738Z"
+    },
+    "sdd-v2-02-05": {
+      "status": "passed",
+      "at": "2026-08-07T05:48:53.754Z"
+    }
+  }
+}

@@ -103,6 +103,20 @@ export namespace Command {
           subtask: true,
           hints: hints(PROMPT_REVIEW),
         }
+        commands["voice"] = {
+          name: "voice",
+          description: "toggle voice mode on or off",
+          source: "command",
+          template: "",
+          hints: [],
+        }
+        commands["mute"] = {
+          name: "mute",
+          description: "mute voice mode",
+          source: "command",
+          template: "",
+          hints: [],
+        }
 
         for (const [name, command] of Object.entries(cfg.command ?? {})) {
           commands[name] = {

@@ -17,6 +17,7 @@ import { CopilotAuthPlugin } from "./github-copilot/copilot"
 import { gitlabAuthPlugin as GitlabAuthPlugin } from "opencode-gitlab-auth"
 import { PoeAuthPlugin } from "opencode-poe-auth"
 import { CloudflareAIGatewayAuthPlugin, CloudflareWorkersAuthPlugin } from "./cloudflare"
+import { VoicePlugin } from "@/voice/plugin"
 import { Effect, Layer, Context, Stream } from "effect"
 import { EffectLogger } from "@/effect/logger"
 import { InstanceState } from "@/effect/instance-state"
@@ -62,6 +63,7 @@ export namespace Plugin {
     PoeAuthPlugin,
     CloudflareWorkersAuthPlugin,
     CloudflareAIGatewayAuthPlugin,
+    VoicePlugin,
   ]
 
   function isServerPlugin(value: unknown): value is PluginInstance {

@@ -29,6 +29,7 @@ import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import * as CrossSpawnSpawner from "@/effect/cross-spawn-spawner"
 import * as Stream from "effect/Stream"
 import { Command } from "../command"
+import { Config } from "../config/config"
 import { pathToFileURL, fileURLToPath } from "url"
 import { ConfigMarkdown } from "../config/markdown"
 import { SessionSummary } from "./summary"
@@ -1646,10 +1647,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
             : yield* lastModel(input.sessionID)
           : taskModel
 
-        yield* plugin.trigger(
+        const hookOut = yield* plugin.trigger(
           "command.execute.before",
           { command: input.command, sessionID: input.sessionID, arguments: input.arguments },
-          { parts },
+          { parts, noReply: undefined },
         )
 
         const result = yield* prompt({
@@ -1657,8 +1658,9 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           messageID: input.messageID,
           model: userModel,
           agent: userAgent,
-          parts,
+          parts: hookOut.parts,
           variant: input.variant,
+          noReply: hookOut.noReply === true,
         })
         yield* bus.publish(Command.Event.Executed, {
           name: input.command,
