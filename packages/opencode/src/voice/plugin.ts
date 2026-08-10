@@ -1,5 +1,4 @@
 import type { Hooks, PluginInput, PluginOptions } from "@opencode-ai/plugin"
-import { tool } from "@opencode-ai/plugin"
 import { Log } from "../util/log"
 import { ENHANCE_SECTION, KATYA_TONE_GUIDE, AUDIO_TAG_VOCABULARY } from "./expressivity"
 import { VoiceTTS } from "./elevenlabs"
@@ -9,7 +8,6 @@ import { AudioSink as RealAudioSink } from "./sink"
 export { AUDIO_TAG_VOCABULARY }
 
 const log = Log.create({ service: "voice" })
-const dbg = (...a: unknown[]) => process.stderr.write(`[V] ${a.map((x) => typeof x === "string" ? x : JSON.stringify(x)).join(" ")}\n`)
 
 export type VoiceConfig = {
   apiKeyEnv: string
@@ -54,19 +52,15 @@ export function setAudioSink(sessionID: string, sink: AudioSink | null) {
 }
 
 export function getTTS(sessionID: string): VoiceTTS | null {
-  dbg("getTTS sessionID=", sessionID)
   if (!cfg) {
-    dbg("  no cfg")
     return null
   }
   const m = getMode(sessionID)
   if (!m.active) {
-    dbg("  mode not active")
     return null
   }
   let tts = ttsInstances.get(sessionID)
   if (!tts) {
-    dbg("  creating new VoiceTTS instance")
     const bus: BusEmit = (type, payload) => log.warn("tts event", { type, ...payload })
     let sink = sinks.get(sessionID)
     if (!sink) {
@@ -84,7 +78,6 @@ export function getTTS(sessionID: string): VoiceTTS | null {
     })
     ttsInstances.set(sessionID, tts)
   } else {
-    dbg("  reusing existing TTS instance")
   }
   return tts
 }
@@ -195,9 +188,7 @@ function resolveKey(): string | null {
 }
 
 function activate(sessionID: string): boolean {
-  dbg("activate sessionID=", sessionID)
   if (!cfg || !cfg.voiceId) {
-    dbg("  no cfg or voiceId")
     if (!warned) {
       log.warn("voice not configured — voiceId missing")
       warned = true
@@ -205,7 +196,6 @@ function activate(sessionID: string): boolean {
     return false
   }
   const key = resolveKey()
-  dbg("  resolveKey result:", key ? "found (len=" + key.length + ")" : "null")
   if (!key) {
     log.warn("voice activation failed — API key not found")
     return false
@@ -214,7 +204,6 @@ function activate(sessionID: string): boolean {
   m.active = true
   m.sessionId = sessionID
   m.connected = true
-  dbg("  activated, mode=", m)
   return true
 }
 
@@ -233,6 +222,20 @@ function deactivate(sessionID: string) {
     sink.stop()
     sinks.delete(sessionID)
   }
+}
+
+export function toggle(sessionID: string): string {
+  const m = getMode(sessionID)
+  if (m.active) {
+    deactivate(sessionID)
+    return "Voice off."
+  }
+  return activate(sessionID) ? "Voice on." : "Voice unavailable — check API key and config."
+}
+
+export function mute(sessionID: string): string {
+  deactivate(sessionID)
+  return "Voice muted."
 }
 
 function stopAudio(sessionID: string) {
@@ -285,16 +288,12 @@ export async function VoicePlugin(
   _input: PluginInput,
   _options?: PluginOptions,
 ): Promise<Hooks> {
-  dbg("VoicePlugin() called")
   return {
     config: async (config: Record<string, unknown>) => {
-      dbg("config hook fired, has voice?", !!config.voice)
       if (!config.voice) return
       try {
         cfg = parseConfig(config.voice as Record<string, unknown>)
-        dbg("config parsed OK, voiceId=", cfg.voiceId, "apiKeyEnv starts with:", cfg.apiKeyEnv.slice(0, 10), "autoStart=", cfg.autoStart)
       } catch (err) {
-        dbg("config parse FAILED:", String(err))
         log.error("voice config invalid", { error: err })
         cfg = null
       }
@@ -308,7 +307,6 @@ export async function VoicePlugin(
       if (type === "message.part.updated") {
         const sessionID = props.sessionID as string
         const part = props.part as { type?: string; id?: string } | undefined
-        dbg("part.updated sessionID=", sessionID, "partType=", part?.type, "partID=", part?.id)
         if (!sessionID || !part?.id) return
         if (part.type === "text") {
           let set = textParts.get(sessionID)
@@ -317,7 +315,6 @@ export async function VoicePlugin(
             textParts.set(sessionID, set)
           }
           set.add(part.id)
-          dbg("text-parts set now:", [...set])
         }
         return
       }
@@ -327,33 +324,26 @@ export async function VoicePlugin(
         const partID = props.partID as string
         const field = props.field as string
         const delta = props.delta as string
-        dbg("part.delta sessionID=", sessionID, "partID=", partID, "field=", field, "delta=", delta?.slice(0, 40))
         if (!sessionID || !partID) return
         const set = textParts.get(sessionID)
         if (!set || !set.has(partID)) {
-          dbg("  DROPPED — not in text-parts set")
           return
         }
 
         if (cfg?.autoStart && cfg.voiceId) {
           const m = getMode(sessionID)
           if (!m.active) {
-            dbg("  autoStart activating...")
             activate(sessionID)
           }
         }
 
         const m = getMode(sessionID)
-        dbg("  mode active=", m.active, "playing=", m.playing)
         if (m.active) {
           if (field !== "text" || typeof delta !== "string") {
-            dbg("  DROPPED — field=", field, "delta type=", typeof delta)
             return
           }
-          dbg("  feeding TTS, delta length=", delta.length)
           const tts = getTTS(sessionID)
           if (tts) tts.feed(delta)
-          else dbg("  TTS is null!")
         }
         return
       }
@@ -361,16 +351,13 @@ export async function VoicePlugin(
       if (type === "message.updated") {
         const sessionID = props.sessionID as string
         const info = props.info as { role?: string; time?: { completed?: number }; id?: string } | undefined
-        dbg("message.updated sessionID=", sessionID, "role=", info?.role, "completed=", info?.time?.completed, "id=", info?.id)
         if (!sessionID || info?.role !== "assistant" || !info?.time?.completed || !info.id) return
         const last = lastFlushed.get(sessionID)
         if (last === info.id) {
-          dbg("  already flushed, skipping")
           return
         }
         lastFlushed.set(sessionID, info.id)
         const tts = ttsInstances.get(sessionID)
-        dbg("  flushing TTS, has instance=", !!tts)
         if (tts) void tts.flush()
         return
       }
@@ -378,66 +365,24 @@ export async function VoicePlugin(
       if (type === "session.status") {
         const sessionID = props.sessionID as string
         const status = props.status as { type?: string } | undefined
-        dbg("session.status sessionID=", sessionID, "statusType=", status?.type)
         if (!sessionID || status?.type !== "busy") return
         const m = getMode(sessionID)
         if (m.active && m.playing) {
-          dbg("  barge-in!")
           bargeIn(sessionID)
         }
         return
       }
 
       if (type === "session.deleted") {
-        dbg("session.deleted")
         const sessionID = props.sessionID as string
         if (sessionID) teardownSession(sessionID)
         return
       }
 
       if (type === "server.instance.disposed") {
-        dbg("server.instance.disposed — tearing down all")
         teardownAll()
         return
       }
-    },
-
-    tool: {
-      "voice.toggle": tool({
-        description: "Toggle voice/TTS on or off for the current session",
-        args: {},
-        async execute(_args, ctx) {
-          const m = getMode(ctx.sessionID)
-          if (m.active) {
-            deactivate(ctx.sessionID)
-            return "Voice off."
-          }
-          const ok = activate(ctx.sessionID)
-          return ok ? "Voice on." : "Voice unavailable — check API key and config."
-        },
-      }),
-      "voice.mute": tool({
-        description: "Mute voice/TTS for the current session",
-        args: {},
-        async execute(_args, ctx) {
-          deactivate(ctx.sessionID)
-          return "Voice muted."
-        },
-      }),
-    },
-
-    "command.execute.before": async (cmd, output) => {
-      dbg("command.execute.before command=", cmd.command)
-      if (cmd.command !== "voice" && cmd.command !== "mute") return
-      const m = getMode(cmd.sessionID)
-      dbg("  current mode active=", m.active)
-      const text = cmd.command === "voice"
-        ? m.active ? (deactivate(cmd.sessionID), "Voice off.") : (activate(cmd.sessionID) ? "Voice on." : "Voice unavailable — check API key and config.")
-        : (deactivate(cmd.sessionID), "Voice muted.")
-      dbg("  result:", text, "noReply=true")
-      ;(output.parts as unknown[]).length = 0
-      ;(output.parts as unknown[]).push({ type: "text", text } as never)
-      output.noReply = true
     },
 
     "experimental.text.complete": async (_input, output) => {

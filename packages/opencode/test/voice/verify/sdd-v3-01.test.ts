@@ -9,6 +9,8 @@ import {
   getConfig,
   stripTags,
   setV2Client,
+  toggle,
+  mute,
 } from "../../../src/voice/plugin"
 import type { PluginInput, Hooks } from "@opencode-ai/plugin"
 
@@ -50,16 +52,13 @@ describe("V1 — internal plugin loads and returns Hooks", () => {
   test("VoicePlugin returns Hooks with all required hooks", async () => {
     const hooks = await VoicePlugin(STUB)
     expect(hooks.event).toBeDefined()
-    expect(hooks.tool).toBeDefined()
-    expect(hooks["command.execute.before"]).toBeDefined()
     expect(hooks["experimental.text.complete"]).toBeDefined()
     expect(hooks["experimental.chat.system.transform"]).toBeDefined()
   })
 
-  test("tool hook contains voice.toggle and voice.mute", async () => {
-    const hooks = await VoicePlugin(STUB)
-    expect(hooks.tool!["voice.toggle"]).toBeDefined()
-    expect(hooks.tool!["voice.mute"]).toBeDefined()
+  test("toggle and mute are exported functions", () => {
+    expect(typeof toggle).toBe("function")
+    expect(typeof mute).toBe("function")
   })
 })
 
@@ -91,7 +90,7 @@ describe("V3 — missing voiceId registers but stays inactive", () => {
   test("hooks are live with empty config", async () => {
     const hooks = await load({})
     expect(typeof hooks.event).toBe("function")
-    expect(typeof hooks.tool!["voice.toggle"].execute).toBe("function")
+    expect(typeof toggle).toBe("function")
   })
 
   test("VoiceMode.active is false when voiceId is empty", async () => {
@@ -134,9 +133,7 @@ describe("V5 — voice.toggle flips state", () => {
   test("toggle activates when inactive", async () => {
     await load({ voiceId: "vX" })
     process.env.ELEVENLABS_API_KEY = "k"
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    const result = await hooks.tool!["voice.toggle"].execute({} as any, { sessionID: "S1" } as any)
+    const result = toggle("S1")
     expect(result).toBe("Voice on.")
     expect(getMode("S1").active).toBe(true)
   })
@@ -144,11 +141,9 @@ describe("V5 — voice.toggle flips state", () => {
   test("mute deactivates when active", async () => {
     await load({ voiceId: "vX" })
     process.env.ELEVENLABS_API_KEY = "k"
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    await hooks.tool!["voice.toggle"].execute({} as any, { sessionID: "S1" } as any)
+    toggle("S1")
     expect(getMode("S1").active).toBe(true)
-    const result = await hooks.tool!["voice.mute"].execute({} as any, { sessionID: "S1" } as any)
+    const result = mute("S1")
     expect(result).toBe("Voice muted.")
     expect(getMode("S1").active).toBe(false)
   })
@@ -158,55 +153,19 @@ describe("V6 — voice.mute deactivates, no-op when inactive", () => {
   test("mute deactivates active session and stops audio", async () => {
     await load({ voiceId: "vX" })
     process.env.ELEVENLABS_API_KEY = "k"
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
     const m = getMode("S1")
     m.active = true
     m.playing = true
-    await hooks.tool!["voice.mute"].execute({} as any, { sessionID: "S1" } as any)
+    mute("S1")
     expect(getMode("S1").active).toBe(false)
     expect(getMode("S1").playing).toBe(false)
   })
 
   test("mute on already-inactive session still confirms", async () => {
     await load({ voiceId: "vX" })
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    const result = await hooks.tool!["voice.mute"].execute({} as any, { sessionID: "S1" } as any)
+    const result = mute("S1")
     expect(result).toBe("Voice muted.")
     expect(getMode("S1").active).toBe(false)
-  })
-})
-
-describe("V7 — noReply suppresses LLM for /voice and /mute", () => {
-  test("command.execute.before sets noReply for voice command", async () => {
-    await load({ voiceId: "vX" })
-    process.env.ELEVENLABS_API_KEY = "k"
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    const output: { parts: any[]; noReply?: boolean } = { parts: [] }
-    await hooks["command.execute.before"]!({ command: "voice", sessionID: "S1", arguments: "" }, output)
-    expect(output.noReply).toBe(true)
-    expect(output.parts.length).toBe(1)
-    expect(output.parts[0].text).toMatch(/Voice/)
-  })
-
-  test("command.execute.before sets noReply for mute command", async () => {
-    await load({ voiceId: "vX" })
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    const output: { parts: any[]; noReply?: boolean } = { parts: [] }
-    await hooks["command.execute.before"]!({ command: "mute", sessionID: "S1", arguments: "" }, output)
-    expect(output.noReply).toBe(true)
-    expect(output.parts.length).toBe(1)
-  })
-
-  test("command.execute.before does not set noReply for other commands", async () => {
-    const hooks = await load({ voiceId: "vX" })
-    const output: { parts: any[]; noReply?: boolean } = { parts: [{ type: "text", text: "orig" }] }
-    await hooks["command.execute.before"]!({ command: "help", sessionID: "S1", arguments: "" }, output)
-    expect(output.noReply).toBeUndefined()
-    expect(output.parts[0].text).toBe("orig")
   })
 })
 
@@ -278,9 +237,7 @@ describe("V10 — activation resolves API key, falls back when absent", () => {
   test("activation fails when API key is absent", async () => {
     await load({ voiceId: "vX" })
     delete process.env.ELEVENLABS_API_KEY
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    const result = await hooks.tool!["voice.toggle"].execute({} as any, { sessionID: "S1" } as any)
+    const result = toggle("S1")
     expect(getMode("S1").active).toBe(false)
     expect(result).toMatch(/unavailable|check/)
   })
@@ -288,9 +245,7 @@ describe("V10 — activation resolves API key, falls back when absent", () => {
   test("activation succeeds when API key is present", async () => {
     await load({ voiceId: "vX" })
     process.env.ELEVENLABS_API_KEY = "k"
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    const result = await hooks.tool!["voice.toggle"].execute({} as any, { sessionID: "S1" } as any)
+    const result = toggle("S1")
     expect(getMode("S1").active).toBe(true)
     expect(result).toBe("Voice on.")
   })
@@ -298,10 +253,9 @@ describe("V10 — activation resolves API key, falls back when absent", () => {
   test("text session continues after failed activation", async () => {
     await load({ voiceId: "vX" })
     delete process.env.ELEVENLABS_API_KEY
-    const hooks = await VoicePlugin(STUB)
-    await hooks.config!({ voice: { voiceId: "vX" } } as any)
-    await hooks.tool!["voice.toggle"].execute({} as any, { sessionID: "S1" } as any)
+    toggle("S1")
     expect(getMode("S1").active).toBe(false)
+    const hooks = await VoicePlugin(STUB)
     expect(typeof hooks["experimental.text.complete"]).toBe("function")
   })
 })
@@ -460,11 +414,11 @@ describe("V16 — AUDIO_TAG_VOCABULARY export", () => {
     expect(AUDIO_TAG_VOCABULARY).toContain("[laughs harder]")
     expect(AUDIO_TAG_VOCABULARY).toContain("[chuckles]")
     expect(AUDIO_TAG_VOCABULARY).toContain("[sighs]")
-    expect(AUDIO_TAG_VOCABULARY).toContain("[gasps]")
     expect(AUDIO_TAG_VOCABULARY).toContain("[whispers]")
     expect(AUDIO_TAG_VOCABULARY).toContain("[sarcastic]")
     expect(AUDIO_TAG_VOCABULARY).toContain("[excited]")
     expect(AUDIO_TAG_VOCABULARY).toContain("[pause]")
-    expect(AUDIO_TAG_VOCABULARY.length).toBe(9)
+    expect(AUDIO_TAG_VOCABULARY).toContain("[annoyed]")
+    expect(AUDIO_TAG_VOCABULARY.length).toBe(37)
   })
 })

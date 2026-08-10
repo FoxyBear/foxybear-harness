@@ -2,7 +2,6 @@ import { spawn, type ChildProcess } from "node:child_process"
 import { Log } from "../util/log"
 
 const log = Log.create({ service: "voice.sink" })
-const dbg = (...a: unknown[]) => process.stderr.write(`[VS] ${a.map((x) => typeof x === "string" ? x : JSON.stringify(x)).join(" ")}\n`)
 
 export type AudioChunk = {
   data: Uint8Array
@@ -28,24 +27,19 @@ const LIST = [
 type Kind = (typeof LIST)[number]
 
 function detect(preference?: string): Kind | null {
-  dbg("detect preference=", preference)
   if (preference) {
     const r = Bun.spawnSync(["which", preference], { stdout: "ignore", stderr: "ignore" })
     if (r.exitCode === 0) {
-      dbg("  preference found:", preference)
       return preference as Kind
     }
-    dbg("  preference not on PATH, falling back")
     log.warn(`playerPreference "${preference}" not on PATH, falling back to auto-detect`)
   }
   for (const c of LIST) {
     const r = Bun.spawnSync(["which", c], { stdout: "ignore", stderr: "ignore" })
     if (r.exitCode === 0) {
-      dbg("  auto-detected:", c)
       return c
     }
   }
-  dbg("  no player found!")
   return null
 }
 
@@ -95,12 +89,9 @@ export class AudioSink {
 
   private spawnProc(): ChildProcess | undefined {
     const k = this.pick()
-    dbg("spawnProc kind=", k, "vol=", this.vol, "fmt=", this.fmt)
     if (!k) return
     const a = argsStdin(k, this.vol, this.fmt)
-    dbg("  args:", a.join(" "))
     const p = spawn(a[0], a.slice(1), { stdio: ["pipe", "ignore", "ignore"] })
-    dbg("  spawned pid=", p.pid)
     return p
   }
 
@@ -123,35 +114,29 @@ export class AudioSink {
   }
 
   async write(chunk: AudioChunk): Promise<void> {
-    dbg("write dataLen=", chunk.data.length, "fmt=", chunk.format, "isFinal=", chunk.isFinal, "gen=", this.gen)
     await this.writeChunk(chunk, this.gen)
   }
 
   private async writeChunk(chunk: AudioChunk, gen: number): Promise<void> {
     if (gen !== this.gen) {
-      dbg("  writeChunk DROPPED gen mismatch gen=", gen, "this.gen=", this.gen)
       return
     }
     if (!this.fmt) this.fmt = chunk.format
     if (!this.proc) {
-      dbg("  no proc, spawning...")
       try {
         this.proc = this.spawnProc()
       } catch (e) {
-        dbg("  spawn threw:", String(e))
         this.handleSpawnFail()
         if (!this.proc) return
       }
       if (this.proc) {
         this.proc.once("error", (e: NodeJS.ErrnoException) => {
-          dbg("  proc error event:", e.code)
           if (e.code === "ENOENT") this.handleSpawnFail()
           this.proc = undefined
         })
       }
     }
     if (!this.proc?.stdin) {
-      dbg("  no stdin available")
       return
     }
     try {
@@ -161,27 +146,21 @@ export class AudioSink {
         if (!stdin || stdin.destroyed) return res()
         stdin.write(chunk.data, (err) => (err ? rej(err) : res()))
       })
-      dbg("  wrote", chunk.data.length, "bytes to stdin OK")
     } catch (e: any) {
       if (e?.code === "EPIPE" || e?.code === "ERR_STREAM_DESTROYED") {
-        dbg("  EPIPE/DESTROYED caught, ignoring")
         return
       }
-      dbg("  write error:", e?.message)
       log.error("stdin write failed", { error: e?.message })
     }
     if (gen !== this.gen) return
     if (chunk.isFinal) {
-      dbg("  isFinal — closing stdin, awaiting exit")
       try { this.proc?.stdin?.end() } catch {}
       try { await this.waitExit() } catch {}
       this.proc = undefined
-      dbg("  proc exited, cleared")
     }
   }
 
   stop() {
-    dbg("stop gen++", this.gen + 1, "hasProc=", !!this.proc)
     this.gen++
     try { this.proc?.stdin?.end() } catch {}
     try { this.proc?.kill("SIGTERM") } catch {}

@@ -1647,10 +1647,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
             : yield* lastModel(input.sessionID)
           : taskModel
 
-        const hookOut = yield* plugin.trigger(
+        yield* plugin.trigger(
           "command.execute.before",
           { command: input.command, sessionID: input.sessionID, arguments: input.arguments },
-          { parts, noReply: undefined },
+          { parts },
         )
 
         const result = yield* prompt({
@@ -1658,9 +1658,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           messageID: input.messageID,
           model: userModel,
           agent: userAgent,
-          parts: hookOut.parts,
+          parts,
           variant: input.variant,
-          noReply: hookOut.noReply === true,
         })
         yield* bus.publish(Command.Event.Executed, {
           name: input.command,

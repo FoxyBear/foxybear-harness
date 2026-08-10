@@ -604,6 +604,50 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       category: "System",
     },
     {
+      title: "Toggle voice",
+      value: "voice.toggle",
+      category: "System",
+      slash: { name: "voice" },
+      onSelect: async () => {
+        const sid = route.data.type === "session" ? route.data.sessionID : ""
+        if (!sid) {
+          toast.show({ message: "No active session.", variant: "error" })
+          dialog.clear()
+          return
+        }
+        const res = await sdk.fetch(new URL("/voice/toggle", sdk.url), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionID: sid }),
+        })
+        const data = (await res.json()) as { message: string; active: boolean }
+        toast.show({ message: data.message, variant: "success" })
+        dialog.clear()
+      },
+    },
+    {
+      title: "Mute voice",
+      value: "voice.mute",
+      category: "System",
+      slash: { name: "mute" },
+      onSelect: async () => {
+        const sid = route.data.type === "session" ? route.data.sessionID : ""
+        if (!sid) {
+          toast.show({ message: "No active session.", variant: "error" })
+          dialog.clear()
+          return
+        }
+        const res = await sdk.fetch(new URL("/voice/mute", sdk.url), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionID: sid }),
+        })
+        const data = (await res.json()) as { message: string; active: boolean }
+        toast.show({ message: data.message, variant: "success" })
+        dialog.clear()
+      },
+    },
+    {
       title: "Switch theme",
       value: "theme.switch",
       keybind: "theme_list",

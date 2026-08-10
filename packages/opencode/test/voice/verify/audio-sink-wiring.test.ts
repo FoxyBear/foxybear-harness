@@ -6,6 +6,7 @@ import {
   getTTS,
   setAudioSink,
   setV2Client,
+  mute,
 } from "../../../src/voice/plugin"
 import { AudioSink } from "../../../src/voice/sink"
 import type { AudioChunk } from "../../../src/voice/sink"
@@ -185,7 +186,7 @@ describe("AS4 — AudioSink is cleaned up on deactivate", () => {
       expect(probeWrite).toHaveBeenCalledTimes(1)
       expect(protoSpy).not.toHaveBeenCalled()
 
-      await hooks.tool!["voice.mute"].execute({} as any, { sessionID: "S1" } as any)
+      mute("S1")
       expect(getMode("S1").active).toBe(false)
 
       getMode("S1").active = true

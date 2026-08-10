@@ -52,7 +52,7 @@ async function api(path: string, body?: unknown): Promise<Response> {
 
 const commands: HarnessCommand[] = [
   {
-    name: "status",
+    name: "daemon",
     description: "Daemon health and uptime",
     category: "System",
     async execute() {
