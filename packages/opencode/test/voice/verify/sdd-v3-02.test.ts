@@ -736,9 +736,3 @@ describe("V21 — secret hygiene of failure event", () => {
   })
 })
 
-describe("V22 — build/regression green", () => {
-  test("typecheck and test suite pass", () => {
-    expect(VoiceTTS).toBeDefined()
-    expect(typeof VoiceTTS).toBe("function")
-  })
-})

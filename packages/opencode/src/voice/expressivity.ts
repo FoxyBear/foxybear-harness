@@ -96,7 +96,7 @@ Use these as a guide. You can infer similar, contextually appropriate **audio ta
 "I guess you're right. It's just... difficult."
 
 **Enhanced Output**:
-"I guess you're right. [sighs] It's just... [muttering] difficult."
+"I guess you're right. [sighs] It's just... difficult."
 
 # Instructions Summary
 

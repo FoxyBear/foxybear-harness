@@ -245,11 +245,6 @@ export function mute(sessionID: string): string {
   return "Voice muted."
 }
 
-function stopAudio(sessionID: string) {
-  const tts = ttsInstances.get(sessionID)
-  if (tts) void tts.bargeIn()
-}
-
 async function bargeIn(sessionID: string) {
   const m = getMode(sessionID)
   if (!m.active) return
