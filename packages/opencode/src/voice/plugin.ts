@@ -34,6 +34,7 @@ type VoiceMode = {
   sessionId: string | null
   playing: boolean
   connected: boolean
+  prevStatus: string
 }
 
 const TEMP_CEILING = 1
@@ -74,6 +75,9 @@ export function getTTS(sessionID: string): VoiceTTS | null {
       onDegraded: () => {
         m.connected = false
         log.warn("voice degraded — non-retryable error")
+      },
+      onPlayingChange: (playing) => {
+        m.playing = playing
       },
     })
     ttsInstances.set(sessionID, tts)
@@ -143,7 +147,7 @@ export function parseConfig(raw: Record<string, unknown>): VoiceConfig {
 export function getMode(sessionID: string): VoiceMode {
   let m = modes.get(sessionID)
   if (!m) {
-    m = { active: false, sessionId: null, playing: false, connected: false }
+    m = { active: false, sessionId: null, playing: false, connected: false, prevStatus: "busy" }
     modes.set(sessionID, m)
   }
   return m
@@ -172,9 +176,11 @@ export function stripTags(text: string): string {
   let result = text
   for (const tag of AUDIO_TAG_VOCABULARY) {
     const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    result = result.replace(new RegExp(`\\s*${escaped}\\s*`, "g"), " ")
+    result = result.replace(new RegExp(`[ \\t]*${escaped}[ \\t]*`, "g"), " ")
   }
-  return result.replace(/\s+/g, " ").trim()
+  return result
+    .replace(/[ \t]+\n/g, "\n")
+    .trim()
 }
 
 function resolveKey(): string | null {
@@ -249,8 +255,6 @@ async function bargeIn(sessionID: string) {
   const tts = ttsInstances.get(sessionID)
   if (tts) await tts.bargeIn()
   m.playing = false
-  const client = await getV2()
-  await client.session.abort({ sessionID })
 }
 
 function teardownAll() {
@@ -365,11 +369,13 @@ export async function VoicePlugin(
       if (type === "session.status") {
         const sessionID = props.sessionID as string
         const status = props.status as { type?: string } | undefined
-        if (!sessionID || status?.type !== "busy") return
+        if (!sessionID) return
         const m = getMode(sessionID)
-        if (m.active && m.playing) {
+        const current = status?.type ?? "idle"
+        if (current === "busy" && m.prevStatus === "idle" && m.active && m.playing) {
           bargeIn(sessionID)
         }
+        m.prevStatus = current
         return
       }
 

@@ -260,8 +260,8 @@ describe("V10 — activation resolves API key, falls back when absent", () => {
   })
 })
 
-describe("V11 — barge-in calls v2 SDK session.abort", () => {
-  test("session.abort called via v2 SDK on barge-in", async () => {
+describe("V11 — barge-in stops audio without aborting new generation", () => {
+  test("barge-in stops audio without aborting new generation", async () => {
     await load({ voiceId: "vX" })
     process.env.ELEVENLABS_API_KEY = "k"
     const hooks = await VoicePlugin(STUB)
@@ -275,11 +275,13 @@ describe("V11 — barge-in calls v2 SDK session.abort", () => {
     m.playing = true
 
     await hooks.event!(ev("session.status", {
+      sessionID: "S1", status: { type: "idle" },
+    }))
+    await hooks.event!(ev("session.status", {
       sessionID: "S1", status: { type: "busy" },
     }))
 
-    expect(abortFn).toHaveBeenCalledTimes(1)
-    expect(abortFn.mock.calls[0]?.[0]).toEqual({ sessionID: "S1" })
+    expect(abortFn).not.toHaveBeenCalled()
     expect(getMode("S1").playing).toBe(false)
   })
 

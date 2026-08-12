@@ -37,6 +37,7 @@ export type VoiceTTSOpts = {
   sink: AudioSink
   bus?: BusEmit
   onDegraded?: () => void
+  onPlayingChange?: (playing: boolean) => void
   clientFactory?: ClientFactory
   backoff?: (attempt: number, retryAfter?: number) => Promise<void>
 }
@@ -114,6 +115,7 @@ export class VoiceTTS {
   private sink: AudioSink
   private bus: BusEmit
   private onDegraded: () => void
+  private onPlayingChange: (playing: boolean) => void
   private factory: ClientFactory
   private backoffFn: (attempt: number, retryAfter?: number) => Promise<void>
   private buffer = ""
@@ -128,6 +130,7 @@ export class VoiceTTS {
     this.sink = opts.sink
     this.bus = opts.bus ?? (() => {})
     this.onDegraded = opts.onDegraded ?? (() => {})
+    this.onPlayingChange = opts.onPlayingChange ?? (() => {})
     this.factory = opts.clientFactory ?? defaultFactory
     this.backoffFn = opts.backoff ?? defaultBackoff
   }
@@ -151,7 +154,8 @@ export class VoiceTTS {
     }
     for (const s of sentences) {
       const sentence = s
-      this.queue = this.queue.then(() => this.synth(sentence))
+      const token = this.epoch
+      this.queue = this.queue.then(() => this.synth(sentence, token))
     }
   }
 
@@ -159,10 +163,12 @@ export class VoiceTTS {
     const s = this.buffer.trim()
     this.buffer = ""
     if (s) {
-      this.queue = this.queue.then(() => this.synth(s))
+      const token = this.epoch
+      this.queue = this.queue.then(() => this.synth(s, token))
     }
     this.queue = this.queue.then(async () => {
       if (this.dead || this.degraded) return
+      this.onPlayingChange(false)
       await this.sink.write({ data: new Uint8Array(0), format: this.cfg.outputFormat, isFinal: true })
     })
     return this.queue
@@ -175,6 +181,7 @@ export class VoiceTTS {
   async bargeIn(): Promise<void> {
     this.epoch++
     this.buffer = ""
+    this.onPlayingChange(false)
     await this.sink.stop()
   }
 
@@ -218,9 +225,9 @@ export class VoiceTTS {
     void this.sink.write({ data: new Uint8Array(0), format: this.cfg.outputFormat, isFinal: true })
   }
 
-  private async synth(sentence: string): Promise<void> {
+  private async synth(sentence: string, token: number): Promise<void> {
     if (this.dead || this.degraded) return
-    const token = this.epoch
+    if (this.epoch !== token) return
     if (!this.client) {
       try {
         this.client = await this.factory(this.cfg)
@@ -246,6 +253,7 @@ export class VoiceTTS {
           if (!bytes || bytes.length === 0) continue
           chunked = true
           chunkCount++
+          if (chunkCount === 1) this.onPlayingChange(true)
           await this.sink.write({ data: bytes, format: this.cfg.outputFormat, isFinal: false })
         }
         return
