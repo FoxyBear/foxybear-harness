@@ -89,7 +89,7 @@ function statusOf(err: unknown): number | undefined {
 }
 
 function isFatal(s: number | undefined): boolean {
-  return s === 401 || s === 404 || s === 400
+  return s === 401 || s === 404
 }
 
 function retryAfterOf(err: unknown): number | undefined {
@@ -230,7 +230,9 @@ export class VoiceTTS {
 
   private async synth(sentence: string, token: number): Promise<void> {
     if (this.dead || this.degraded) return
-    if (this.epoch !== token) return
+    if (this.epoch !== token) {
+      return
+    }
     if (!this.client) {
       try {
         this.client = await this.factory(this.cfg, this.key)
@@ -256,7 +258,9 @@ export class VoiceTTS {
           if (!bytes || bytes.length === 0) continue
           chunked = true
           chunkCount++
-          if (chunkCount === 1) this.onPlayingChange(true)
+          if (chunkCount === 1) {
+            this.onPlayingChange(true)
+          }
           await this.sink.write({ data: bytes, format: this.cfg.outputFormat, isFinal: false })
         }
         return
@@ -265,6 +269,10 @@ export class VoiceTTS {
         const s = statusOf(err)
         if (isFatal(s)) {
           this.degrade()
+          return
+        }
+        if (s === 400) {
+          this.bus("tts.sentence_failed", { reason: "bad_request", length: sentence.length })
           return
         }
         if (chunked) {

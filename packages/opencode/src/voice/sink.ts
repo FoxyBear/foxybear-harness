@@ -143,7 +143,9 @@ export class AudioSink {
       await new Promise<void>((res, rej) => {
         if (gen !== this.gen) return res()
         const stdin = this.proc?.stdin
-        if (!stdin || stdin.destroyed) return res()
+        if (!stdin || stdin.destroyed) {
+          return res()
+        }
         stdin.write(chunk.data, (err) => (err ? rej(err) : res()))
       })
     } catch (e: any) {
