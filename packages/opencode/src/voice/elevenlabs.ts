@@ -30,12 +30,13 @@ export type Client = {
   }
 }
 
-export type ClientFactory = (cfg: VoiceConfig) => Promise<Client>
+export type ClientFactory = (cfg: VoiceConfig, key?: string) => Promise<Client>
 
 export type VoiceTTSOpts = {
   cfg: VoiceConfig
   sink: AudioSink
   bus?: BusEmit
+  key?: string
   onDegraded?: () => void
   onPlayingChange?: (playing: boolean) => void
   clientFactory?: ClientFactory
@@ -52,10 +53,10 @@ const STABILITY: Record<VoiceConfig["stability"], number> = {
   robust: 0.5,
 }
 
-const defaultFactory: ClientFactory = async (cfg) => {
+const defaultFactory: ClientFactory = async (cfg, key) => {
   try {
     const { ElevenLabsClient } = await import("@elevenlabs/elevenlabs-js")
-    const apiKey = cfg.apiKeyEnv.startsWith("ELEVENLABS") ? process.env[cfg.apiKeyEnv] : cfg.apiKeyEnv
+    const apiKey = key ?? (cfg.apiKeyEnv.startsWith("ELEVENLABS") ? process.env[cfg.apiKeyEnv] : cfg.apiKeyEnv)
     return new ElevenLabsClient({ apiKey }) as unknown as Client
   } catch (e) {
     throw e
@@ -117,6 +118,7 @@ export class VoiceTTS {
   private onDegraded: () => void
   private onPlayingChange: (playing: boolean) => void
   private factory: ClientFactory
+  private key?: string
   private backoffFn: (attempt: number, retryAfter?: number) => Promise<void>
   private buffer = ""
   private epoch = 0
@@ -129,6 +131,7 @@ export class VoiceTTS {
     this.cfg = opts.cfg
     this.sink = opts.sink
     this.bus = opts.bus ?? (() => {})
+    this.key = opts.key
     this.onDegraded = opts.onDegraded ?? (() => {})
     this.onPlayingChange = opts.onPlayingChange ?? (() => {})
     this.factory = opts.clientFactory ?? defaultFactory
@@ -230,7 +233,7 @@ export class VoiceTTS {
     if (this.epoch !== token) return
     if (!this.client) {
       try {
-        this.client = await this.factory(this.cfg)
+        this.client = await this.factory(this.cfg, this.key)
       } catch (e) {
         this.degrade()
         return

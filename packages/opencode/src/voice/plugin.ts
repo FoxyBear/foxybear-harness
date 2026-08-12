@@ -72,6 +72,7 @@ export function getTTS(sessionID: string): VoiceTTS | null {
       cfg,
       sink,
       bus,
+      key: resolveKey() ?? undefined,
       onDegraded: () => {
         m.connected = false
         log.warn("voice degraded — non-retryable error")
