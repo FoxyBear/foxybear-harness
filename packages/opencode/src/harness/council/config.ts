@@ -53,5 +53,12 @@ export function loadSettings(): CouncilSettings {
 }
 
 export function resolveModel(id: string): ModelInfo {
+  const slash = id.indexOf("/")
+  if (slash >= 0) {
+    const provider = id.slice(0, slash)
+    const modelId = id.slice(slash + 1)
+    const known = ALL_MODELS.find((m) => m.id === modelId && m.provider === provider)
+    return known ?? { id: modelId, name: modelId, provider }
+  }
   return ALL_MODELS.find((m) => m.id === id) ?? { id, name: id, provider: "openai" }
 }
