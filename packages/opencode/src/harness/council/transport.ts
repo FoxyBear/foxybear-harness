@@ -8,6 +8,13 @@ const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 1000
 const REQUEST_TIMEOUT_MS = 180_000
 
+export class CouncilTimeoutError extends Error {
+  constructor(public model: string, public elapsedMs: number) {
+    super(`Council timeout: ${model} exceeded ${REQUEST_TIMEOUT_MS}ms (${elapsedMs}ms elapsed)`)
+    this.name = "CouncilTimeoutError"
+  }
+}
+
 const ENV_KEYS: Record<string, string[]> = {
   openai: ["OPENAI_API_KEY"],
   anthropic: ["ANTHROPIC_API_KEY"],
@@ -54,6 +61,7 @@ async function retryFetch<T>(fn: () => Promise<T>): Promise<T> {
       if (lastError.name === "AbortError") throw lastError
       const statusMatch = lastError.message.match(/HTTP\s+(\d+)/)
       const isRetryable =
+        lastError instanceof CouncilTimeoutError ||
         lastError.message.includes("Network error") ||
         lastError.message.includes("timeout") ||
         lastError.message.includes("Too Many Requests") ||
@@ -90,7 +98,9 @@ async function callOpenAICompatible(
       : "https://api.openai.com/v1/chat/completions"
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  let timedOut = false
+  const start = Date.now()
+  const timer = setTimeout(() => { timedOut = true; controller.abort() }, REQUEST_TIMEOUT_MS)
   if (signal) signal.addEventListener("abort", () => controller.abort(), { once: true })
 
   try {
@@ -119,6 +129,9 @@ async function callOpenAICompatible(
     const content = data.choices?.[0]?.message?.content
     if (!content) throw new Error(`No content in response from ${model.name}`)
     return content
+  } catch (error) {
+    if (timedOut) throw new CouncilTimeoutError(model.name, Date.now() - start)
+    throw error
   } finally {
     clearTimeout(timer)
   }
@@ -132,7 +145,9 @@ async function callAnthropic(
   signal?: AbortSignal,
 ): Promise<string> {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  let timedOut = false
+  const start = Date.now()
+  const timer = setTimeout(() => { timedOut = true; controller.abort() }, REQUEST_TIMEOUT_MS)
   if (signal) signal.addEventListener("abort", () => controller.abort(), { once: true })
 
   try {
@@ -161,6 +176,9 @@ async function callAnthropic(
     const content = data.content?.[0]?.text
     if (!content) throw new Error(`No content in response from ${model.name}`)
     return content
+  } catch (error) {
+    if (timedOut) throw new CouncilTimeoutError(model.name, Date.now() - start)
+    throw error
   } finally {
     clearTimeout(timer)
   }

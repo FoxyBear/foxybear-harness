@@ -28,6 +28,16 @@ export namespace SessionCompaction {
         sessionID: SessionID.zod,
       }),
     ),
+    TierChanged: BusEvent.define(
+      "session.tier_changed",
+      z.object({
+        sessionID: SessionID.zod,
+        previousTier: z.enum(["none", "microcompact", "compact", "hard_stop"]),
+        newTier: z.enum(["none", "microcompact", "compact", "hard_stop"]),
+        utilization: z.number(),
+        tieringEnabled: z.boolean(),
+      }),
+    ),
   }
 
   export const PRUNE_MINIMUM = 20_000
@@ -414,6 +424,7 @@ ${verbatimBlock}
         let tokensFreed = 0
 
         const compactableParts: MessageV2.ToolPart[] = []
+        let totalOutputTokens = 0
         for (let msgIndex = input.messages.length - 1; msgIndex >= 0; msgIndex--) {
           const msg = input.messages[msgIndex]
           for (let partIndex = msg.parts.length - 1; partIndex >= 0; partIndex--) {
@@ -425,7 +436,15 @@ ${verbatimBlock}
               isCompactable(part.tool)
             ) {
               compactableParts.push(part)
+              totalOutputTokens += Token.estimate(part.state.output)
             }
+          }
+        }
+
+        const last = input.messages.findLast((m) => m.info.role === "assistant")
+        if (last?.info.role === "assistant" && (last.info.tokens.total ?? 0) > 0 && totalOutputTokens > 0) {
+          if ((last.info.tokens.total ?? 0) <= threshold * totalOutputTokens) {
+            return { cleared, tokensFreed }
           }
         }
 
@@ -560,6 +579,7 @@ ${verbatimBlock}
           }).toObject()
           processor.message.finish = "error"
           yield* session.updateMessage(processor.message)
+          yield* recordCompactionFailure()
           return "stop"
         }
 

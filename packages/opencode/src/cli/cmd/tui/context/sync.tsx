@@ -75,6 +75,12 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       }
       formatter: FormatterStatus[]
       vcs: VcsInfo | undefined
+      tier: {
+        [sessionID: string]: string
+      }
+      utilization: {
+        [sessionID: string]: number
+      }
     }>({
       provider_next: {
         all: [],
@@ -102,6 +108,8 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       mcp_resource: {},
       formatter: [],
       vcs: undefined,
+      tier: {},
+      utilization: {},
     })
 
     const event = useEvent()
@@ -344,6 +352,12 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           setStore("vcs", { branch: event.properties.branch })
           break
         }
+      }
+
+      const tierEvt = event as { type: string; properties: { sessionID: string; newTier?: string; utilization?: number } }
+      if (tierEvt.type === "session.tier_changed" && tierEvt.properties.newTier !== undefined) {
+        setStore("tier", tierEvt.properties.sessionID, tierEvt.properties.newTier)
+        setStore("utilization", tierEvt.properties.sessionID, tierEvt.properties.utilization ?? 0)
       }
     })
 

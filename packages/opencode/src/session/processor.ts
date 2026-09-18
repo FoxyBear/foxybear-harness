@@ -10,7 +10,7 @@ import { EffectLogger } from "@/effect/logger"
 import { Session } from "."
 import { LLM } from "./llm"
 import { MessageV2 } from "./message-v2"
-import { isOverflow } from "./overflow"
+import { tier } from "./overflow"
 import { PartID } from "./schema"
 import type { SessionID } from "./schema"
 import { SessionRetry } from "./retry"
@@ -394,11 +394,11 @@ export namespace SessionProcessor {
                   messageID: ctx.assistantMessage.parentID,
                 })
                 .pipe(Effect.ignore, Effect.forkIn(scope))
-              if (
-                !ctx.assistantMessage.summary &&
-                isOverflow({ cfg: yield* config.get(), tokens: usage.tokens, model: ctx.model })
-              ) {
-                ctx.needsCompaction = true
+              if (!ctx.assistantMessage.summary) {
+                const t = tier({ cfg: yield* config.get(), tokens: usage.tokens, model: ctx.model })
+                if (t === "compact" || t === "hard_stop") {
+                  ctx.needsCompaction = true
+                }
               }
               return
             }

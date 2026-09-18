@@ -300,7 +300,7 @@ function ansiToRgba(code: number): RGBA {
   return RGBA.fromInts(0, 0, 0)
 }
 
-export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
+const _themeCtx = createSimpleContext({
   name: "Theme",
   init: (props: { mode: "dark" | "light" }) => {
     const renderer = useRenderer()
@@ -475,6 +475,51 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     }
   },
 })
+
+let _defaultTheme: Theme | undefined
+function defaultTheme(): Theme {
+  if (!_defaultTheme) _defaultTheme = resolveTheme(DEFAULT_THEMES.opencode, "dark")
+  return _defaultTheme
+}
+
+export function useTheme() {
+  try {
+    return _themeCtx.use()
+  } catch {
+    const t = defaultTheme()
+    return {
+      theme: t,
+      get selected() {
+        return "opencode"
+      },
+      all() {
+        return allThemes()
+      },
+      has(name: string) {
+        return hasTheme(name)
+      },
+      syntax: createMemo(() => generateSyntax(t)),
+      subtleSyntax: createMemo(() => generateSubtleSyntax(t)),
+      mode() {
+        return "dark" as const
+      },
+      locked() {
+        return false
+      },
+      lock() {},
+      unlock() {},
+      setMode() {},
+      set() {
+        return false
+      },
+      get ready() {
+        return true
+      },
+    }
+  }
+}
+
+export const ThemeProvider = _themeCtx.provider
 
 async function getCustomThemes() {
   const directories = [

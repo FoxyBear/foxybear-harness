@@ -11,6 +11,7 @@ import { Provider } from "../provider/provider"
 import { ModelID, ProviderID } from "../provider/schema"
 import { type Tool as AITool, tool, jsonSchema, type ToolExecutionOptions, asSchema } from "ai"
 import { SessionCompaction } from "./compaction"
+import { tier } from "./overflow"
 import { Bus } from "../bus"
 import { ProviderTransform } from "../provider/transform"
 import { SystemPrompt } from "./system"
@@ -107,6 +108,7 @@ export namespace SessionPrompt {
       const summary = yield* SessionSummary.Service
       const sys = yield* SystemPrompt.Service
       const llm = yield* LLM.Service
+      const config = yield* Config.Service
 
       const run = {
         promise: <A, E>(effect: Effect.Effect<A, E>) =>
@@ -1382,13 +1384,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               continue
             }
 
-            if (
-              lastFinished &&
-              lastFinished.summary !== true &&
-              (yield* compaction.isOverflow({ tokens: lastFinished.tokens, model }))
-            ) {
-              yield* compaction.create({ sessionID, agent: lastUser.agent, model: lastUser.model, auto: true })
-              continue
+            if (lastFinished && lastFinished.summary !== true) {
+              const t = tier({ cfg: yield* config.get(), tokens: lastFinished.tokens, model })
+              if (t === "hard_stop" || t === "compact") {
+                yield* compaction.create({ sessionID, agent: lastUser.agent, model: lastUser.model, auto: true })
+                continue
+              }
             }
 
             const agent = yield* agents.get(lastUser.agent)
@@ -1707,6 +1708,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       Layer.provide(Session.defaultLayer),
       Layer.provide(SessionRevert.defaultLayer),
       Layer.provide(SessionSummary.defaultLayer),
+      Layer.provide(Config.defaultLayer),
       Layer.provide(
         Layer.mergeAll(
           Agent.defaultLayer,

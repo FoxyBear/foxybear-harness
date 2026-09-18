@@ -1042,9 +1042,27 @@ export namespace Config {
             .min(0)
             .max(1)
             .optional()
-            .describe("Budget percentage threshold for tier-1 microcompaction (default: budgetPercent param)"),
+            .describe("Budget percentage threshold for tier-1 microcompaction (default: 0.8)"),
+          tier2_threshold: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Budget percentage threshold for tier-2 full compaction (default: 0.9)"),
+          tier3_threshold: z
+            .number()
+            .min(0)
+            .max(1)
+            .optional()
+            .describe("Budget percentage threshold for tier-3 hard stop (default: 0.95)"),
         })
-        .optional(),
+        .optional()
+        .refine((cfg) => {
+          const t1 = cfg?.tier1_threshold ?? 0.8
+          const t2 = cfg?.tier2_threshold ?? 0.9
+          const t3 = cfg?.tier3_threshold ?? 0.95
+          return t1 <= t2 && t2 <= t3
+        }, { message: "Compaction thresholds must satisfy tier1 <= tier2 <= tier3" }),
       experimental: z
         .object({
           disable_paste_summary: z.boolean().optional(),

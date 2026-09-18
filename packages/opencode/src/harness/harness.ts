@@ -18,6 +18,7 @@ import { BuiltinHandlers } from "./handlers"
 import { ToolPatterns } from "./patterns"
 import { Embedding } from "../memory/embedding"
 import { Log } from "../util/log"
+import { tier, thresholds } from "../session/overflow"
 
 const log = Log.create({ service: "harness" })
 
@@ -71,15 +72,17 @@ export namespace Harness {
       log.warn("harness: config unavailable, running with defaults", { error: String(e) })
     }
 
-    // 1. MICROCOMPACT (runs on all iterations)
+    // 1. MICROCOMPACT (tier 1 only — between turns)
     try {
-      const threshold = cfg?.compaction?.tier1_threshold ?? 0.7
       const messages = await deps.loadMessages(sessionID)
-      await deps.microcompact({
-        sessionID,
-        messages,
-        budgetPercent: threshold,
-      })
+      const last = messages.findLast((m: any) => m?.info?.role === "assistant")
+      if (last?.info?.tokens && cfg) {
+        const t = tier({ cfg, tokens: last.info.tokens, model: { limit: { context: 0, output: 0 } } } as any)
+        if (t === "microcompact") {
+          const { tier1 } = thresholds(cfg)
+          await deps.microcompact({ sessionID, messages, budgetPercent: tier1 })
+        }
+      }
     } catch (e) {
       log.error("harness: microcompaction failed", { sessionID, error: String(e) })
     }

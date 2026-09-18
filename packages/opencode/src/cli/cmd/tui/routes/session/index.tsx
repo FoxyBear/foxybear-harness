@@ -51,7 +51,7 @@ import type { SkillTool } from "@/tool/skill"
 import { useKeyboard, useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import { useSDK } from "@tui/context/sdk"
 import { useCommandDialog } from "@tui/component/dialog-command"
-import type { DialogContext } from "@tui/ui/dialog"
+import type { DialogContext as DialogContextType } from "@tui/ui/dialog"
 import { useKeybind } from "@tui/context/keybind"
 import { parsePatch } from "diff"
 import { useDialog } from "../../ui/dialog"
@@ -59,6 +59,7 @@ import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
 import type { PromptInfo } from "../../component/prompt/history"
 import { DialogConfirm } from "@tui/ui/dialog-confirm"
+import { DialogContext } from "@tui/component/dialog-context"
 import { DialogTimeline } from "./dialog-timeline"
 import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
@@ -358,9 +359,9 @@ export function Session() {
       })
     }
   }
+  function childSessionHandler(func: (dialog: DialogContextType) => void) {
 
-  function childSessionHandler(func: (dialog: DialogContext) => void) {
-    return (dialog: DialogContext) => {
+    return (dialog: DialogContextType) => {
       if (!session()?.parentID || dialog.stack.length > 0) return
       func(dialog)
     }
@@ -490,6 +491,16 @@ export function Session() {
           providerID: selectedModel.providerID,
         })
         dialog.clear()
+      },
+    },
+    {
+      title: "Context usage",
+      value: "session.context",
+      keybind: "session_context",
+      category: "Session",
+      slash: { name: "context" },
+      onSelect: (dialog) => {
+        dialog.replace(() => <DialogContext sessionID={route.sessionID} />)
       },
     },
     {

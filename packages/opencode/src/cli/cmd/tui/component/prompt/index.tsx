@@ -20,6 +20,7 @@ import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
 import { useCommandDialog } from "../dialog-command"
+import { useContext } from "@tui/util/context"
 import { useRenderer, type JSX } from "@opentui/solid"
 import { Editor } from "@tui/util/editor"
 import { useExit } from "../../context/exit"
@@ -84,6 +85,7 @@ export function Prompt(props: PromptProps) {
   const sdk = useSDK()
   const route = useRoute()
   const sync = useSync()
+  const ctx = useContext(() => props.sessionID)
   const dialog = useDialog()
   const toast = useToast()
   const status = createMemo(() => sync.data.session_status?.[props.sessionID ?? ""] ?? { type: "idle" })
@@ -143,21 +145,12 @@ export function Prompt(props: PromptProps) {
   })
 
   const usage = createMemo(() => {
-    if (!props.sessionID) return
-    const msg = sync.data.message[props.sessionID] ?? []
-    const last = msg.findLast((item): item is AssistantMessage => item.role === "assistant" && item.tokens.output > 0)
-    if (!last) return
-
-    const tokens =
-      last.tokens.input + last.tokens.output + last.tokens.reasoning + last.tokens.cache.read + last.tokens.cache.write
-    if (tokens <= 0) return
-
-    const model = sync.data.provider.find((item) => item.id === last.providerID)?.models[last.modelID]
-    const pct = model?.limit.context ? `${Math.round((tokens / model.limit.context) * 100)}%` : undefined
-    const cost = msg.reduce((sum, item) => sum + (item.role === "assistant" ? item.cost : 0), 0)
+    const c = ctx()
+    if (!c) return
     return {
-      context: pct ? `${Locale.number(tokens)} (${pct})` : Locale.number(tokens),
-      cost: cost > 0 ? money.format(cost) : undefined,
+      context: c.pct ? `${Locale.number(c.tokens)} (${c.pct}%)` : Locale.number(c.tokens),
+      cost: c.cost > 0 ? money.format(c.cost) : undefined,
+      pct: c.pct,
     }
   })
 
@@ -1243,11 +1236,16 @@ export function Prompt(props: PromptProps) {
                 <Match when={store.mode === "normal"}>
                   <Switch>
                     <Match when={usage()}>
-                      {(item) => (
-                        <text fg={theme.textMuted} wrapMode="none">
-                          {[item().context, item().cost].filter(Boolean).join(" · ")}
-                        </text>
-                      )}
+                      {(item) => {
+                        const u = item()
+                        const color = u.pct !== undefined && u.pct >= 90 ? theme.error : u.pct !== undefined && u.pct >= 80 ? theme.warning : theme.textMuted
+                        const tierName = sync.data.tier?.[props.sessionID ?? ""]
+                        return (
+                          <text fg={color} wrapMode="none">
+                            {[u.context, u.cost, tierName && tierName !== "none" ? `[context: ${tierName}]` : undefined].filter(Boolean).join(" · ")}
+                          </text>
+                        )
+                      }}
                     </Match>
                     <Match when={true}>
                       <text fg={theme.text}>

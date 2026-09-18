@@ -45,6 +45,11 @@ function formatVerbose(result: DeliberationResult): string {
     }
   }
 
+  if (result.failures.length > 0) {
+    lines.push("\n## Failures")
+    lines.push(...result.failures.map((f) => `- **${f.phase}** — ${f.model}: ${f.error}`))
+  }
+
   lines.push("")
   lines.push("=".repeat(60))
   lines.push("FINAL SYNTHESIS")
