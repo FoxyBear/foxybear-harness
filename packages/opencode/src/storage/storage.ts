@@ -1,7 +1,7 @@
 import { Log } from "../util/log"
 import path from "path"
 import { Global } from "../global"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import z from "zod"
 import { AppFileSystem } from "@/filesystem"
 import { Effect, Exit, Layer, Option, RcMap, Schema, Context, TxReentrantLock } from "effect"
@@ -65,7 +65,7 @@ export namespace Storage {
     readonly list: (prefix: string[]) => Effect.Effect<string[][], AppFileSystem.Error>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Storage") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Storage") {}
 
   function file(dir: string, key: string[]) {
     return path.join(dir, ...key) + ".json"

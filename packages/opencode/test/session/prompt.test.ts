@@ -1,6 +1,6 @@
 import path from "path"
 import { describe, expect, test } from "bun:test"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import { fileURLToPath } from "url"
 import { Instance } from "../../src/project/instance"
 import { ModelID, ProviderID } from "../../src/provider/schema"
@@ -251,7 +251,7 @@ describe("session.prompt regression", () => {
           await Bun.write(
             path.join(dir, "opencode.json"),
             JSON.stringify({
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://foxybear.ai/config.json",
               enabled_providers: ["alibaba"],
               provider: {
                 alibaba: {
@@ -320,7 +320,7 @@ describe("session.prompt regression", () => {
           await Bun.write(
             path.join(dir, "opencode.json"),
             JSON.stringify({
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://foxybear.ai/config.json",
               enabled_providers: ["alibaba"],
               provider: {
                 alibaba: {

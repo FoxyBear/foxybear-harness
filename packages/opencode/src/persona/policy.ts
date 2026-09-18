@@ -1,5 +1,5 @@
 import z from "zod"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import type { PersonaConfig } from "./index"
 
 // SDD-02 (SEC-1..SEC-4, SC-4): the Katya security invariant lives here. This

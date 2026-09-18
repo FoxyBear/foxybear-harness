@@ -1,6 +1,6 @@
 import type {
   Config,
-  OpencodeClient,
+  FbhClient,
   Path,
   PermissionRequest,
   Project,
@@ -9,10 +9,10 @@ import type {
   QuestionRequest,
   Session,
   Todo,
-} from "@opencode-ai/sdk/v2/client"
-import { showToast } from "@opencode-ai/ui/toast"
-import { getFilename } from "@opencode-ai/util/path"
-import { retry } from "@opencode-ai/util/retry"
+} from "@foxybear/sdk/v2/client"
+import { showToast } from "@foxybear/ui/toast"
+import { getFilename } from "@foxybear/util/path"
+import { retry } from "@foxybear/util/retry"
 import { batch } from "solid-js"
 import { reconcile, type SetStoreFunction, type Store } from "solid-js/store"
 import type { State, VcsCache } from "./types"
@@ -82,7 +82,7 @@ function showErrors(input: {
 }
 
 export async function bootstrapGlobal(input: {
-  globalSDK: OpencodeClient
+  globalSDK: FbhClient
   requestFailedTitle: string
   translate: (key: string, vars?: Record<string, string | number>) => string
   formatMoreCount: (count: number) => string
@@ -171,7 +171,7 @@ function warmSessions(input: {
   ids: string[]
   store: Store<State>
   setStore: SetStoreFunction<State>
-  sdk: OpencodeClient
+  sdk: FbhClient
 }) {
   const known = new Set(input.store.session.map((item) => item.id))
   const ids = [...new Set(input.ids)].filter((id) => !!id && !known.has(id))
@@ -189,7 +189,7 @@ function warmSessions(input: {
 
 export async function bootstrapDirectory(input: {
   directory: string
-  sdk: OpencodeClient
+  sdk: FbhClient
   store: Store<State>
   setStore: SetStoreFunction<State>
   vcsCache: VcsCache

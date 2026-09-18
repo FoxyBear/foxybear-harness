@@ -38,7 +38,7 @@ const layer = Config.layer.pipe(
 const load = () =>
   Effect.runPromise(Config.Service.use((svc) => svc.get()).pipe(Effect.scoped, Effect.provide(layer)))
 
-const managedConfigDir = process.env.OPENCODE_TEST_MANAGED_CONFIG_DIR!
+const managedConfigDir = process.env.FBH_TEST_MANAGED_CONFIG_DIR!
 
 beforeEach(async () => {
   await Effect.runPromise(
@@ -78,7 +78,7 @@ describe("compaction thresholds — custom", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await writeConfig(dir, {
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://foxybear.ai/config.json",
           compaction: {
             tier1_threshold: 0.7,
             tier2_threshold: 0.85,
@@ -131,7 +131,7 @@ describe("compaction thresholds — validation", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await writeConfig(dir, {
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://foxybear.ai/config.json",
           compaction: {
             tier1_threshold: 0.9,
             tier2_threshold: 0.8,
@@ -152,7 +152,7 @@ describe("compaction thresholds — validation", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await writeConfig(dir, {
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://foxybear.ai/config.json",
           compaction: {
             tier2_threshold: 0.7,
           },

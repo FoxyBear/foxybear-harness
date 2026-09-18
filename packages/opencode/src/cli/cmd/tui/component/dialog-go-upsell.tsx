@@ -6,7 +6,7 @@ import { selectedForeground, useTheme } from "@tui/context/theme"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { Link } from "@tui/ui/link"
 
-const GO_URL = "https://opencode.ai/go"
+const GO_URL = "https://foxybear.ai/go"
 
 export type DialogGoUpsellProps = {
   onClose?: (dontShowAgain?: boolean) => void

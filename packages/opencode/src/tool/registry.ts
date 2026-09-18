@@ -14,7 +14,7 @@ import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
 import { Tool } from "./tool"
 import { Config } from "../config/config"
-import { type ToolContext as PluginToolContext, type ToolDefinition } from "@opencode-ai/plugin"
+import { type ToolContext as PluginToolContext, type ToolDefinition } from "@foxybear/plugin"
 import z from "zod"
 import { Plugin } from "../plugin"
 import { Provider } from "../provider/provider"
@@ -73,7 +73,7 @@ export namespace ToolRegistry {
     }) => Effect.Effect<Tool.Def[]>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/ToolRegistry") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/ToolRegistry") {}
 
   export const layer: Layer.Layer<
     Service,
@@ -184,7 +184,7 @@ export namespace ToolRegistry {
 
           const cfg = yield* config.get()
           const questionEnabled =
-            ["app", "cli", "desktop"].includes(Flag.OPENCODE_CLIENT) || Flag.OPENCODE_ENABLE_QUESTION_TOOL
+            ["app", "cli", "desktop"].includes(Flag.FBH_CLIENT) || Flag.FBH_ENABLE_QUESTION_TOOL
 
           const tool = yield* Effect.all({
             invalid: Tool.init(invalid),
@@ -228,8 +228,8 @@ export namespace ToolRegistry {
               tool.code,
               tool.skill,
               tool.patch,
-              ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
-              ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [tool.plan] : []),
+              ...(Flag.FBH_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
+              ...(Flag.FBH_EXPERIMENTAL_PLAN_MODE && Flag.FBH_CLIENT === "cli" ? [tool.plan] : []),
               ...harness,
             ],
             task: tool.task,
@@ -282,10 +282,10 @@ export namespace ToolRegistry {
       })
 
       const tools: Interface["tools"] = Effect.fn("ToolRegistry.tools")(function* (input) {
-        const e2e = !!(yield* env.get("OPENCODE_E2E_LLM_URL"))
+        const e2e = !!(yield* env.get("FBH_E2E_LLM_URL"))
         const filtered = (yield* all()).filter((tool) => {
           if (tool.id === CodeSearchTool.id || tool.id === WebSearchTool.id) {
-            return input.providerID === ProviderID.opencode || Flag.OPENCODE_ENABLE_EXA
+            return input.providerID === ProviderID.opencode || Flag.FBH_ENABLE_EXA
           }
 
           const usePatch =

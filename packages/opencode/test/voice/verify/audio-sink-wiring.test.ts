@@ -10,7 +10,7 @@ import {
 } from "../../../src/voice/plugin"
 import { AudioSink } from "../../../src/voice/sink"
 import type { AudioChunk } from "../../../src/voice/sink"
-import type { PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { PluginInput, Hooks } from "@foxybear/plugin"
 
 const STUB = {
   client: {},

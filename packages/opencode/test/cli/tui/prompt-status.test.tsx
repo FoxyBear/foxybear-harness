@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, test } from "bun:test"
 import { testRender } from "@opentui/solid"
 import { createEffect, onMount } from "solid-js"
-import type { Provider, Agent, Model } from "@opencode-ai/sdk/v2"
+import type { Provider, Agent, Model } from "@foxybear/sdk/v2"
 import { useContext } from "../../../src/cli/cmd/tui/util/context"
 import { useLocal } from "../../../src/cli/cmd/tui/context/local"
 import { useSync } from "../../../src/cli/cmd/tui/context/sync"

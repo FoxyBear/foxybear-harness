@@ -19,7 +19,7 @@ export type TuiOptions = {
   config?: Config
 }
 
-export async function createOpencodeServer(options?: ServerOptions) {
+export async function createFbhServer(options?: ServerOptions) {
   options = Object.assign(
     {
       hostname: "127.0.0.1",

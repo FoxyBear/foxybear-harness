@@ -79,7 +79,7 @@ export namespace Git {
     return "modified"
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Git") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Git") {}
 
   export const layer = Layer.effect(
     Service,

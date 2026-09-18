@@ -11,7 +11,7 @@ import type {
 } from "../../../src/voice/elevenlabs"
 import type { VoiceConfig } from "../../../src/voice/plugin"
 import { VoicePlugin, getMode, resetState, setV2Client, toggle } from "../../../src/voice/plugin"
-import type { PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { PluginInput, Hooks } from "@foxybear/plugin"
 
 function mkCfg(o: Partial<VoiceConfig> = {}): VoiceConfig {
   return {

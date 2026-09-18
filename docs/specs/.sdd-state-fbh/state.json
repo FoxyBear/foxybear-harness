@@ -19,8 +19,70 @@
       "status": "passed",
       "at": "2026-09-18T06:40:59.977Z",
       "retroactive": false
+    },
+    "sdd-02": {
+      "status": "passed",
+      "at": "2026-09-18T07:18:07.940Z",
+      "retroactive": false
+    },
+    "sdd-03": {
+      "status": "passed",
+      "at": "2026-09-18T07:33:17.275Z",
+      "retroactive": false
+    },
+    "sdd-04": {
+      "status": "passed",
+      "at": "2026-09-18T08:49:58.218Z",
+      "retroactive": false
+    },
+    "sdd-05": {
+      "status": "passed",
+      "at": "2026-09-18T09:07:50.401Z",
+      "retroactive": false
     }
   },
-  "implement": {},
-  "verify": {}
+  "implement": {
+    "sdd-01": {
+      "status": "passed",
+      "at": "2026-09-18T06:59:27.536Z"
+    },
+    "sdd-02": {
+      "status": "passed",
+      "at": "2026-09-18T07:21:27.973Z"
+    },
+    "sdd-03": {
+      "status": "passed",
+      "at": "2026-09-18T07:53:29.435Z"
+    },
+    "sdd-04": {
+      "status": "passed",
+      "at": "2026-09-18T09:02:08.239Z"
+    },
+    "sdd-05": {
+      "status": "passed",
+      "at": "2026-09-18T09:11:47.446Z"
+    }
+  },
+  "verify": {
+    "sdd-01": {
+      "status": "passed",
+      "at": "2026-09-18T07:00:06.042Z"
+    },
+    "sdd-02": {
+      "status": "passed",
+      "at": "2026-09-18T07:22:05.375Z"
+    },
+    "sdd-03": {
+      "status": "passed",
+      "at": "2026-09-18T07:54:16.343Z"
+    },
+    "sdd-04": {
+      "status": "passed",
+      "at": "2026-09-18T09:02:38.236Z"
+    },
+    "sdd-05": {
+      "status": "passed",
+      "at": "2026-09-18T09:12:15.121Z"
+    }
+  }
 }

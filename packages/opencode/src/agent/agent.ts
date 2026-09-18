@@ -66,7 +66,7 @@ export namespace Agent {
 
   type State = Omit<Interface, "generate">
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Agent") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Agent") {}
 
   export const layer = Layer.effect(
     Service,

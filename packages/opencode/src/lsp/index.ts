@@ -117,9 +117,9 @@ export namespace LSP {
   ]
 
   const filterExperimentalServers = (servers: Record<string, LSPServer.Info>) => {
-    if (Flag.OPENCODE_EXPERIMENTAL_LSP_TY) {
+    if (Flag.FBH_EXPERIMENTAL_LSP_TY) {
       if (servers["pyright"]) {
-        log.info("LSP server pyright is disabled because OPENCODE_EXPERIMENTAL_LSP_TY is enabled")
+        log.info("LSP server pyright is disabled because FBH_EXPERIMENTAL_LSP_TY is enabled")
         delete servers["pyright"]
       }
     } else {
@@ -155,7 +155,7 @@ export namespace LSP {
     readonly outgoingCalls: (input: LocInput) => Effect.Effect<any[]>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/LSP") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/LSP") {}
 
   export const layer = Layer.effect(
     Service,

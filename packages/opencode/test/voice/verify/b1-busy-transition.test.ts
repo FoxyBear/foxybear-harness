@@ -1,6 +1,6 @@
 import { describe, expect, test, mock, beforeEach, afterEach } from "bun:test"
 import { VoicePlugin, getMode, resetState, setV2Client } from "../../../src/voice/plugin"
-import type { PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { PluginInput, Hooks } from "@foxybear/plugin"
 
 const STUB = {
   client: {},

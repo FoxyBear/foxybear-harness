@@ -53,7 +53,7 @@ export namespace LLM {
     readonly stream: (input: StreamInput) => Stream.Stream<Event, unknown>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/LLM") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/LLM") {}
 
   export const layer: Layer.Layer<Service, never, Auth.Service | Config.Service | Provider.Service | Plugin.Service> =
     Layer.effect(
@@ -350,7 +350,7 @@ export namespace LLM {
                     "x-opencode-project": Instance.project.id,
                     "x-opencode-session": input.sessionID,
                     "x-opencode-request": input.user.id,
-                    "x-opencode-client": Flag.OPENCODE_CLIENT,
+                    "x-fbh-client": Flag.FBH_CLIENT,
                   }
                 : {
                     "x-session-affinity": input.sessionID,

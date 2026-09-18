@@ -35,8 +35,8 @@ description: ${description}
       },
     })
 
-    const home = process.env.OPENCODE_TEST_HOME
-    process.env.OPENCODE_TEST_HOME = tmp.path
+    const home = process.env.FBH_TEST_HOME
+    process.env.FBH_TEST_HOME = tmp.path
 
     try {
       await Instance.provide({
@@ -63,7 +63,7 @@ description: ${description}
         },
       })
     } finally {
-      process.env.OPENCODE_TEST_HOME = home
+      process.env.FBH_TEST_HOME = home
     }
   })
 })

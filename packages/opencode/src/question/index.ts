@@ -103,7 +103,7 @@ export namespace Question {
     readonly list: () => Effect.Effect<Request[]>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Question") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Question") {}
 
   export const layer = Layer.effect(
     Service,

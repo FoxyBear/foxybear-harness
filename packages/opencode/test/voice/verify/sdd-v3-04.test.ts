@@ -12,7 +12,7 @@ import {
   resetState,
   stripTags,
 } from "../../../src/voice/plugin"
-import type { PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { PluginInput, Hooks } from "@foxybear/plugin"
 
 const STUB = {
   client: {},

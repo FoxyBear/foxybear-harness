@@ -25,7 +25,7 @@ import { ModelID, ProviderID } from "@/provider/schema"
 import { errors } from "../error"
 import { lazy } from "../../util/lazy"
 import { Bus } from "../../bus"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 
 const log = Log.create({ service: "server" })
 

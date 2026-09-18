@@ -14,7 +14,7 @@ process.chdir(dir)
 
 await import("./generate.ts")
 
-import { Script } from "@opencode-ai/script"
+import { Script } from "../src/script/index.js"
 import pkg from "../package.json"
 
 // Load migrations from migration directories

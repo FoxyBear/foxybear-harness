@@ -19,7 +19,7 @@ import {
   getTTS,
   setAudioSink,
 } from "../../../src/voice/plugin"
-import type { PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { PluginInput, Hooks } from "@foxybear/plugin"
 
 function mkCfg(o: Partial<VoiceConfig> = {}): VoiceConfig {
   return {

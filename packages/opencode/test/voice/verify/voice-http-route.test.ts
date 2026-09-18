@@ -11,7 +11,7 @@ import { ErrorMiddleware } from "../../../src/server/middleware"
 import { VoicePlugin, resetState, getMode } from "../../../src/voice/plugin"
 import { Session } from "../../../src/session"
 import { Instance } from "../../../src/project/instance"
-import type { PluginInput } from "@opencode-ai/plugin"
+import type { PluginInput } from "@foxybear/plugin"
 
 const STUB = {
   client: {},

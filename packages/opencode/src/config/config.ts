@@ -7,7 +7,7 @@ import z from "zod"
 import { mergeDeep, pipe, unique } from "remeda"
 import { Global } from "../global"
 import fsNode from "fs/promises"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import { Flag } from "../flag/flag"
 import { FoxyBearFields } from "./foxybear"
 import { Auth } from "../auth"
@@ -61,21 +61,21 @@ export namespace Config {
   function systemManagedConfigDir(): string {
     switch (process.platform) {
       case "darwin":
-        return "/Library/Application Support/opencode"
+        return "/Library/Application Support/foxybear"
       case "win32":
         return path.join(process.env.ProgramData || "C:\\ProgramData", "opencode")
       default:
-        return "/etc/opencode"
+        return "/etc/foxybear"
     }
   }
 
   export function managedConfigDir() {
-    return process.env.OPENCODE_TEST_MANAGED_CONFIG_DIR || systemManagedConfigDir()
+    return process.env.FBH_TEST_MANAGED_CONFIG_DIR || systemManagedConfigDir()
   }
 
   const managedDir = managedConfigDir()
 
-  const MANAGED_PLIST_DOMAIN = "ai.opencode.managed"
+  const MANAGED_PLIST_DOMAIN = "ai.foxybear.managed"
 
   // Keys injected by macOS/MDM into the managed plist that are not OpenCode config
   const PLIST_META = new Set([
@@ -871,7 +871,7 @@ export namespace Config {
       command: z
         .record(z.string(), Command)
         .optional()
-        .describe("Command configuration, see https://opencode.ai/docs/commands"),
+        .describe("Command configuration, see https://foxybear.ai/docs/commands"),
       skills: Skills.optional().describe("Additional skill folder paths"),
       watcher: z
         .object({
@@ -943,7 +943,7 @@ export namespace Config {
         })
         .catchall(Agent)
         .optional()
-        .describe("Agent configuration, see https://opencode.ai/docs/agents"),
+        .describe("Agent configuration, see https://foxybear.ai/docs/agents"),
       provider: z
         .record(z.string(), Provider)
         .optional()
@@ -1114,7 +1114,7 @@ export namespace Config {
     readonly waitForDependencies: () => Effect.Effect<void>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Config") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Config") {}
 
   function globalConfigFile() {
     const candidates = ["foxybear.jsonc", "foxybear.json", "opencode.jsonc", "opencode.json", "config.json"].map((file) =>
@@ -1241,8 +1241,8 @@ export namespace Config {
         const parsed = Info.safeParse(normalized)
         if (parsed.success) {
           if (!parsed.data.$schema && isFile) {
-            parsed.data.$schema = "https://opencode.ai/config.json"
-            const updated = original.replace(/^\s*\{/, '{\n  "$schema": "https://opencode.ai/config.json",')
+            parsed.data.$schema = "https://foxybear.ai/config.json"
+            const updated = original.replace(/^\s*\{/, '{\n  "$schema": "https://foxybear.ai/config.json",')
             yield* fs.writeFileString(options.path, updated).pipe(Effect.catch(() => Effect.void))
           }
           const data = parsed.data
@@ -1285,7 +1285,7 @@ export namespace Config {
               .then(async (mod) => {
                 const { provider, model, ...rest } = mod.default
                 if (provider && model) result.model = `${provider}/${model}`
-                result["$schema"] = "https://opencode.ai/config.json"
+                result["$schema"] = "https://foxybear.ai/config.json"
                 result = mergeDeep(result, rest)
                 await fsNode.writeFile(path.join(Global.Path.config, "config.json"), JSON.stringify(result, null, 2))
                 await fsNode.unlink(legacy)
@@ -1320,7 +1320,7 @@ export namespace Config {
           Effect.catch(() => Effect.succeed({} satisfies Package)),
           Effect.map((x): Package => (isRecord(x) ? (x as Package) : {})),
         )
-        const hasDep = json.dependencies?.["@opencode-ai/plugin"] === target
+        const hasDep = json.dependencies?.["@foxybear/plugin"] === target
         const hasIgnore = yield* fs.existsSafe(gitignore)
         const hasPkg = yield* fs.existsSafe(plugin)
 
@@ -1329,7 +1329,7 @@ export namespace Config {
             ...json,
             dependencies: {
               ...json.dependencies,
-              "@opencode-ai/plugin": target,
+              "@foxybear/plugin": target,
             },
           })
         }
@@ -1388,7 +1388,7 @@ export namespace Config {
 
         const scope = Effect.fnUntraced(function* (source: string) {
           if (source.startsWith("http://") || source.startsWith("https://")) return "global"
-          if (source === "OPENCODE_CONFIG_CONTENT") return "local"
+          if (source === "FBH_CONFIG_CONTENT") return "local"
           if (yield* InstanceRef.use((ctx) => Effect.succeed(Instance.containsPath(source, ctx)))) return "local"
           return "global"
         })
@@ -1413,15 +1413,15 @@ export namespace Config {
           if (value.type === "wellknown") {
             const url = key.replace(/\/+$/, "")
             process.env[value.key] = value.token
-            log.debug("fetching remote config", { url: `${url}/.well-known/opencode` })
-            const response = yield* Effect.promise(() => fetch(`${url}/.well-known/opencode`))
+            log.debug("fetching remote config", { url: `${url}/.well-known/fbh` })
+            const response = yield* Effect.promise(() => fetch(`${url}/.well-known/fbh`))
             if (!response.ok) {
               throw new Error(`failed to fetch remote config from ${url}: ${response.status}`)
             }
             const wellknown = (yield* Effect.promise(() => response.json())) as any
             const remoteConfig = wellknown.config ?? {}
-            if (!remoteConfig.$schema) remoteConfig.$schema = "https://opencode.ai/config.json"
-            const source = `${url}/.well-known/opencode`
+            if (!remoteConfig.$schema) remoteConfig.$schema = "https://foxybear.ai/config.json"
+            const source = `${url}/.well-known/fbh`
             const next = yield* loadConfig(JSON.stringify(remoteConfig), {
               dir: path.dirname(source),
               source,
@@ -1434,12 +1434,12 @@ export namespace Config {
         const global = yield* getGlobal()
         yield* merge(Global.Path.config, global, "global")
 
-        if (Flag.OPENCODE_CONFIG) {
-          yield* merge(Flag.OPENCODE_CONFIG, yield* loadFile(Flag.OPENCODE_CONFIG))
-          log.debug("loaded custom config", { path: Flag.OPENCODE_CONFIG })
+        if (Flag.FBH_CONFIG) {
+          yield* merge(Flag.FBH_CONFIG, yield* loadFile(Flag.FBH_CONFIG))
+          log.debug("loaded custom config", { path: Flag.FBH_CONFIG })
         }
 
-        if (!Flag.OPENCODE_DISABLE_PROJECT_CONFIG) {
+        if (!Flag.FBH_DISABLE_PROJECT_CONFIG) {
           for (const file of yield* Effect.promise(() =>
             ConfigPaths.projectFiles("opencode", ctx.directory, ctx.worktree),
           )) {
@@ -1453,14 +1453,14 @@ export namespace Config {
 
         const directories = yield* Effect.promise(() => ConfigPaths.directories(ctx.directory, ctx.worktree))
 
-        if (Flag.OPENCODE_CONFIG_DIR) {
-          log.debug("loading config from OPENCODE_CONFIG_DIR", { path: Flag.OPENCODE_CONFIG_DIR })
+        if (Flag.FBH_CONFIG_DIR) {
+          log.debug("loading config from FBH_CONFIG_DIR", { path: Flag.FBH_CONFIG_DIR })
         }
 
         const deps: Fiber.Fiber<void, never>[] = []
 
         for (const dir of unique(directories)) {
-          if (dir.endsWith(".foxybear") || dir.endsWith(".opencode") || dir === Flag.OPENCODE_CONFIG_DIR) {
+          if (dir.endsWith(".foxybear") || dir.endsWith(".opencode") || dir === Flag.FBH_CONFIG_DIR) {
             for (const file of ["foxybear.json", "foxybear.jsonc", "opencode.json", "opencode.jsonc"]) {
               const source = path.join(dir, file)
               log.debug(`loading config from ${source}`)
@@ -1492,14 +1492,14 @@ export namespace Config {
           yield* track(dir, list)
         }
 
-        if (process.env.OPENCODE_CONFIG_CONTENT) {
-          const source = "OPENCODE_CONFIG_CONTENT"
-          const next = yield* loadConfig(process.env.OPENCODE_CONFIG_CONTENT, {
+        if (process.env.FBH_CONFIG_CONTENT) {
+          const source = "FBH_CONFIG_CONTENT"
+          const next = yield* loadConfig(process.env.FBH_CONFIG_CONTENT, {
             dir: ctx.directory,
             source,
           })
           yield* merge(source, next, "local")
-          log.debug("loaded custom config from OPENCODE_CONFIG_CONTENT")
+          log.debug("loaded custom config from FBH_CONFIG_CONTENT")
         }
 
         const activeOrg = Option.getOrUndefined(
@@ -1512,8 +1512,8 @@ export namespace Config {
               { concurrency: 2 },
             )
             if (Option.isSome(tokenOpt)) {
-              process.env["OPENCODE_CONSOLE_TOKEN"] = tokenOpt.value
-              yield* env.set("OPENCODE_CONSOLE_TOKEN", tokenOpt.value)
+              process.env["FBH_CONSOLE_TOKEN"] = tokenOpt.value
+              yield* env.set("FBH_CONSOLE_TOKEN", tokenOpt.value)
             }
 
             activeOrgName = activeOrg.org.name
@@ -1558,8 +1558,8 @@ export namespace Config {
           })
         }
 
-        if (Flag.OPENCODE_PERMISSION) {
-          result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.OPENCODE_PERMISSION))
+        if (Flag.FBH_PERMISSION) {
+          result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.FBH_PERMISSION))
         }
 
         if (result.tools) {
@@ -1581,10 +1581,10 @@ export namespace Config {
           result.share = "auto"
         }
 
-        if (Flag.OPENCODE_DISABLE_AUTOCOMPACT) {
+        if (Flag.FBH_DISABLE_AUTOCOMPACT) {
           result.compaction = { ...result.compaction, auto: false }
         }
-        if (Flag.OPENCODE_DISABLE_PRUNE) {
+        if (Flag.FBH_DISABLE_PRUNE) {
           result.compaction = { ...result.compaction, prune: false }
         }
 

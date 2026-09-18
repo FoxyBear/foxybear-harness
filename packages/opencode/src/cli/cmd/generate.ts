@@ -14,9 +14,9 @@ export const GenerateCommand = {
           {
             lang: "js",
             source: [
-              `import { createOpencodeClient } from "@opencode-ai/sdk`,
+              `import { createFbhClient } from "@foxybear/sdk`,
               ``,
-              `const client = createOpencodeClient()`,
+              `const client = createFbhClient()`,
               `await client.${operation.operationId}({`,
               `  ...`,
               `})`,

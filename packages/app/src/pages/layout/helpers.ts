@@ -1,5 +1,5 @@
-import { getFilename } from "@opencode-ai/util/path"
-import { type Session } from "@opencode-ai/sdk/v2/client"
+import { getFilename } from "@foxybear/util/path"
+import { type Session } from "@foxybear/sdk/v2/client"
 
 type SessionStore = {
   session?: Session[]

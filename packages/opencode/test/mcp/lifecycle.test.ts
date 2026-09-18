@@ -182,7 +182,7 @@ function withInstance(
         await Bun.write(
           `${dir}/opencode.json`,
           JSON.stringify({
-            $schema: "https://opencode.ai/config.json",
+            $schema: "https://foxybear.ai/config.json",
             mcp: config,
           }),
         )

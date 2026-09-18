@@ -670,7 +670,7 @@ export namespace TelegramBot {
   // throw on non-2xx by default, so the error/data shape must be inspected.
   async function sessionExists(sessionId: string): Promise<boolean> {
     const { Server } = await import("../server/server")
-    const { createOpencodeClient } = await import("@opencode-ai/sdk/v2")
+    const { createFbhClient } = await import("@foxybear/sdk/v2")
     const { Instance } = await import("../project/instance")
     const { InstanceBootstrap } = await import("../project/bootstrap")
     const { AppRuntime } = await import("../effect/app-runtime")
@@ -684,7 +684,7 @@ export namespace TelegramBot {
             const request = new Request(input, init)
             return Server.Default().app.fetch(request)
           }) as typeof globalThis.fetch
-          const sdk = createOpencodeClient({ baseUrl: "http://foxybear.internal", fetch: fetchFn })
+          const sdk = createFbhClient({ baseUrl: "http://foxybear.internal", fetch: fetchFn })
           const res: any = await sdk.session.messages({ sessionID: sessionId } as any)
           return !res?.error && res?.data != null
         },

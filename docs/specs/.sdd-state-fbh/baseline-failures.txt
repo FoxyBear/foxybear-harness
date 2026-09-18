@@ -1,0 +1,8 @@
+# Baseline failures tolerated by the fbh-rebrand workstream.
+# These are pre-existing flaky tests unrelated to the rebrand (shell/cancel PTY tests).
+# Populated 2026-09-18 during SDD-01 implementation.
+# Format: one test name per line (matching the "(fail) <name>" output from bun test).
+
+cancel interrupts shell and resolves cleanly
+cancel persists aborted shell result when shell ignores TERM
+cancel interrupts loop queued behind shell

@@ -1,16 +1,16 @@
 import z from "zod"
 import { EOL } from "os"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import { logo as glyphs } from "./logo"
 
 export namespace UI {
   const wordmark = [
-    `  _____               ____                 `,
-    ` |  ___|____  ___   _| __ )  ___  __ _ _ __`,
-    ` | |_ / _ \\ \\/ / | | |  _ \\ / _ \\/ _\` | '__|`,
-    ` |  _| (_) >  <| |_| | |_) |  __/ (_| | |  `,
-    ` |_|  \\___/_/\\_\\\\__, |____/ \\___|\\__,_|_|  `,
-    `                |___/                       `,
+    `  _____ _    _     `,
+    ` |  ___| |  | |    `,
+    ` | |_  | |__| |_   `,
+    ` |  _| |  __  |__| `,
+    ` |_|   |_| |_|(_)  `,
+    `                   `,
   ]
 
   export const CancelledError = NamedError.create("UICancelledError", z.void())

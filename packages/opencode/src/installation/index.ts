@@ -57,7 +57,7 @@ export namespace Installation {
 
   export const VERSION = version
   export const CHANNEL = channel
-  export const USER_AGENT = `opencode/${CHANNEL}/${VERSION}/${Flag.OPENCODE_CLIENT}`
+  export const USER_AGENT = `opencode/${CHANNEL}/${VERSION}/${Flag.FBH_CLIENT}`
 
   export function isPreview() {
     return CHANNEL !== "latest"
@@ -90,7 +90,7 @@ export namespace Installation {
     readonly upgrade: (method: Method, target: string) => Effect.Effect<void, UpgradeFailedError>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Installation") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Installation") {}
 
   export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildProcessSpawner.ChildProcessSpawner> =
     Layer.effect(
@@ -136,8 +136,8 @@ export namespace Installation {
         )
 
         const getBrewFormula = Effect.fnUntraced(function* () {
-          const tapFormula = yield* text(["brew", "list", "--formula", "anomalyco/tap/opencode"])
-          if (tapFormula.includes("opencode")) return "anomalyco/tap/opencode"
+          const tapFormula = yield* text(["brew", "list", "--formula", "foxybear/tap/fbh"])
+          if (tapFormula.includes("opencode")) return "foxybear/tap/fbh"
           const coreFormula = yield* text(["brew", "list", "--formula", "opencode"])
           if (coreFormula.includes("opencode")) return "opencode"
           return "opencode"
@@ -145,7 +145,7 @@ export namespace Installation {
 
         const upgradeCurl = Effect.fnUntraced(
           function* (target: string) {
-            const response = yield* httpOk.execute(HttpClientRequest.get("https://opencode.ai/install"))
+            const response = yield* httpOk.execute(HttpClientRequest.get("https://foxybear.ai/install"))
             const body = yield* response.text
             const bodyBytes = new TextEncoder().encode(body)
             const proc = ChildProcess.make("bash", [], {
@@ -279,12 +279,12 @@ export namespace Installation {
               const formula = yield* getBrewFormula()
               const env = { HOMEBREW_NO_AUTO_UPDATE: "1" }
               if (formula.includes("/")) {
-                const tap = yield* run(["brew", "tap", "anomalyco/tap"], { env })
+                const tap = yield* run(["brew", "tap", "foxybear/tap"], { env })
                 if (tap.code !== 0) {
                   result = tap
                   break
                 }
-                const repo = yield* text(["brew", "--repo", "anomalyco/tap"])
+                const repo = yield* text(["brew", "--repo", "foxybear/tap"])
                 const dir = repo.trim()
                 if (dir) {
                   const pull = yield* run(["git", "pull", "--ff-only"], { cwd: dir, env })

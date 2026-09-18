@@ -1,7 +1,7 @@
 import { createMemo, type Accessor } from "solid-js"
 import { useLocal } from "@tui/context/local"
 import { useSync } from "@tui/context/sync"
-import type { AssistantMessage, Model } from "@opencode-ai/sdk/v2"
+import type { AssistantMessage, Model } from "@foxybear/sdk/v2"
 
 export function useContext(
   sessionID: () => string | undefined,

@@ -168,7 +168,7 @@ export interface Interface {
 // ── Memory Service ──
 
 export namespace Memory {
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Memory") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Memory") {}
 
   // ── Config resolution (FIX 2) ──
   // Read from Config service, falling back to defaults if config unavailable

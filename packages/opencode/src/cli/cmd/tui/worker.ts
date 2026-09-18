@@ -108,8 +108,8 @@ export const rpc = {
 Rpc.listen(rpc)
 
 function getAuthorizationHeader(): string | undefined {
-  const password = Flag.OPENCODE_SERVER_PASSWORD
+  const password = Flag.FBH_SERVER_PASSWORD
   if (!password) return undefined
-  const username = Flag.OPENCODE_SERVER_USERNAME ?? "foxybear"
+  const username = Flag.FBH_SERVER_USERNAME ?? "foxybear"
   return `Basic ${btoa(`${username}:${password}`)}`
 }

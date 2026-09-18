@@ -17,8 +17,8 @@ import { openSync, existsSync } from "fs"
 import path from "path"
 
 async function startDaemon(args: NetworkOptions & { background?: boolean }) {
-  if (!Flag.OPENCODE_SERVER_PASSWORD) {
-    console.log("Warning: OPENCODE_SERVER_PASSWORD is not set; server is unsecured.")
+  if (!Flag.FBH_SERVER_PASSWORD) {
+    console.log("Warning: FBH_SERVER_PASSWORD is not set; server is unsecured.")
   }
 
   const networkOpts = await resolveNetworkOptions(args)

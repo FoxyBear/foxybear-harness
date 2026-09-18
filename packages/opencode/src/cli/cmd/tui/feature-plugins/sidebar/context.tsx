@@ -1,4 +1,4 @@
-import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
+import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@foxybear/plugin/tui"
 import { createMemo } from "solid-js"
 import { useContext } from "@tui/util/context"
 

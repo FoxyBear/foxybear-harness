@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, test } from "bun:test"
 import { testRender } from "@opentui/solid"
 import { onMount } from "solid-js"
-import type { Provider, Agent, Model } from "@opencode-ai/sdk/v2"
+import type { Provider, Agent, Model } from "@foxybear/sdk/v2"
 import { DialogContext } from "../../../src/cli/cmd/tui/component/dialog-context"
 import { ArgsProvider } from "../../../src/cli/cmd/tui/context/args"
 import { ExitProvider } from "../../../src/cli/cmd/tui/context/exit"

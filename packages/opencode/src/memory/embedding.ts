@@ -1,4 +1,4 @@
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import z from "zod"
 import { Effect, Layer, Context } from "effect"
 import { readFileSync, existsSync } from "fs"
@@ -16,7 +16,7 @@ export namespace EmbeddingService {
     readonly embedBatch: (texts: string[]) => Effect.Effect<Float32Array[]>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Embedding") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Embedding") {}
 
   export function makeLayer(config: Embedding.Config): Layer.Layer<Service> {
     return Layer.effect(

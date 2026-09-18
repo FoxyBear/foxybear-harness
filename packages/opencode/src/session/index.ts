@@ -1,4 +1,4 @@
-import { Slug } from "@opencode-ai/util/slug"
+import { Slug } from "@foxybear/util/slug"
 import path from "path"
 import { BusEvent } from "@/bus/bus-event"
 import { Bus } from "@/bus"
@@ -361,7 +361,7 @@ export namespace Session {
     ) => Effect.Effect<Option.Option<MessageV2.WithParts>>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Session") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Session") {}
 
   type Patch = z.infer<typeof Event.Updated.schema>["info"]
 
@@ -402,7 +402,7 @@ export namespace Session {
 
         yield* Effect.sync(() => SyncEvent.run(Event.Created, { sessionID: result.id, info: result }))
 
-        if (!Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
+        if (!Flag.FBH_EXPERIMENTAL_WORKSPACES) {
           // This only exist for backwards compatibility. We should not be
           // manually publishing this event; it is a sync event now
           yield* bus.publish(Event.Updated, {

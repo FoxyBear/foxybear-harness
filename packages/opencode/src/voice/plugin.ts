@@ -1,4 +1,4 @@
-import type { Hooks, PluginInput, PluginOptions } from "@opencode-ai/plugin"
+import type { Hooks, PluginInput, PluginOptions } from "@foxybear/plugin"
 import { Log } from "../util/log"
 import { ENHANCE_SECTION, KATYA_TONE_GUIDE, AUDIO_TAG_VOCABULARY } from "./expressivity"
 import { VoiceTTS } from "./elevenlabs"
@@ -102,10 +102,10 @@ export function setV2Client(client: V2Client | null) {
 async function getV2(): Promise<V2Client> {
   if (v2) return v2
   const { Server } = await import("../server/server")
-  const { createOpencodeClient } = await import("@opencode-ai/sdk/v2")
+  const { createFbhClient } = await import("@foxybear/sdk/v2")
   const fetchFn = async (input: RequestInfo | URL, init?: RequestInit) =>
     (await Server.Default()).app.fetch(input as Request, init)
-  v2 = createOpencodeClient({
+  v2 = createFbhClient({
     baseUrl: "http://localhost:4096",
     fetch: fetchFn as typeof fetch,
   }) as unknown as V2Client

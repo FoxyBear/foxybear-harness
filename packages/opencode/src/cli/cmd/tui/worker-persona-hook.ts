@@ -11,7 +11,7 @@ export function _resetPersonaHook(): void {
 export async function hookPersonaDefault(_directory: string): Promise<void> {
   if (_personaHookFired) return
   _personaHookFired = true
-  const name = process.env.OPENCODE_PERSONA
+  const name = process.env.FBH_PERSONA
   if (!name || name.length === 0) return
   try {
     const cfg = await getConfig().catch(() => ({}) as any)

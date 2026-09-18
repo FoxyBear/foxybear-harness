@@ -1,10 +1,10 @@
-import { createOpencodeClient } from "@opencode-ai/sdk/v2/client"
+import { createFbhClient } from "@foxybear/sdk/v2/client"
 import type { ServerConnection } from "@/context/server"
 
 export function createSdkForServer({
   server,
   ...config
-}: Omit<NonNullable<Parameters<typeof createOpencodeClient>[0]>, "baseUrl"> & {
+}: Omit<NonNullable<Parameters<typeof createFbhClient>[0]>, "baseUrl"> & {
   server: ServerConnection.HttpBase
 }) {
   const auth = (() => {
@@ -14,7 +14,7 @@ export function createSdkForServer({
     }
   })()
 
-  return createOpencodeClient({
+  return createFbhClient({
     ...config,
     headers: { ...config.headers, ...auth },
     baseUrl: server.url,

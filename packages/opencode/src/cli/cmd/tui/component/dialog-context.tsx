@@ -8,7 +8,7 @@ import { Token } from "@/util/token"
 import { isTieringEnabled, tier, type CompactionTier } from "@/session/overflow"
 import type { Config } from "@/config/config"
 import type { Provider } from "@/provider/provider"
-import type { AssistantMessage } from "@opencode-ai/sdk/v2"
+import type { AssistantMessage } from "@foxybear/sdk/v2"
 
 export function DialogContext(props: { sessionID: string }): JSX.Element {
   const dialog = useDialog()

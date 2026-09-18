@@ -32,10 +32,10 @@ test("skips external tui plugins in pure mode", async () => {
     },
   })
 
-  const pure = process.env.OPENCODE_PURE
-  const meta = process.env.OPENCODE_PLUGIN_META_FILE
-  process.env.OPENCODE_PURE = "1"
-  process.env.OPENCODE_PLUGIN_META_FILE = tmp.extra.meta
+  const pure = process.env.FBH_PURE
+  const meta = process.env.FBH_PLUGIN_META_FILE
+  process.env.FBH_PURE = "1"
+  process.env.FBH_PLUGIN_META_FILE = tmp.extra.meta
 
   const get = spyOn(TuiConfig, "get").mockResolvedValue({
     plugin: [[tmp.extra.spec, { marker: tmp.extra.marker }]],
@@ -59,14 +59,14 @@ test("skips external tui plugins in pure mode", async () => {
     get.mockRestore()
     wait.mockRestore()
     if (pure === undefined) {
-      delete process.env.OPENCODE_PURE
+      delete process.env.FBH_PURE
     } else {
-      process.env.OPENCODE_PURE = pure
+      process.env.FBH_PURE = pure
     }
     if (meta === undefined) {
-      delete process.env.OPENCODE_PLUGIN_META_FILE
+      delete process.env.FBH_PLUGIN_META_FILE
     } else {
-      process.env.OPENCODE_PLUGIN_META_FILE = meta
+      process.env.FBH_PLUGIN_META_FILE = meta
     }
   }
 })

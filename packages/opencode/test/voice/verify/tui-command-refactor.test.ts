@@ -7,7 +7,7 @@ import {
 } from "../../../src/voice/plugin"
 import * as VoiceMod from "../../../src/voice/plugin"
 import { HarnessCommands } from "../../../src/harness/commands"
-import type { PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { PluginInput, Hooks } from "@foxybear/plugin"
 
 const STUB = {
   client: {},

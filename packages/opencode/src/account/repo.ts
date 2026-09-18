@@ -38,7 +38,7 @@ export namespace AccountRepo {
   }
 }
 
-export class AccountRepo extends Context.Service<AccountRepo, AccountRepo.Service>()("@opencode/AccountRepo") {
+export class AccountRepo extends Context.Service<AccountRepo, AccountRepo.Service>()("@foxybear/AccountRepo") {
   static readonly layer: Layer.Layer<AccountRepo> = Layer.effect(
     AccountRepo,
     Effect.gen(function* () {

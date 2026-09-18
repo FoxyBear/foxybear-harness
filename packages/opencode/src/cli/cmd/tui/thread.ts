@@ -10,7 +10,7 @@ import { errorMessage } from "@/util/error"
 import { withTimeout } from "@/util/timeout"
 import { withNetworkOptions, resolveNetworkOptions } from "@/cli/network"
 import { Filesystem } from "@/util/filesystem"
-import type { GlobalEvent } from "@opencode-ai/sdk/v2"
+import type { GlobalEvent } from "@foxybear/sdk/v2"
 import type { EventSource } from "./context/sdk"
 import { win32DisableProcessedInput, win32InstallCtrlCGuard } from "./win32"
 import { TuiConfig } from "@/config/tui"
@@ -20,7 +20,7 @@ import { PersonaSession } from "@/persona/session"
 import { writeHeapSnapshot } from "v8"
 
 declare global {
-  const OPENCODE_WORKER_PATH: string
+  const FBH_WORKER_PATH: string
 }
 
 type RpcClient = ReturnType<typeof Rpc.client<typeof rpc>>
@@ -54,7 +54,7 @@ function createEventSource(client: RpcClient): EventSource {
 }
 
 async function target() {
-  if (typeof OPENCODE_WORKER_PATH !== "undefined") return OPENCODE_WORKER_PATH
+  if (typeof FBH_WORKER_PATH !== "undefined") return FBH_WORKER_PATH
   const dist = new URL("./cli/cmd/tui/worker.js", import.meta.url)
   if (await Filesystem.exists(fileURLToPath(dist))) return dist
   return new URL("./worker.ts", import.meta.url)
@@ -69,12 +69,12 @@ async function input(value?: string) {
 
 export const TuiThreadCommand = cmd({
   command: "$0 [project]",
-  describe: "start opencode tui",
+  describe: "start fbh tui",
   builder: (yargs) =>
     withNetworkOptions(yargs)
       .positional("project", {
         type: "string",
-        describe: "path to start opencode in",
+        describe: "path to start fbh in",
       })
       .option("model", {
         type: "string",
@@ -157,7 +157,7 @@ export const TuiThreadCommand = cmd({
       }).catch(() => undefined)
       if (process.exitCode === 1) return
       if (resolvedPersona?.name) {
-        process.env.OPENCODE_PERSONA = resolvedPersona.name
+        process.env.FBH_PERSONA = resolvedPersona.name
       }
 
       const worker = new Worker(file, {
@@ -227,7 +227,7 @@ export const TuiThreadCommand = cmd({
             events: undefined,
           }
         : {
-            url: "http://opencode.internal",
+            url: "http://foxybear.internal",
             fetch: createWorkerFetch(client),
             events: createEventSource(client),
           }

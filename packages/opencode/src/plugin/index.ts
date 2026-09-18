@@ -4,18 +4,17 @@ import type {
   Plugin as PluginInstance,
   PluginModule,
   WorkspaceAdaptor as PluginWorkspaceAdaptor,
-} from "@opencode-ai/plugin"
+} from "@foxybear/plugin"
 import { Config } from "../config/config"
 import { Bus } from "../bus"
 import { Log } from "../util/log"
-import { createOpencodeClient } from "@opencode-ai/sdk"
+import { createFbhClient } from "@foxybear/sdk"
 import { Flag } from "../flag/flag"
 import { CodexAuthPlugin } from "./codex"
 import { Session } from "../session"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import { CopilotAuthPlugin } from "./github-copilot/copilot"
-import { gitlabAuthPlugin as GitlabAuthPlugin } from "opencode-gitlab-auth"
-import { PoeAuthPlugin } from "opencode-poe-auth"
+
 import { CloudflareAIGatewayAuthPlugin, CloudflareWorkersAuthPlugin } from "./cloudflare"
 import { VoicePlugin } from "@/voice/plugin"
 import { Effect, Layer, Context, Stream } from "effect"
@@ -53,14 +52,12 @@ export namespace Plugin {
     readonly init: () => Effect.Effect<void>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/Plugin") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/Plugin") {}
 
   // Built-in plugins that are directly imported (not installed from npm)
   const INTERNAL_PLUGINS: PluginInstance[] = [
     CodexAuthPlugin,
     CopilotAuthPlugin,
-    GitlabAuthPlugin,
-    PoeAuthPlugin,
     CloudflareWorkersAuthPlugin,
     CloudflareAIGatewayAuthPlugin,
     VoicePlugin,
@@ -125,12 +122,12 @@ export namespace Plugin {
 
           const { Server } = yield* Effect.promise(() => import("../server/server"))
 
-          const client = createOpencodeClient({
+          const client = createFbhClient({
             baseUrl: "http://localhost:4096",
             directory: ctx.directory,
-            headers: Flag.OPENCODE_SERVER_PASSWORD
+            headers: Flag.FBH_SERVER_PASSWORD
               ? {
-                  Authorization: `Basic ${Buffer.from(`${Flag.OPENCODE_SERVER_USERNAME ?? "opencode"}:${Flag.OPENCODE_SERVER_PASSWORD}`).toString("base64")}`,
+                  Authorization: `Basic ${Buffer.from(`${Flag.FBH_SERVER_USERNAME ?? "opencode"}:${Flag.FBH_SERVER_PASSWORD}`).toString("base64")}`,
                 }
               : undefined,
             fetch: async (...args) => (await Server.Default()).app.fetch(...args),
@@ -164,8 +161,8 @@ export namespace Plugin {
             if (init._tag === "Some") hooks.push(init.value)
           }
 
-          const plugins = Flag.OPENCODE_PURE ? [] : (cfg.plugin_origins ?? [])
-          if (Flag.OPENCODE_PURE && cfg.plugin_origins?.length) {
+          const plugins = Flag.FBH_PURE ? [] : (cfg.plugin_origins ?? [])
+          if (Flag.FBH_PURE && cfg.plugin_origins?.length) {
             log.info("skipping external plugins in pure mode", { count: cfg.plugin_origins.length })
           }
           if (plugins.length) yield* config.waitForDependencies()

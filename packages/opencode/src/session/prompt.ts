@@ -34,7 +34,7 @@ import { Config } from "../config/config"
 import { pathToFileURL, fileURLToPath } from "url"
 import { ConfigMarkdown } from "../config/markdown"
 import { SessionSummary } from "./summary"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@foxybear/util/error"
 import { SessionProcessor } from "./processor"
 import { Tool } from "@/tool/tool"
 import { Permission } from "@/permission"
@@ -79,7 +79,7 @@ export namespace SessionPrompt {
     readonly resolvePromptParts: (template: string) => Effect.Effect<PromptInput["parts"]>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/SessionPrompt") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/SessionPrompt") {}
 
   export const layer = Layer.effect(
     Service,
@@ -226,7 +226,7 @@ export namespace SessionPrompt {
         const userMessage = input.messages.findLast((msg) => msg.info.role === "user")
         if (!userMessage) return input.messages
 
-        if (!Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) {
+        if (!Flag.FBH_EXPERIMENTAL_PLAN_MODE) {
           if (input.agent.name === "plan") {
             userMessage.parts.push({
               id: PartID.ascending(),

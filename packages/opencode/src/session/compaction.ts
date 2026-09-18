@@ -301,7 +301,7 @@ ${verbatimBlock}
     readonly getCircuitBreakerWarning: () => Effect.Effect<string | undefined>
   }
 
-  export class Service extends Context.Service<Service, Interface>()("@opencode/SessionCompaction") {}
+  export class Service extends Context.Service<Service, Interface>()("@foxybear/SessionCompaction") {}
 
   export const layer: Layer.Layer<
     Service,
