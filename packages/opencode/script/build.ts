@@ -207,8 +207,8 @@ for (const item of targets) {
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
-      outfile: `dist/${name}/bin/opencode`,
-      execArgv: [`--user-agent=opencode/${Script.version}`, "--use-system-ca", "--"],
+      outfile: `dist/${name}/bin/fbh`,
+      execArgv: [`--user-agent=fbh/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
     },
     files: {
@@ -222,19 +222,19 @@ for (const item of targets) {
       ...(embeddedFileMap ? ["opencode-web-ui.gen.ts"] : []),
     ],
     define: {
-      OPENCODE_VERSION: `'${Script.version}'`,
-      OPENCODE_MIGRATIONS: JSON.stringify(migrations),
+      FBH_VERSION: `'${Script.version}'`,
+      FBH_MIGRATIONS: JSON.stringify(migrations),
       OTUI_TREE_SITTER_WORKER_PATH: bunfsRoot + workerRelativePath,
-      OPENCODE_WORKER_PATH: workerPath,
-      OPENCODE_RIPGREP_WORKER_PATH: rgPath,
-      OPENCODE_CHANNEL: `'${Script.channel}'`,
-      OPENCODE_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "",
+      FBH_WORKER_PATH: workerPath,
+      FBH_RIPGREP_WORKER_PATH: rgPath,
+      FBH_CHANNEL: `'${Script.channel}'`,
+      FBH_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "",
     },
   })
 
   // Smoke test: only run if binary is for current platform
   if (item.os === process.platform && item.arch === process.arch && !item.abi) {
-    const binaryPath = `dist/${name}/bin/opencode`
+    const binaryPath = `dist/${name}/bin/fbh`
     console.log(`Running smoke test: ${binaryPath} --version`)
     try {
       const versionOutput = await $`${binaryPath} --version`.text()
@@ -269,7 +269,7 @@ if (singleFlag) {
     const name = [pkg.name, nativeTarget.os === "win32" ? "windows" : nativeTarget.os, nativeTarget.arch]
       .filter(Boolean)
       .join("-")
-    const src = path.resolve(dir, `dist/${name}/bin/opencode`)
+    const src = path.resolve(dir, `dist/${name}/bin/fbh`)
     const dest = "/opt/homebrew/bin/foxybear"
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, dest)

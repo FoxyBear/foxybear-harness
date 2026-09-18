@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 const childProcess = require("child_process")
 const fs = require("fs")
@@ -17,7 +17,7 @@ function run(target) {
   process.exit(code)
 }
 
-const envPath = process.env.OPENCODE_BIN_PATH
+const envPath = process.env.FBH_BIN_PATH
 if (envPath) {
   run(envPath)
 }
@@ -26,7 +26,7 @@ const scriptPath = fs.realpathSync(__filename)
 const scriptDir = path.dirname(scriptPath)
 
 //
-const cached = path.join(scriptDir, ".opencode")
+const cached = path.join(scriptDir, ".fbh")
 if (fs.existsSync(cached)) {
   run(cached)
 }
@@ -50,8 +50,8 @@ let arch = archMap[os.arch()]
 if (!arch) {
   arch = os.arch()
 }
-const base = "opencode-" + platform + "-" + arch
-const binary = platform === "windows" ? "opencode.exe" : "opencode"
+const base = "fbh-" + platform + "-" + arch
+const binary = platform === "windows" ? "fbh.exe" : "fbh"
 
 function supportsAvx2() {
   if (arch !== "x64") return false
@@ -167,9 +167,20 @@ function findBinary(startDir) {
 }
 
 const resolved = findBinary(scriptDir)
+
+// Dev fallback: check dist/ for built binaries (enables `bun link` workflow)
+if (!resolved) {
+  for (const name of names) {
+    const candidate = path.join(scriptDir, "..", "dist", name, "bin", binary)
+    if (fs.existsSync(candidate)) {
+      run(candidate)
+    }
+  }
+}
+
 if (!resolved) {
   console.error(
-    "It seems that your package manager failed to install the right version of the opencode CLI for your platform. You can try manually installing " +
+    "It seems that your package manager failed to install the right version of the fbh CLI for your platform. You can try manually installing " +
       names.map((n) => `\"${n}\"`).join(" or ") +
       " package",
   )

@@ -2,7 +2,7 @@ import { $ } from "bun"
 import semver from "semver"
 import path from "path"
 
-const rootPkgPath = path.resolve(import.meta.dir, "../../../package.json")
+const rootPkgPath = path.resolve(import.meta.dir, "../../../../package.json")
 const rootPkg = await Bun.file(rootPkgPath).json()
 const expectedBunVersion = rootPkg.packageManager?.split("@")[1]
 
@@ -48,7 +48,7 @@ const VERSION = await (async () => {
 })()
 
 const bot = ["actions-user", "opencode", "opencode-agent[bot]"]
-const teamPath = path.resolve(import.meta.dir, "../../../.github/TEAM_MEMBERS")
+const teamPath = path.resolve(import.meta.dir, "../../../../.github/TEAM_MEMBERS")
 const team = [
   ...(await Bun.file(teamPath)
     .text()
