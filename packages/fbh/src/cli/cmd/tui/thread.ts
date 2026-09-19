@@ -227,7 +227,7 @@ export const TuiThreadCommand = cmd({
             events: undefined,
           }
         : {
-            url: "http://foxybear.internal",
+            url: "http://localhost:4096",
             fetch: createWorkerFetch(client),
             events: createEventSource(client),
           }

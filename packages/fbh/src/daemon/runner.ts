@@ -124,7 +124,7 @@ export namespace Runner {
               return Server.Default().app.fetch(request)
             }) as typeof globalThis.fetch
 
-            const sdk = createFbhClient({ baseUrl: "http://foxybear.internal", fetch: fetchFn })
+            const sdk = createFbhClient({ baseUrl: "http://localhost:4096", fetch: fetchFn })
 
             // SDD-04 SC-2: resume the chat's durable session when one was supplied
             // and still exists (probe via session.messages); otherwise create a

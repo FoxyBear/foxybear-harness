@@ -726,7 +726,7 @@ export const RunCommand = cmd({
         const request = new Request(input, init)
         return Server.Default().app.fetch(request)
       }) as typeof globalThis.fetch
-      const sdk = createFbhClient({ baseUrl: "http://foxybear.internal", fetch: fetchFn })
+      const sdk = createFbhClient({ baseUrl: "http://localhost:4096", fetch: fetchFn })
       await execute(sdk)
     })
   },
