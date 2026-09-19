@@ -42,7 +42,7 @@ export async function initMemoryBackendFromConfig(
       }
     }
     Log.Default.warn("memory unavailable: daemon not running")
-    setGlobalMemoryBackend(new NoOpMemoryBackend("no daemon running — start with 'foxybear serve'"))
+    setGlobalMemoryBackend(new NoOpMemoryBackend("no daemon running — start with 'fbh serve'"))
     return
   }
 
