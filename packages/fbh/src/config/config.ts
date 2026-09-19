@@ -1278,6 +1278,20 @@ export namespace Config {
           mergeDeep(yield* loadFile(path.join(Global.Path.config, "foxybear.jsonc"))),
         )
 
+        // Backward-compat: read legacy ~/.config/opencode/ (old XDG app name) with deprecation warning.
+        // The rebrand changed Global.Path.config from ~/.config/opencode to ~/.config/foxybear;
+        // users with existing configs at the old path get them loaded here until they run `fbh migrate`.
+        const legacyConfigDir = path.join(path.dirname(Global.Path.config), "opencode")
+        if (legacyConfigDir !== Global.Path.config && existsSync(legacyConfigDir)) {
+          for (const f of ["config.json", "opencode.json", "opencode.jsonc", "foxybear.json", "foxybear.jsonc"]) {
+            const legacyFile = path.join(legacyConfigDir, f)
+            if (existsSync(legacyFile)) {
+              log.warn("reading legacy config (run `fbh migrate` to move it)", { path: legacyFile })
+              result = mergeDeep(result, yield* loadFile(legacyFile))
+            }
+          }
+        }
+
         const legacy = path.join(Global.Path.config, "config")
         if (existsSync(legacy)) {
           yield* Effect.promise(() =>

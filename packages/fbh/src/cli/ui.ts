@@ -5,12 +5,12 @@ import { logo as glyphs } from "./logo"
 
 export namespace UI {
   const wordmark = [
-    `  _____ _    _     `,
-    ` |  ___| |  | |    `,
-    ` | |_  | |__| |_   `,
-    ` |  _| |  __  |__| `,
-    ` |_|   |_| |_|(_)  `,
-    `                   `,
+    `  _____               ____                 `,
+    ` |  ___|____  ___   _| __ )  ___  __ _ _ __`,
+    ` | |_ / _ \\ \\/ / | | |  _ \\ / _ \\/ _\` | '__|`,
+    ` |  _| (_) >  <| |_| | |_) |  __/ (_| | |  `,
+    ` |_|  \\___/_/\\_\\\\__, |____/ \\___|\\__,_|_|  `,
+    `                |___/                       `,
   ]
 
   export const CancelledError = NamedError.create("UICancelledError", z.void())

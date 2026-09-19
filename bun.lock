@@ -249,23 +249,7 @@
         "vite": "catalog:",
       },
     },
-    "packages/function": {
-      "name": "@foxybear/function",
-      "version": "1.4.3",
-      "dependencies": {
-        "@octokit/auth-app": "8.0.1",
-        "@octokit/rest": "catalog:",
-        "hono": "catalog:",
-        "jose": "6.0.11",
-      },
-      "devDependencies": {
-        "@cloudflare/workers-types": "catalog:",
-        "@tsconfig/node22": "22.0.2",
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/opencode": {
+    "packages/fbh": {
       "name": "fbh",
       "version": "1.4.3",
       "bin": {
@@ -398,6 +382,22 @@
         "vscode-languageserver-types": "3.17.5",
         "why-is-node-running": "3.2.2",
         "zod-to-json-schema": "3.24.5",
+      },
+    },
+    "packages/function": {
+      "name": "@foxybear/function",
+      "version": "1.4.3",
+      "dependencies": {
+        "@octokit/auth-app": "8.0.1",
+        "@octokit/rest": "catalog:",
+        "hono": "catalog:",
+        "jose": "6.0.11",
+      },
+      "devDependencies": {
+        "@cloudflare/workers-types": "catalog:",
+        "@tsconfig/node22": "22.0.2",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "packages/plugin": {
@@ -2683,7 +2683,7 @@
 
     "fastq": ["fastq@1.20.3", "", { "dependencies": { "reusify": "^1.0.4" } }, "sha512-XKv5nnLs6nLF71NgiKJLIZFLkPyIEuOselLG7ujZnGrRfQK8HpvY+WqKhAJUAdLomwVHErVS4LfxFlPq0/FTAw=="],
 
-    "fbh": ["fbh@workspace:packages/opencode"],
+    "fbh": ["fbh@workspace:packages/fbh"],
 
     "fdir": ["fdir@6.5.0", "", { "peerDependencies": { "picomatch": "^3 || ^4" }, "optionalPeers": ["picomatch"] }, "sha512-tIbYtZbucOs0BRGqPJkshJUYdL+SDH7dVM8gjy+ERp3WAUjLEFJE+02kanyHtwjWOnwrKYBiwAmM0p4kLJAnXg=="],
 
