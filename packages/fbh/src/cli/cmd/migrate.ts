@@ -28,6 +28,9 @@ async function copyFileSafe(src: string, dest: string): Promise<void> {
 }
 
 async function mergeConfig(src: string, dest: string): Promise<void> {
+  // Skip if src is a directory (mergeConfig reads files only)
+  const srcStat = await stat(src)
+  if (srcStat.isDirectory()) return
   const content = await readFile(src, "utf-8")
   const translated = content.replace(/\{env:OPENCODE_([A-Z_]+)\}/g, "{env:FBH_$1}")
   await mkdir(path.dirname(dest), { recursive: true })
@@ -86,6 +89,8 @@ async function planMigration(): Promise<{ copy: CopyAction[]; skip: SkipAction[]
     const configFiles: Array<[string, string]> = [
       ["opencode.json", "fbh.json"],
       ["opencode.jsonc", "fbh.jsonc"],
+      ["foxybear.json", "foxybear.json"],
+      ["foxybear.jsonc", "foxybear.jsonc"],
       ["council.json", "council.json"],
     ]
     for (const [srcName, destName] of configFiles) {
@@ -113,14 +118,18 @@ async function planMigration(): Promise<{ copy: CopyAction[]; skip: SkipAction[]
   if (await exists(oldData)) {
     const entries = await readdir(oldData, { withFileTypes: true })
     for (const entry of entries) {
-      if (!entry.isFile()) continue
       const name = entry.name
-      if (name.startsWith("opencode") && (name.endsWith(".db") || name.includes(".db-"))) {
+      // DB files (rename prefix)
+      if (entry.isFile() && name.startsWith("opencode") && (name.endsWith(".db") || name.includes(".db-"))) {
         const newName = name.replace(/^opencode/, "fbh")
         copy.push({ src: path.join(oldData, name), dest: path.join(newData, newName), desc: `DB ${name} → ${newName}` })
-      } else if (name === "auth.json") {
+      } else if (entry.isFile() && name === "auth.json") {
         copy.push({ src: path.join(oldData, name), dest: path.join(newData, name), desc: "auth.json (never logged)" })
-      } else if (name === "memory.surreal" || name.startsWith("memory-backup-") || name === "memory-migration-surreal.json") {
+      } else if (entry.isFile() && (name.startsWith("memory-backup-") || name === "memory-migration-surreal.json")) {
+        copy.push({ src: path.join(oldData, name), dest: path.join(newData, name), desc: `memory: ${name}` })
+      }
+      // memory.surreal can be a file OR a directory — copy either way
+      else if (name === "memory.surreal") {
         copy.push({ src: path.join(oldData, name), dest: path.join(newData, name), desc: `memory: ${name}` })
       }
     }
@@ -177,6 +186,13 @@ async function runMigration(dryRun: boolean): Promise<void> {
   for (const item of plan.copy) {
     try {
       if (item.merge) {
+        // mergeConfig reads a file; skip if src is a directory
+        const srcStat = await stat(item.src)
+        if (srcStat.isDirectory()) {
+          await copyDir(item.src, item.dest)
+          lines.push(`copied: ${item.src} → ${item.dest} (${item.desc})`)
+          continue
+        }
         await mergeConfig(item.src, item.dest)
       } else if (await isDir(item.src)) {
         await copyDir(item.src, item.dest)
@@ -197,15 +213,20 @@ async function runMigration(dryRun: boolean): Promise<void> {
     lines.push(`skipped: ${item.src} — ${item.reason}`)
   }
 
-  // SurrealDB path rewrite
+  // SurrealDB path rewrite (only if memory.surreal is a file, not a directory)
   const surrealDest = path.join(newData, "memory.surreal")
   if (await exists(surrealDest)) {
-    const content = await readFile(surrealDest, "utf-8")
-    if (content.includes("/opencode/")) {
-      const rewritten = content.replace(/\/opencode\//g, "/foxybear/")
-      await writeFile(surrealDest, rewritten)
-      lines.push("rewrote: memory.surreal /opencode/ → /foxybear/")
-    }
+    try {
+      const surrealStat = await stat(surrealDest)
+      if (!surrealStat.isDirectory()) {
+        const content = await readFile(surrealDest, "utf-8")
+        if (content.includes("/opencode/")) {
+          const rewritten = content.replace(/\/opencode\//g, "/foxybear/")
+          await writeFile(surrealDest, rewritten)
+          lines.push("rewrote: memory.surreal /opencode/ → /foxybear/")
+        }
+      }
+    } catch {}
   }
 
   // Stale PID warning
