@@ -90,9 +90,9 @@ export function ControlPlaneRoutes(): Hono {
       openAPIRouteHandler(app, {
         documentation: {
           info: {
-            title: "opencode",
+            title: "fbh",
             version: "0.0.3",
-            description: "opencode api",
+            description: "fbh api",
           },
           openapi: "3.1.1",
         },

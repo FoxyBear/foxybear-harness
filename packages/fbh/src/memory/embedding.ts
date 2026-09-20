@@ -88,7 +88,7 @@ export namespace Embedding {
       } catch {}
     }
     try {
-      const authPath = resolve(homedir(), ".opencode", "data", "auth.json")
+      const authPath = resolve(homedir(), ".foxybear", "data", "auth.json")
       const auth = JSON.parse(readFileSync(authPath, "utf-8"))
       if (auth[provider]?.type === "api" && auth[provider]?.key) return auth[provider].key
     } catch {}

@@ -60,9 +60,9 @@ export namespace Server {
     const result = await generateSpecs(app, {
       documentation: {
         info: {
-          title: "opencode",
+          title: "fbh",
           version: "1.0.0",
-          description: "opencode api",
+          description: "fbh api",
         },
         openapi: "3.1.1",
       },

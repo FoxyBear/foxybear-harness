@@ -8,7 +8,7 @@ import { UI } from "./ui"
 
 export function FormatError(input: unknown) {
   if (MCP.Failed.isInstance(input))
-    return `MCP server "${input.data.name}" failed. Note, opencode does not support MCP authentication yet.`
+    return `MCP server "${input.data.name}" failed. Note, fbh does not support MCP authentication yet.`
   if (input instanceof AccountTransportError || input instanceof AccountServiceError) {
     return input.message
   }

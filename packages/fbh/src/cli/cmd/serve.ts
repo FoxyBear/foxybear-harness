@@ -38,7 +38,7 @@ async function startDaemon(args: NetworkOptions & { background?: boolean }) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
     } catch {
       console.error(`Error: SurrealDB server is not reachable at ${url}`)
-      console.error(`Start it with:\n  ~/.surrealdb/surreal start --user root --pass root surrealkv:~/.local/share/opencode/memory-server`)
+      console.error(`Start it with:\n  ~/.surrealdb/surreal start --user root --pass root surrealkv:~/.local/share/foxybear/memory-server`)
       process.exit(1)
     }
   }

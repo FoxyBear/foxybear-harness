@@ -127,7 +127,7 @@ export namespace Plugin {
             directory: ctx.directory,
             headers: Flag.FBH_SERVER_PASSWORD
               ? {
-                  Authorization: `Basic ${Buffer.from(`${Flag.FBH_SERVER_USERNAME ?? "opencode"}:${Flag.FBH_SERVER_PASSWORD}`).toString("base64")}`,
+                  Authorization: `Basic ${Buffer.from(`${Flag.FBH_SERVER_USERNAME ?? "fbh"}:${Flag.FBH_SERVER_PASSWORD}`).toString("base64")}`,
                 }
               : undefined,
             fetch: async (...args) => (await Server.Default()).app.fetch(...args),

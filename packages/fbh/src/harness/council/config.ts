@@ -36,7 +36,7 @@ export interface CouncilSettings {
 }
 
 export function loadSettings(): CouncilSettings {
-  const configPath = resolve(homedir(), ".config", "opencode", "council.json")
+  const configPath = resolve(homedir(), ".config", "foxybear", "council.json")
   if (existsSync(configPath)) {
     try {
       const raw = readFileSync(configPath, "utf-8")

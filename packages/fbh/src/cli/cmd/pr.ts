@@ -101,7 +101,7 @@ export const PrCommand = cmd({
                 UI.println(`Found fbh session: ${sessionUrl}`)
                 UI.println(`Importing session...`)
 
-                const importResult = await Process.text(["opencode", "import", sessionUrl], {
+                const importResult = await Process.text(["fbh", "import", sessionUrl], {
                   nothrow: true,
                 })
                 if (importResult.code === 0) {
@@ -120,17 +120,17 @@ export const PrCommand = cmd({
 
         UI.println(`Successfully checked out PR #${prNumber} as branch '${localBranchName}'`)
         UI.println()
-        UI.println("Starting opencode...")
+        UI.println("Starting fbh...")
         UI.println()
 
-        const opencodeArgs = sessionId ? ["-s", sessionId] : []
-        const opencodeProcess = Process.spawn(["opencode", ...opencodeArgs], {
+        const fbhArgs = sessionId ? ["-s", sessionId] : []
+        const fbhProcess = Process.spawn(["fbh", ...fbhArgs], {
           stdin: "inherit",
           stdout: "inherit",
           stderr: "inherit",
           cwd: process.cwd(),
         })
-        const code = await opencodeProcess.exited
+        const code = await fbhProcess.exited
         if (code !== 0) throw new Error(`fbh exited with code ${code}`)
       },
     })

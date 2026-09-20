@@ -10,11 +10,11 @@ export namespace Observability {
   export const enabled = !!base
 
   const resource = {
-    serviceName: "opencode",
+    serviceName: "fbh",
     serviceVersion: VERSION,
     attributes: {
       "deployment.environment.name": CHANNEL === "local" ? "local" : CHANNEL,
-      "opencode.client": Flag.FBH_CLIENT,
+      "fbh.client": Flag.FBH_CLIENT,
     },
   }
 

@@ -63,7 +63,7 @@ export namespace Config {
       case "darwin":
         return "/Library/Application Support/foxybear"
       case "win32":
-        return path.join(process.env.ProgramData || "C:\\ProgramData", "opencode")
+        return path.join(process.env.ProgramData || "C:\\ProgramData", "foxybear")
       default:
         return "/etc/foxybear"
     }
@@ -733,7 +733,7 @@ export namespace Config {
       port: z.number().int().positive().optional().describe("Port to listen on"),
       hostname: z.string().optional().describe("Hostname to listen on"),
       mdns: z.boolean().optional().describe("Enable mDNS service discovery"),
-      mdnsDomain: z.string().optional().describe("Custom domain name for mDNS service (default: opencode.local)"),
+      mdnsDomain: z.string().optional().describe("Custom domain name for mDNS service (default: foxybear.local)"),
       cors: z.array(z.string()).optional().describe("Additional domains to allow for CORS"),
     })
     .strict()
@@ -867,7 +867,7 @@ export namespace Config {
     .object({
       $schema: z.string().optional().describe("JSON schema reference for configuration validation"),
       logLevel: Log.Level.optional().describe("Log level"),
-      server: Server.optional().describe("Server configuration for opencode serve and web commands"),
+      server: Server.optional().describe("Server configuration for fbh serve and web commands"),
       command: z
         .record(z.string(), Command)
         .optional()
@@ -1234,7 +1234,7 @@ export namespace Config {
           delete copy.theme
           delete copy.keybinds
           delete copy.tui
-          log.warn("tui keys in opencode config are deprecated; move them to tui.json", { path: source })
+          log.warn("tui keys in legacy config are deprecated; move them to tui.json", { path: source })
           return copy
         })()
 

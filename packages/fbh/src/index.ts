@@ -55,7 +55,7 @@ const args = hideBin(process.argv)
 
 function show(out: string) {
   const text = out.trimStart()
-  if (!text.startsWith("opencode ")) {
+  if (!text.startsWith("fbh ")) {
     process.stderr.write(UI.logo() + EOL + EOL)
     process.stderr.write(text)
     return
@@ -105,7 +105,7 @@ const cli = yargs(args)
     process.env.OPENCODE = "1"
     process.env.FBH_PID = String(process.pid)
 
-    Log.Default.info("opencode", {
+    Log.Default.info("fbh", {
       version: Installation.VERSION,
       args: process.argv.slice(2),
     })

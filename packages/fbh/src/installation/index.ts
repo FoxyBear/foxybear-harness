@@ -57,7 +57,7 @@ export namespace Installation {
 
   export const VERSION = version
   export const CHANNEL = channel
-  export const USER_AGENT = `opencode/${CHANNEL}/${VERSION}/${Flag.FBH_CLIENT}`
+  export const USER_AGENT = `fbh/${CHANNEL}/${VERSION}/${Flag.FBH_CLIENT}`
 
   export function isPreview() {
     return CHANNEL !== "latest"
