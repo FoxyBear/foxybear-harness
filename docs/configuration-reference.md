@@ -71,14 +71,19 @@ The directory walk (`ConfigPaths.directories`) looks for `.foxybear/` dirs from 
 
 ## TUI config
 
-| File | Location | Purpose |
-|---|---|---|
-| `~/.config/foxybear/tui.json` | global | TUI keybindings, theme reference, sidebar state, display options |
-| `~/.config/foxybear/tui.jsonc` | global | JSONC variant |
-| `.foxybear/tui.json` | project | Project-local TUI overrides |
-| `.foxybear/tui.jsonc` | project | JSONC variant |
+Optional. If no `tui.json` exists anywhere, the TUI uses built-in defaults. The harness looks for it (and merges in order) in:
 
-Schema: `https://foxybear.ai/tui.json`. The TUI migrator (`src/config/tui-migrate.ts`) auto-moves legacy `tui` keys found in `fbh.json` into a dedicated `tui.json` (per-directory, skips where `tui.json` already exists).
+| Location | Purpose |
+|---|---|
+| `~/.config/foxybear/tui.json(c)` | Global TUI overrides (keybindings, theme, sidebar state) |
+| `<project>/tui.json(c)` (walked up to worktree root) | Project-local TUI overrides |
+| `.foxybear/tui.json(c)` (project config dir) | Project-local TUI overrides |
+| `$FBH_TUI_CONFIG` (env var) | Custom path to a single TUI config file |
+| Managed config dir (`/Library/Application Support/foxybear/tui.json`) | Enterprise/MDM overrides (highest priority) |
+
+Schema: `https://foxybear.ai/tui.json`. The TUI migrator (`src/config/tui-migrate.ts`) auto-moves legacy `tui` keys found in `fbh.json` into a dedicated `tui.json` per-directory (skips where `tui.json` already exists).
+
+What it contains: keybindings, theme reference, sidebar state, display options. All optional — the TUI works fine without it.
 
 ## Themes
 

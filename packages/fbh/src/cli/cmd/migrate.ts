@@ -242,12 +242,6 @@ async function runMigration(dryRun: boolean): Promise<void> {
     } catch {}
   }
 
-  // Stale PID warning
-  const pidFile = path.join(home, ".local", "share", "opencode", "foxybear-serve.pid")
-  if (await exists(pidFile)) {
-    lines.push("warn: stale foxybear-serve.pid found; fresh PID created on next daemon start")
-  }
-
   await mkdir(newData, { recursive: true })
   await writeFile(logFile, lines.join("\n") + "\n")
 

@@ -178,7 +178,7 @@ export namespace Config {
       })
       if (!md) continue
 
-      const patterns = ["/.foxybear/command/", "/.foxybear/commands/", "/.opencode/command/", "/.opencode/commands/", "/command/", "/commands/"]
+      const patterns = ["/.foxybear/command/", "/.foxybear/commands/", "/command/", "/commands/"]
       const file = rel(item, patterns) ?? path.basename(item)
       const name = trim(file)
 
@@ -217,7 +217,7 @@ export namespace Config {
       })
       if (!md) continue
 
-      const patterns = ["/.foxybear/agent/", "/.foxybear/agents/", "/.opencode/agent/", "/.opencode/agents/", "/agent/", "/agents/"]
+      const patterns = ["/.foxybear/agent/", "/.foxybear/agents/", "/agent/", "/agents/"]
       const file = rel(item, patterns) ?? path.basename(item)
       const agentName = trim(file)
 
@@ -1278,20 +1278,6 @@ export namespace Config {
           mergeDeep(yield* loadFile(path.join(Global.Path.config, "foxybear.jsonc"))),
         )
 
-        // Backward-compat: read legacy ~/.config/opencode/ (old XDG app name) with deprecation warning.
-        // The rebrand changed Global.Path.config from ~/.config/opencode to ~/.config/foxybear;
-        // users with existing configs at the old path get them loaded here until they run `fbh migrate`.
-        const legacyConfigDir = path.join(path.dirname(Global.Path.config), "opencode")
-        if (legacyConfigDir !== Global.Path.config && existsSync(legacyConfigDir)) {
-          for (const f of ["config.json", "opencode.json", "opencode.jsonc", "foxybear.json", "foxybear.jsonc"]) {
-            const legacyFile = path.join(legacyConfigDir, f)
-            if (existsSync(legacyFile)) {
-              log.warn("reading legacy config (run `fbh migrate` to move it)", { path: legacyFile })
-              result = mergeDeep(result, yield* loadFile(legacyFile))
-            }
-          }
-        }
-
         const legacy = path.join(Global.Path.config, "config")
         if (existsSync(legacy)) {
           yield* Effect.promise(() =>
@@ -1455,7 +1441,7 @@ export namespace Config {
 
         if (!Flag.FBH_DISABLE_PROJECT_CONFIG) {
           for (const file of yield* Effect.promise(() =>
-            ConfigPaths.projectFiles("opencode", ctx.directory, ctx.worktree),
+            ConfigPaths.projectFiles("foxybear", ctx.directory, ctx.worktree),
           )) {
             yield* merge(file, yield* loadFile(file), "local")
           }
@@ -1474,8 +1460,8 @@ export namespace Config {
         const deps: Fiber.Fiber<void, never>[] = []
 
         for (const dir of unique(directories)) {
-          if (dir.endsWith(".foxybear") || dir.endsWith(".opencode") || dir === Flag.FBH_CONFIG_DIR) {
-            for (const file of ["foxybear.json", "foxybear.jsonc", "opencode.json", "opencode.jsonc"]) {
+          if (dir.endsWith(".foxybear") || dir === Flag.FBH_CONFIG_DIR) {
+            for (const file of ["foxybear.json", "foxybear.jsonc"]) {
               const source = path.join(dir, file)
               log.debug(`loading config from ${source}`)
               yield* merge(source, yield* loadFile(source))

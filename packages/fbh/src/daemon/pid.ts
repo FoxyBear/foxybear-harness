@@ -6,7 +6,6 @@ import { Log } from "../util/log"
 const log = Log.create({ service: "daemon.pid" })
 
 const PID_FILENAME = "fbh-serve.pid"
-const LEGACY_PID_FILENAME = "foxybear-serve.pid"
 
 interface PidData {
   pid: number
@@ -16,21 +15,6 @@ interface PidData {
 
 function defaultPidPath(): string {
   return path.join(Global.Path.data, PID_FILENAME)
-}
-
-// Backward-compat: the old binary wrote to ~/.local/share/opencode/foxybear-serve.pid.
-// Check there if the new path doesn't have a PID file.
-function legacyPidPath(): string {
-  return path.join(path.dirname(Global.Path.data), "opencode", LEGACY_PID_FILENAME)
-}
-
-function resolvePidPath(pidFile?: string): string {
-  if (pidFile) return pidFile
-  const primary = defaultPidPath()
-  if (fs.existsSync(primary)) return primary
-  const legacy = legacyPidPath()
-  if (fs.existsSync(legacy)) return legacy
-  return primary
 }
 
 function isPidAlive(pid: number): boolean {
@@ -61,7 +45,7 @@ export interface DaemonStatus {
 
 export namespace DaemonPid {
   export function check(pidFile?: string): DaemonStatus {
-    const pidPath = resolvePidPath(pidFile)
+    const pidPath = pidFile ?? defaultPidPath()
     const data = readPidFile(pidPath)
     if (!data) return { state: "stopped" }
     if (isPidAlive(data.pid)) {

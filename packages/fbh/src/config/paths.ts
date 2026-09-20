@@ -13,19 +13,12 @@ export namespace ConfigPaths {
   }
 
   export async function directories(directory: string, worktree: string) {
-    // Backward-compat: include legacy ~/.config/opencode/ so commands/personas/agents
-    // load from the old XDG path until the user runs `fbh migrate`.
-    const legacyConfigDir = path.join(path.dirname(Global.Path.config), "opencode")
-    const dirs = [
-      Global.Path.config,
-      ...(legacyConfigDir !== Global.Path.config && existsSyncLegacy(legacyConfigDir) ? [legacyConfigDir] : []),
-    ]
     return [
-      ...dirs,
+      Global.Path.config,
       ...(!Flag.FBH_DISABLE_PROJECT_CONFIG
         ? await Array.fromAsync(
             Filesystem.up({
-              targets: [".foxybear", ".opencode"],
+              targets: [".foxybear"],
               start: directory,
               stop: worktree,
             }),
@@ -33,22 +26,13 @@ export namespace ConfigPaths {
         : []),
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".foxybear", ".opencode"],
+          targets: [".foxybear"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
       )),
       ...(Flag.FBH_CONFIG_DIR ? [Flag.FBH_CONFIG_DIR] : []),
     ]
-  }
-
-  function existsSyncLegacy(p: string): boolean {
-    try {
-      const fs = require("fs")
-      return fs.existsSync(p)
-    } catch {
-      return false
-    }
   }
 
   export function fileInDirectory(dir: string, name: string) {
