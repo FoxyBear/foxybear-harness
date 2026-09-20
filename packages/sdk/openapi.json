@@ -1,16 +1,17 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "opencode",
-    "description": "opencode api",
-    "version": "1.0.0"
+    "title": "fbh",
+    "description": "fbh api",
+    "version": "1.0.0",
+    "_note": "REGENERATE BEFORE PUBLISHING. This file was sed-renamed during the FoxyBear rebrand (opencode → fbh) but NOT regenerated from the actual server routes. Before publishing @foxybear/sdk or building an external consumer (mobile app, partner SDK, web client), regenerate via `./packages/sdk/js/script/build.ts` (requires a running fbh server). The sed rename is mechanical and probably correct, but it's not verified against the actual routes."
   },
   "paths": {
     "/global/health": {
       "get": {
         "operationId": "global.health",
         "summary": "Get health",
-        "description": "Get health information about the OpenCode server.",
+        "description": "Get health information about the fbh server.",
         "responses": {
           "200": {
             "description": "Health information",
@@ -36,7 +37,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.global.health({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.global.health({\n  ...\n})"
           }
         ]
       }
@@ -61,7 +62,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.global.event({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.global.event({\n  ...\n})"
           }
         ]
       }
@@ -86,7 +87,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.global.config.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.global.config.get({\n  ...\n})"
           }
         ]
       },
@@ -128,7 +129,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.global.config.update({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.global.config.update({\n  ...\n})"
           }
         ]
       }
@@ -153,7 +154,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.global.dispose({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.global.dispose({\n  ...\n})"
           }
         ]
       }
@@ -162,7 +163,7 @@
       "post": {
         "operationId": "global.upgrade",
         "summary": "Upgrade opencode",
-        "description": "Upgrade opencode to the specified version or latest if not specified.",
+        "description": "Upgrade fbh to the specified version or latest if not specified.",
         "responses": {
           "200": {
             "description": "Upgrade result",
@@ -229,7 +230,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.global.upgrade({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.global.upgrade({\n  ...\n})"
           }
         ]
       }
@@ -283,7 +284,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.auth.set({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.auth.set({\n  ...\n})"
           }
         ]
       },
@@ -326,7 +327,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.auth.remove({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.auth.remove({\n  ...\n})"
           }
         ]
       }
@@ -410,7 +411,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.app.log({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.app.log({\n  ...\n})"
           }
         ]
       }
@@ -454,7 +455,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.project.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.project.list({\n  ...\n})"
           }
         ]
       }
@@ -495,7 +496,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.project.current({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.project.current({\n  ...\n})"
           }
         ]
       }
@@ -536,7 +537,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.project.initGit({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.project.initGit({\n  ...\n})"
           }
         ]
       }
@@ -642,7 +643,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.project.update({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.project.update({\n  ...\n})"
           }
         ]
       }
@@ -686,7 +687,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.pty.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.pty.list({\n  ...\n})"
           }
         ]
       },
@@ -770,7 +771,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.pty.create({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.pty.create({\n  ...\n})"
           }
         ]
       }
@@ -830,7 +831,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.pty.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.pty.get({\n  ...\n})"
           }
         ]
       },
@@ -914,7 +915,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.pty.update({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.pty.update({\n  ...\n})"
           }
         ]
       },
@@ -972,7 +973,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.pty.remove({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.pty.remove({\n  ...\n})"
           }
         ]
       }
@@ -1032,7 +1033,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.pty.connect({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.pty.connect({\n  ...\n})"
           }
         ]
       }
@@ -1073,7 +1074,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.config.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.config.get({\n  ...\n})"
           }
         ]
       },
@@ -1131,7 +1132,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.config.update({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.config.update({\n  ...\n})"
           }
         ]
       }
@@ -1190,7 +1191,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.config.providers({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.config.providers({\n  ...\n})"
           }
         ]
       }
@@ -1248,7 +1249,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.console.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.console.get({\n  ...\n})"
           }
         ]
       }
@@ -1319,7 +1320,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.console.listOrgs({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.console.listOrgs({\n  ...\n})"
           }
         ]
       }
@@ -1378,7 +1379,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.console.switchOrg({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.console.switchOrg({\n  ...\n})"
           }
         ]
       }
@@ -1429,7 +1430,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tool.ids({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tool.ids({\n  ...\n})"
           }
         ]
       }
@@ -1496,7 +1497,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tool.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tool.list({\n  ...\n})"
           }
         ]
       }
@@ -1552,7 +1553,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.adaptor.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.adaptor.list({\n  ...\n})"
           }
         ]
       }
@@ -1640,7 +1641,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.create({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.create({\n  ...\n})"
           }
         ]
       },
@@ -1682,7 +1683,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.list({\n  ...\n})"
           }
         ]
       }
@@ -1740,7 +1741,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.status({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.status({\n  ...\n})"
           }
         ]
       }
@@ -1800,7 +1801,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.remove({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.workspace.remove({\n  ...\n})"
           }
         ]
       }
@@ -1860,7 +1861,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.worktree.create({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.worktree.create({\n  ...\n})"
           }
         ]
       },
@@ -1902,7 +1903,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.worktree.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.worktree.list({\n  ...\n})"
           }
         ]
       },
@@ -1960,7 +1961,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.worktree.remove({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.worktree.remove({\n  ...\n})"
           }
         ]
       }
@@ -2020,7 +2021,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.worktree.reset({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.worktree.reset({\n  ...\n})"
           }
         ]
       }
@@ -2113,7 +2114,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.session.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.session.list({\n  ...\n})"
           }
         ]
       }
@@ -2160,7 +2161,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.experimental.resource.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.experimental.resource.list({\n  ...\n})"
           }
         ]
       }
@@ -2237,7 +2238,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.list({\n  ...\n})"
           }
         ]
       },
@@ -2311,7 +2312,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.create({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.create({\n  ...\n})"
           }
         ]
       }
@@ -2368,7 +2369,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.status({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.status({\n  ...\n})"
           }
         ]
       }
@@ -2439,7 +2440,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.get({\n  ...\n})"
           }
         ]
       },
@@ -2507,7 +2508,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.delete({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.delete({\n  ...\n})"
           }
         ]
       },
@@ -2600,7 +2601,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.update({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.update({\n  ...\n})"
           }
         ]
       }
@@ -2674,7 +2675,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.children({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.children({\n  ...\n})"
           }
         ]
       }
@@ -2747,7 +2748,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.todo({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.todo({\n  ...\n})"
           }
         ]
       }
@@ -2839,7 +2840,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.init({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.init({\n  ...\n})"
           }
         ]
       }
@@ -2904,7 +2905,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.fork({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.fork({\n  ...\n})"
           }
         ]
       }
@@ -2974,7 +2975,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.abort({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.abort({\n  ...\n})"
           }
         ]
       }
@@ -3044,7 +3045,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.share({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.share({\n  ...\n})"
           }
         ]
       },
@@ -3112,7 +3113,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.unshare({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.unshare({\n  ...\n})"
           }
         ]
       }
@@ -3173,7 +3174,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.diff({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.diff({\n  ...\n})"
           }
         ]
       }
@@ -3265,7 +3266,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.summarize({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.summarize({\n  ...\n})"
           }
         ]
       }
@@ -3367,7 +3368,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.messages({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.messages({\n  ...\n})"
           }
         ]
       },
@@ -3519,7 +3520,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.prompt({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.prompt({\n  ...\n})"
           }
         ]
       }
@@ -3610,7 +3611,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.message({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.message({\n  ...\n})"
           }
         ]
       },
@@ -3687,7 +3688,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.deleteMessage({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.deleteMessage({\n  ...\n})"
           }
         ]
       }
@@ -3774,7 +3775,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.part.delete({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.part.delete({\n  ...\n})"
           }
         ]
       },
@@ -3868,7 +3869,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.part.update({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.part.update({\n  ...\n})"
           }
         ]
       }
@@ -4003,7 +4004,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.prompt_async({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.prompt_async({\n  ...\n})"
           }
         ]
       }
@@ -4149,7 +4150,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.command({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.command({\n  ...\n})"
           }
         ]
       }
@@ -4265,7 +4266,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.shell({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.shell({\n  ...\n})"
           }
         ]
       }
@@ -4355,7 +4356,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.revert({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.revert({\n  ...\n})"
           }
         ]
       }
@@ -4425,7 +4426,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.session.unrevert({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.session.unrevert({\n  ...\n})"
           }
         ]
       }
@@ -4521,7 +4522,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.permission.respond({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.permission.respond({\n  ...\n})"
           }
         ]
       }
@@ -4610,7 +4611,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.permission.reply({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.permission.reply({\n  ...\n})"
           }
         ]
       }
@@ -4654,7 +4655,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.permission.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.permission.list({\n  ...\n})"
           }
         ]
       }
@@ -4698,7 +4699,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.question.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.question.list({\n  ...\n})"
           }
         ]
       }
@@ -4787,7 +4788,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.question.reply({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.question.reply({\n  ...\n})"
           }
         ]
       }
@@ -4857,7 +4858,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.question.reject({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.question.reject({\n  ...\n})"
           }
         ]
       }
@@ -4922,7 +4923,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.provider.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.provider.list({\n  ...\n})"
           }
         ]
       }
@@ -4972,7 +4973,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.provider.auth({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.provider.auth({\n  ...\n})"
           }
         ]
       }
@@ -5058,7 +5059,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.provider.oauth.authorize({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.provider.oauth.authorize({\n  ...\n})"
           }
         ]
       }
@@ -5138,7 +5139,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.provider.oauth.callback({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.provider.oauth.callback({\n  ...\n})"
           }
         ]
       }
@@ -5241,7 +5242,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.find.text({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.find.text({\n  ...\n})"
           }
         ]
       }
@@ -5318,7 +5319,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.find.files({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.find.files({\n  ...\n})"
           }
         ]
       }
@@ -5370,7 +5371,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.find.symbols({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.find.symbols({\n  ...\n})"
           }
         ]
       }
@@ -5422,7 +5423,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.file.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.file.list({\n  ...\n})"
           }
         ]
       }
@@ -5471,7 +5472,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.file.read({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.file.read({\n  ...\n})"
           }
         ]
       }
@@ -5515,7 +5516,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.file.status({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.file.status({\n  ...\n})"
           }
         ]
       }
@@ -5556,7 +5557,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.event.subscribe({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.event.subscribe({\n  ...\n})"
           }
         ]
       }
@@ -5603,7 +5604,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.status({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.status({\n  ...\n})"
           }
         ]
       },
@@ -5683,7 +5684,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.add({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.add({\n  ...\n})"
           }
         ]
       }
@@ -5759,7 +5760,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.start({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.start({\n  ...\n})"
           }
         ]
       },
@@ -5823,7 +5824,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.remove({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.remove({\n  ...\n})"
           }
         ]
       }
@@ -5908,7 +5909,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.callback({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.callback({\n  ...\n})"
           }
         ]
       }
@@ -5977,7 +5978,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.authenticate({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.auth.authenticate({\n  ...\n})"
           }
         ]
       }
@@ -6025,7 +6026,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.connect({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.connect({\n  ...\n})"
           }
         ]
       }
@@ -6073,7 +6074,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.mcp.disconnect({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.mcp.disconnect({\n  ...\n})"
           }
         ]
       }
@@ -6139,7 +6140,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.appendPrompt({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.appendPrompt({\n  ...\n})"
           }
         ]
       }
@@ -6180,7 +6181,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.openHelp({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.openHelp({\n  ...\n})"
           }
         ]
       }
@@ -6221,7 +6222,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.openSessions({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.openSessions({\n  ...\n})"
           }
         ]
       }
@@ -6262,7 +6263,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.openThemes({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.openThemes({\n  ...\n})"
           }
         ]
       }
@@ -6303,7 +6304,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.openModels({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.openModels({\n  ...\n})"
           }
         ]
       }
@@ -6344,7 +6345,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.submitPrompt({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.submitPrompt({\n  ...\n})"
           }
         ]
       }
@@ -6385,7 +6386,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.clearPrompt({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.clearPrompt({\n  ...\n})"
           }
         ]
       }
@@ -6451,7 +6452,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.executeCommand({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.executeCommand({\n  ...\n})"
           }
         ]
       }
@@ -6519,7 +6520,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.showToast({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.showToast({\n  ...\n})"
           }
         ]
       }
@@ -6592,7 +6593,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.publish({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.publish({\n  ...\n})"
           }
         ]
       }
@@ -6670,7 +6671,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.selectSession({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.selectSession({\n  ...\n})"
           }
         ]
       }
@@ -6718,7 +6719,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.control.next({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.control.next({\n  ...\n})"
           }
         ]
       }
@@ -6766,7 +6767,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.tui.control.response({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.tui.control.response({\n  ...\n})"
           }
         ]
       }
@@ -6807,7 +6808,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.instance.dispose({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.instance.dispose({\n  ...\n})"
           }
         ]
       }
@@ -6848,7 +6849,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.path.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.path.get({\n  ...\n})"
           }
         ]
       }
@@ -6889,7 +6890,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.vcs.get({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.vcs.get({\n  ...\n})"
           }
         ]
       }
@@ -6942,7 +6943,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.vcs.diff({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.vcs.diff({\n  ...\n})"
           }
         ]
       }
@@ -6986,7 +6987,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.command.list({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.command.list({\n  ...\n})"
           }
         ]
       }
@@ -7030,7 +7031,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.app.agents({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.app.agents({\n  ...\n})"
           }
         ]
       }
@@ -7089,7 +7090,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.app.skills({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.app.skills({\n  ...\n})"
           }
         ]
       }
@@ -7133,7 +7134,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.lsp.status({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.lsp.status({\n  ...\n})"
           }
         ]
       }
@@ -7177,7 +7178,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createFbhClient } from \"@opencode-ai/sdk\n\nconst client = createFbhClient()\nawait client.formatter.status({\n  ...\n})"
+            "source": "import { createFbhClient } from \"@foxybear/sdk\n\nconst client = createFbhClient()\nawait client.formatter.status({\n  ...\n})"
           }
         ]
       }
@@ -10577,7 +10578,7 @@
         "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
       },
       "ServerConfig": {
-        "description": "Server configuration for opencode serve and web commands",
+        "description": "Server configuration for fbh serve and web commands",
         "type": "object",
         "properties": {
           "port": {

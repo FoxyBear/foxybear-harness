@@ -1,4 +1,16 @@
 #!/usr/bin/env bun
+//
+// NOTE (FoxyBear rebrand): The openapi.json at packages/sdk/openapi.json was
+// sed-renamed (opencode → fbh) but NOT regenerated from the actual server
+// routes. Before publishing @foxybear/sdk or building an external consumer
+// (mobile app, partner SDK, web client), run this script to regenerate:
+//
+//   ./packages/sdk/js/script/build.ts
+//
+// This requires a running fbh server (the `bun dev generate` command below
+// starts one). The regenerated file will reflect the actual routes, not the
+// sed-renamed approximation.
+//
 import { fileURLToPath } from "url"
 
 const dir = fileURLToPath(new URL("..", import.meta.url))
@@ -9,7 +21,7 @@ import path from "path"
 
 import { createClient } from "@hey-api/openapi-ts"
 
-await $`bun dev generate > ${dir}/openapi.json`.cwd(path.resolve(dir, "../../opencode"))
+await $`bun dev generate > ${dir}/openapi.json`.cwd(path.resolve(dir, "../../fbh"))
 
 await createClient({
   input: "./openapi.json",
