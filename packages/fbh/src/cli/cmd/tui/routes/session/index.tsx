@@ -263,6 +263,8 @@ export function Session() {
         `${logo[1] ?? ""}`,
         `${logo[2] ?? ""}`,
         `${logo[3] ?? ""}`,
+        `${logo[4] ?? ""}`,
+        `${logo[5] ?? ""}`,
         ``,
         `  ${weak("Session")}${UI.Style.TEXT_NORMAL_BOLD}${title}${UI.Style.TEXT_NORMAL}`,
         `  ${weak("Continue")}${UI.Style.TEXT_NORMAL_BOLD}fbh -s ${session()?.id}${UI.Style.TEXT_NORMAL}`,
