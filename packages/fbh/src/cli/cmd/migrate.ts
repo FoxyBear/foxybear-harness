@@ -34,9 +34,21 @@ async function mergeConfig(src: string, dest: string): Promise<void> {
   const content = await readFile(src, "utf-8")
   const translated = content.replace(/\{env:OPENCODE_([A-Z_]+)\}/g, "{env:FBH_$1}")
   await mkdir(path.dirname(dest), { recursive: true })
+
+  // If target exists, merge src into target (target wins on key collision).
+  // This consolidates opencode.json + foxybear.json into a single fbh.json.
   try {
     await stat(dest)
-    log.debug("merge: target exists, keeping target", dest)
+    try {
+      const targetJson = JSON.parse(await readFile(dest, "utf-8"))
+      const srcJson = JSON.parse(translated)
+      const merged = { ...srcJson, ...targetJson } // target wins
+      await writeFile(dest, JSON.stringify(merged, null, 2) + "\n")
+      log.debug("merge: consolidated into existing target", { dest })
+    } catch {
+      // Target isn't valid JSON — leave it alone, don't overwrite
+      log.debug("merge: target exists but not valid JSON, keeping target", { dest })
+    }
     return
   } catch {}
   await writeFile(dest, translated)
@@ -86,11 +98,12 @@ async function planMigration(): Promise<{ copy: CopyAction[]; skip: SkipAction[]
 
   if (await exists(oldCfg)) {
     // Config files (merge with token translation)
+    // foxybear.json/jsonc consolidate INTO fbh.json/jsonc (single canonical config)
     const configFiles: Array<[string, string]> = [
       ["opencode.json", "fbh.json"],
       ["opencode.jsonc", "fbh.jsonc"],
-      ["foxybear.json", "foxybear.json"],
-      ["foxybear.jsonc", "foxybear.jsonc"],
+      ["foxybear.json", "fbh.json"],
+      ["foxybear.jsonc", "fbh.jsonc"],
       ["council.json", "council.json"],
     ]
     for (const [srcName, destName] of configFiles) {
