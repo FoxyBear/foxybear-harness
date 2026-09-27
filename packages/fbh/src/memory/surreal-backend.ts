@@ -208,7 +208,9 @@ export class SurrealBackend implements MemoryBackend {
     const scopeClause =
       input.scope === "all"
         ? `scope IN ['instance','project','global']`
-        : `scope = "${input.scope}"`
+        : input.scope === "project"
+          ? `scope IN ['project','global']`
+          : `scope = "${input.scope}"`
     const projectClause = projectId ? `AND (project_id = "${escapeStr(projectId)}" OR project_id = "global" OR project_id = "")` : ""
 
     // ── Leg 1: semantic ── §D-05a
@@ -239,22 +241,42 @@ export class SurrealBackend implements MemoryBackend {
     // in the same scope. Multi-hop deferred to a follow-up; SurrealDB
     // supports it natively via `->mentions->entity<-mentions<-memory`-style
     // path syntax, but v1 sticks to 1-hop for parity with Kuzu's footprint.
+    //
+    // Performance guard (fix): the original nested `SELECT VALUE <-mentions<-
+    // memory FROM (SELECT VALUE ->mentions->entity FROM memory ...)` has a
+    // query-planner pathology that hangs well past the call budget even with
+    // a LIMIT on the inner SELECT. Two-layer fix:
+    //   1. Short-circuit when the `mentions` table is empty (count guard).
+    //   2. Replace the nested path with a direct GROUP BY over the `mentions`
+    //      relation edges, filtered by a memory subquery. This is O(edges)
+    //      instead of O(memory²).
+    //   3. JS-side 2s timeout as a safety net — if SurrealDB still hangs on
+    //      a pathological edge case, the graph leg returns empty and RRF
+    //      falls back to the semantic + keyword legs.
     const asOf = input.as_of ?? new Date().toISOString()
-    const graphRows = await this.run(
-      `SELECT meta::id(id) AS id, count() AS overlap FROM memory
-       WHERE ${scopeClause} ${projectClause}
-         AND id IN (
-           SELECT VALUE <-mentions<-memory FROM (
-             SELECT VALUE ->mentions->entity FROM memory
-             WHERE ${scopeClause} ${projectClause}
+    let graphRows: any[] = []
+    try {
+      const mentionCount = await this.run(`SELECT count() AS c FROM mentions GROUP ALL;`)
+      const n = Number((mentionCount?.[0] as { c?: number } | undefined)?.c ?? 0)
+      if (n > 0) {
+        const graphPromise = this.run(
+          `SELECT meta::id(in) AS id, count() AS overlap FROM mentions
+           WHERE in IN (
+             SELECT id FROM memory WHERE ${scopeClause} ${projectClause}
            )
-         )
-       GROUP BY id
-       ORDER BY overlap DESC
-       LIMIT 200;`,
-    ).catch(() => [] as any[])
-    // The graph leg may return empty in v1 if no entities have been written yet
-    // (entity extraction is deferred — see deferred-items §2 #1). Empty is fine.
+           GROUP BY id
+           ORDER BY overlap DESC
+           LIMIT 200;`,
+        ).catch(() => [] as any[])
+        graphRows = await Promise.race([
+          graphPromise,
+          new Promise<any[]>((resolve) => setTimeout(() => resolve([]), 2000)),
+        ])
+      }
+    } catch {
+      // mentions table may not exist yet (deferred entity extraction).
+      // Empty graph leg is fine — RRF just falls back to the other two legs.
+    }
     const graphRanking: string[] = (graphRows ?? []).map((r: any) => String(r.id))
 
     // ── Reciprocal rank fusion ──
@@ -375,13 +397,14 @@ export class SurrealBackend implements MemoryBackend {
    * left intact as a rollback safety net (per the design boundary in
    * docs/260427_foxybear_spec-memory-backend-kuzu.md §"Boundaries").
    */
-  async migrateFromSqlite(): Promise<MigrationReport> {
+  async migrateFromSqlite(opts?: { dryRun?: boolean }): Promise<MigrationReport> {
     if (!this.opened) throw new Error("SurrealBackend not initialized")
     const start = Date.now()
 
     const { Global } = await import("../global")
     const markerPath = path.join(Global.Path.data, "memory-migration-surreal.json")
-    if (fs.existsSync(markerPath)) {
+    // In dry-run, do NOT check or write the marker — dry-run is non-mutating.
+    if (!opts?.dryRun && fs.existsSync(markerPath)) {
       log.info("migration already complete, skipping", { markerPath })
       return { memories: 0, entities: 0, edges: 0, duration_ms: 0, ran: false }
     }
@@ -395,6 +418,23 @@ export class SurrealBackend implements MemoryBackend {
       entities: db.select().from(GraphEntityTable).all(),
       edges: db.select().from(GraphEdgeTable).all(),
     }))
+
+    if (opts?.dryRun) {
+      const planned = {
+        memories: rows.memories.length,
+        entities: rows.entities.length,
+        edges: rows.edges.length,
+      }
+      log.info("dry-run migration report", { planned_rows: planned })
+      return {
+        dryRun: true,
+        memories: planned.memories,
+        entities: planned.entities,
+        edges: planned.edges,
+        duration_ms: Date.now() - start,
+        ran: false,
+      }
+    }
 
     log.info("migrating from sqlite to surreal", {
       memories: rows.memories.length,

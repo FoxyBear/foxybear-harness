@@ -6,7 +6,6 @@ import { HeadlessSession } from "./headless"
 import { Installation } from "../installation"
 import { Scheduler } from "../scheduler/scheduler"
 import { Mesh } from "../mesh/mesh"
-import { getGlobalMemoryBackend } from "../memory/backend-registry"
 
 const HealthResponseSchema = z.object({
   status: z.literal("running"),
@@ -57,6 +56,7 @@ const StatusResponseSchema = z.object({
 export function memoryRoutes() {
   return new Hono()
     .post("/memory/write", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const body = await c.req.json()
@@ -65,6 +65,7 @@ export function memoryRoutes() {
       return c.json(result)
     })
     .post("/memory/query", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const body = await c.req.json()
@@ -73,6 +74,7 @@ export function memoryRoutes() {
       return c.json(results)
     })
     .post("/memory/forget", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const { id } = await c.req.json()
@@ -80,6 +82,7 @@ export function memoryRoutes() {
       return c.json({ ok: true })
     })
     .get("/memory/list", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const persona = c.req.query("persona") ?? "default"
@@ -88,6 +91,7 @@ export function memoryRoutes() {
       return c.json(results)
     })
     .post("/memory/list", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const { persona, limit } = await c.req.json()
@@ -95,12 +99,14 @@ export function memoryRoutes() {
       return c.json(results)
     })
     .get("/memory/metrics", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const metrics = await backend.metrics()
       return c.json(metrics)
     })
     .post("/memory/prunable", async (c) => {
+      const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
       const backend = getGlobalMemoryBackend()
       if (!backend) return c.json({ error: "memory backend not available" }, 503)
       const { ttl_days } = await c.req.json()
@@ -231,6 +237,7 @@ export function DaemonRoutes() {
         let projectCount = 0
         let globalCount = 0
         try {
+          const { getGlobalMemoryBackend } = await import("../memory/backend-registry")
           const memBackend = getGlobalMemoryBackend()
           if (memBackend) {
             const m = await memBackend.metrics()

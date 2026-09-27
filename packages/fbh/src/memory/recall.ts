@@ -1,6 +1,7 @@
 import { Embedding } from "./embedding"
-import { type MemoryResult, Memory } from "./memory"
+import { type MemoryResult, Memory, cosineSimilarity } from "./memory"
 import { getConfig } from "../config/bridge"
+import { getGlobalHypergraphBackend } from "./backend-registry"
 import { Log } from "../util/log"
 import { ulid } from "ulid"
 
@@ -171,6 +172,123 @@ async function queryWorkforce(input: {
 
 // ── Merge and dedup — delegates to shared function (FIX 3 + FIX 4) ──
 
+// ── Injection Fix — hypergraph node table dual-read + RRF fusion ──
+
+/**
+ * SDD: Injection Fix — fuse `memory` table results with `node` table results.
+ *
+ * Phase N memories live in the `node` table; the legacy `memory` table query
+ * misses them. Query the node table via the hypergraph backend's HNSW KNN
+ * (searchMemoryNodes) and RRF-fuse the two rankings.
+ *
+ * Graceful-degrades: if the hypergraph backend is absent, not healthy, or
+ * the query errors, returns the `memory` results unchanged.
+ */
+async function fuseHypergraphNodes(
+  memory: MemoryResult[],
+  queryEmbedding: Float32Array,
+  project_id: string | undefined,
+): Promise<MemoryResult[]> {
+  const hypergraph = getGlobalHypergraphBackend()
+  if (!hypergraph || !hypergraph.healthy()) return memory
+
+  let nodes: MemoryResult[] = []
+  try {
+    const rows = await hypergraph.searchMemoryNodes(
+      queryEmbedding,
+      project_id ?? "global",
+      20,
+    )
+    nodes = rows.map((n) => ({
+      id: n.node_id,
+      content: n.content,
+      persona: String(n.attributes.persona ?? ""),
+      scope: String(n.attributes.scope ?? "project"),
+      access_count: Number(n.attributes.usage_count ?? 0),
+      created_at: n.created_at > 0
+        ? String(n.created_at * 1000)
+        : String(Date.now()),
+      accessed_at: n.attributes.last_used != null
+        ? String(Number(n.attributes.last_used) * 1000)
+        : n.created_at > 0
+          ? String(n.created_at * 1000)
+          : String(Date.now()),
+      metadata: { ...n.attributes, memory_type: n.memory_type },
+      score: n.score,
+      source: "local" as const,
+    }))
+  } catch (err) {
+    log.warn("auto-recall: hypergraph node query failed, using memory results only", {
+      error: String(err),
+    })
+    return memory
+  }
+
+  if (nodes.length === 0) return memory
+  return rrfFuse(memory, nodes)
+}
+
+/**
+ * Reciprocal Rank Fusion of two MemoryResult rankings. k=60 (standard RRF
+ * constant, matching surreal-backend.ts:665 and packer.ts:146). Items
+ * appearing in both rankings (matched by exact content) get combined
+ * scores. Then fuzzy dedup by content cosine similarity > 0.9 keeps the
+ * higher-ranked item. Sort by RRF score descending.
+ */
+async function rrfFuse(
+  memory: MemoryResult[],
+  nodes: MemoryResult[],
+): Promise<MemoryResult[]> {
+  const K = 60
+  const DEDUP_THRESHOLD = 0.9
+
+  // Phase 1: combine RRF scores, dedup by exact content match.
+  type Scored = { item: MemoryResult; rrf: number }
+  const byContent = new Map<string, Scored>()
+  const add = (item: MemoryResult, rank: number) => {
+    const rrf = 1 / (K + rank + 1)
+    const existing = byContent.get(item.content)
+    if (existing) existing.rrf += rrf
+    else byContent.set(item.content, { item, rrf })
+  }
+  memory.forEach((item, rank) => add(item, rank))
+  nodes.forEach((item, rank) => add(item, rank))
+
+  const scored = [...byContent.values()]
+  if (scored.length <= 1) {
+    return scored
+      .sort((a, b) => b.rrf - a.rrf)
+      .map((s) => ({ ...s.item, score: s.rrf }))
+  }
+
+  // Phase 2: fuzzy dedup by content cosine similarity > 0.9.
+  const cfg = await resolveEmbeddingConfig()
+  const embeddings: (Float32Array | null)[] = []
+  for (const s of scored) {
+    const r = await Embedding.embedSafe(s.item.content, cfg)
+    embeddings.push(r.ok ? r.value : null)
+  }
+
+  const drop = new Set<number>()
+  for (let i = 0; i < scored.length; i++) {
+    if (drop.has(i)) continue
+    for (let j = i + 1; j < scored.length; j++) {
+      if (drop.has(j)) continue
+      const a = embeddings[i]
+      const b = embeddings[j]
+      if (a && b && cosineSimilarity(a, b) > DEDUP_THRESHOLD) {
+        if (scored[i]!.rrf >= scored[j]!.rrf) drop.add(j)
+        else { drop.add(i); break }
+      }
+    }
+  }
+
+  return scored
+    .filter((_, i) => !drop.has(i))
+    .sort((a, b) => b.rrf - a.rrf)
+    .map((s) => ({ ...s.item, score: s.rrf }))
+}
+
 // ── AutoRecall namespace ──
 
 export namespace AutoRecall {
@@ -234,6 +352,13 @@ export namespace AutoRecall {
       project_id: input.project_id,
     })
 
+    // SDD: Injection Fix — Hybrid Seed from `memory` + `node` tables.
+    // Phase N captures quality memories into `node` via classify, but the
+    // `memory` table query above misses them. Query the node table via
+    // the hypergraph backend's HNSW KNN and RRF-fuse with the memory
+    // results. Graceful-degrades if the backend is absent or errors.
+    const fused = await fuseHypergraphNodes(localResults, queryEmbedding, input.project_id)
+
     let results: MemoryResult[]
 
     if (input.workforceUrl) {
@@ -246,10 +371,10 @@ export namespace AutoRecall {
         timeoutMs: input.workforceTimeoutMs,
       })
 
-      // AR-12: Merge and dedup using cosine similarity, local preferred
-      results = await Memory.mergeAndDedup(localResults, workforceResults)
+      // AR-12: Merge and dedup using cosine similarity, fused preferred
+      results = await Memory.mergeAndDedup(fused, workforceResults)
     } else {
-      results = localResults
+      results = fused
     }
 
     // Cache results for this turn

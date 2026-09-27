@@ -49,6 +49,7 @@ import { Process } from "@/util/process"
 import { Cause, Effect, Exit, Layer, Option, Scope, Context } from "effect"
 import { EffectLogger } from "@/effect/logger"
 import { InstanceState } from "@/effect/instance-state"
+import { Instance } from "../project/instance"
 import { attach, makeRuntime } from "@/effect/run-service"
 import { TaskTool, type TaskPromptOps } from "@/tool/task"
 import { SessionRunState } from "./run-state"
@@ -116,6 +117,92 @@ export namespace SessionPrompt {
         fork: <A, E>(effect: Effect.Effect<A, E>) =>
           Effect.runFork(attach(effect).pipe(Effect.provide(EffectLogger.layer))),
       }
+
+      // SDD-02 / Phase M-0 — pre-prompt memory injection (WHAT #7-#9).
+      // SDD-07 / Phase M-4 — replaced the M-0 AutoRecall + formatForInjection
+      // wire-up with ContextPacker.pack. The packer delegates seeding to
+      // AutoRecall.autoRecall and MEMORY formatting to formatForInjection,
+      // then adds typed blocks (MESSAGE/ACTION/ERROR/PROCEDURE), RRF fusion
+      // with hypergraph expansion, composite scoring, L3 bootstrap, greedy
+      // budget-bounded packing, and provenance tracking. Skips slash
+      // commands. Graceful degradation on throw.
+      const inject = Effect.fnUntraced(function* (input: {
+        sessionID: SessionID
+        query: string
+        persona: string
+        project_id: string
+      }) {
+        if (!input.query || input.query.startsWith("/")) return ""
+        try {
+          const { isMemoryEnabled } = yield* Effect.promise(() => import("../memory/config"))
+          const enabled = yield* Effect.promise(() => isMemoryEnabled())
+          if (!enabled) return ""
+          const { ContextPacker } = yield* Effect.promise(() => import("../memory/packing/packer"))
+          const { Session } = yield* Effect.promise(() => import("../memory/packing/schema"))
+          const { getConfig } = yield* Effect.promise(() => import("../config/bridge"))
+          const cfg = yield* Effect.promise(() => getConfig())
+          const budget = cfg?.memory?.packing?.budget_tokens ?? 1024
+          const packed = yield* ContextPacker.pack(input.query, input.project_id, budget).pipe(
+            Effect.provideService(Session, {
+              sessionID: input.sessionID,
+              persona: input.persona,
+            }),
+          )
+          return packed.text
+        } catch (err) {
+          log.warn("memory inject failed", { sessionID: input.sessionID, error: String(err) })
+          return ""
+        }
+      })
+
+      const capture = Effect.fnUntraced(function* (input: {
+        sessionID: SessionID
+        messages: MessageV2.WithParts[]
+        persona: string
+      }) {
+        try {
+          const { isMemoryEnabled } = yield* Effect.promise(() => import("../memory/config"))
+          const enabled = yield* Effect.promise(() => isMemoryEnabled())
+          if (!enabled) return
+          const { Consolidation } = yield* Effect.promise(() => import("../memory/consolidation"))
+          const adapted = input.messages.map((m) => ({
+            role: m.info.role,
+            parts: m.parts.map((p) =>
+              p.type === "text" ? { type: "text" as const, content: p.text } : p,
+            ),
+          }))
+          yield* Effect.promise(() =>
+            Consolidation.extractTurn({
+              sessionID: input.sessionID,
+              messages: adapted,
+              persona: input.persona,
+            }),
+          )
+          const { TraceIngestor } = yield* Effect.promise(() => import("../memory/capture/trace"))
+          const { classify } = yield* Effect.promise(() => import("../memory/classify/pipeline"))
+          const turn = {
+            sessionID: input.sessionID,
+            messageID: input.messages[input.messages.length - 1]?.info.id ?? input.sessionID,
+            withParts: input.messages,
+            persona: input.persona,
+            project_id: Instance.project.id,
+          }
+          yield* Effect.promise(() => TraceIngestor.ingest(turn))
+          const text = turn.withParts
+            .flatMap((m: any) => m.parts)
+            .filter((p: any) => p.type === "text")
+            .map((p: any) => (p.type === "text" ? p.text : ""))
+            .join("\n")
+            .slice(0, 2000)
+          if (text.trim()) {
+            yield* Effect.promise(() =>
+              classify({ sessionID: input.sessionID, text, project_id: turn.project_id, persona: input.persona }),
+            )
+          }
+        } catch (err) {
+          log.warn("memory capture failed", { sessionID: input.sessionID, error: String(err) })
+        }
+      })
 
       const cancel = Effect.fn("SessionPrompt.cancel")(function* (sessionID: SessionID) {
         yield* elog.info("cancel", { sessionID })
@@ -1482,11 +1569,22 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               ])
               const personaPrompt =
                 (PersonaSession.get(sessionID) ?? PersonaSession.getDefault())?.systemPrompt
+              const personaName =
+                (PersonaSession.get(sessionID) ?? PersonaSession.getDefault())?.name ?? "default"
+              const userQuery =
+                lastUserMsg?.parts.find((p) => p.type === "text")?.text ?? ""
+              const mem = (yield* inject({
+                sessionID,
+                query: userQuery,
+                persona: personaName,
+                project_id: Instance.project.id,
+              })) ?? ""
               const system = [
                 ...(personaPrompt ? [personaPrompt] : []),
                 ...env,
                 ...(skills ? [skills] : []),
                 ...instructions,
+                ...(mem ? [mem] : []),
               ]
               const format = lastUser.format ?? { type: "text" as const }
               if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
@@ -1512,6 +1610,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
               const finished = handle.message.finish && !["tool-calls", "unknown"].includes(handle.message.finish)
               if (finished && !handle.message.error) {
+                run.fork(capture({ sessionID, messages: msgs, persona: personaName }))
                 if (format.type === "json_schema") {
                   handle.message.error = new MessageV2.StructuredOutputError({
                     message: "Model did not produce structured output",

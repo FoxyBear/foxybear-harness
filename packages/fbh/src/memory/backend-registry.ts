@@ -8,14 +8,20 @@
  */
 
 import type { MemoryBackend } from "./backend"
+import type { SurrealHypergraphBackend } from "./surreal-hypergraph-backend"
 import { Log } from "../util/log"
 
 const log = Log.create({ service: "memory.backend-registry" })
 
-let _globalMemoryBackend: MemoryBackend | null = null
+// Store on the process object so all bundled chunks share the same singleton.
+// Module-level variables and globalThis get duplicated/isolated when the
+// bundler splits this file into separate chunks. process is always shared.
+const g: any = process
+const BACKEND_KEY = "__fbh_memory_backend__"
+const HYPERGRAPH_KEY = "__fbh_hypergraph_backend__"
 
 export function setGlobalMemoryBackend(backend: MemoryBackend | null): void {
-  _globalMemoryBackend = backend
+  g[BACKEND_KEY] = backend
   if (backend) {
     log.info("global memory backend registered", { type: backend.constructor.name })
   } else {
@@ -24,7 +30,20 @@ export function setGlobalMemoryBackend(backend: MemoryBackend | null): void {
 }
 
 export function getGlobalMemoryBackend(): MemoryBackend | null {
-  return _globalMemoryBackend
+  return (g[BACKEND_KEY] as MemoryBackend | null) ?? null
+}
+
+export function setGlobalHypergraphBackend(backend: SurrealHypergraphBackend | null): void {
+  g[HYPERGRAPH_KEY] = backend
+  if (backend) {
+    log.info("global hypergraph backend registered", { type: backend.constructor.name })
+  } else {
+    log.info("global hypergraph backend cleared")
+  }
+}
+
+export function getGlobalHypergraphBackend(): SurrealHypergraphBackend | null {
+  return (g[HYPERGRAPH_KEY] as SurrealHypergraphBackend | null) ?? null
 }
 
 export type MemoryBackendType = "sqlite" | "surreal" | "remote"

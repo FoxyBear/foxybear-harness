@@ -188,7 +188,7 @@ export namespace Embedding {
 
   // Max input tokens per embedding model. ~4 chars per token, use 3.5 for safety.
   const MODEL_MAX_TOKENS: Record<string, number> = {
-    "BAAI/bge-base-en-v1.5": 8192,
+    "BAAI/bge-base-en-v1.5": 512,
     "nomic-embed-text": 8192,
     "text-embedding-3-small": 8191,
     "text-embedding-3-large": 8191,

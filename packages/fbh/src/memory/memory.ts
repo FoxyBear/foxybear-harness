@@ -7,8 +7,10 @@ import { Embedding } from "./embedding"
 import { getConfig } from "../config/bridge"
 import { Log } from "../util/log"
 import { makeRuntime } from "../effect/run-service"
-import { getGlobalMemoryBackend } from "./backend-registry"
+import { getGlobalMemoryBackend, getGlobalHypergraphBackend } from "./backend-registry"
 import type { MemoryBackend, MemoryResult as BackendMemoryResult } from "./backend"
+import { ConflictDetector } from "./conflict/check"
+import { applyVerdict } from "./conflict/apply"
 
 const log = Log.create({ service: "memory" })
 
@@ -262,6 +264,25 @@ export namespace Memory {
       : input.content
     const embedding = await getEmbedding(content)
 
+    // SDD-09 / Phase M-5 — save-time conflict detection (req 1).
+    // ConflictDetector.check runs after the embedding is computed and
+    // before backend dispatch, covering both the SurrealBackend path and
+    // the legacy SQLite path. ADD falls through to the existing flow
+    // (including the cosine > 0.95 dedup at memory.ts:302-345 for the
+    // SQLite path). UPDATE/DELETE invoke the rewrite/retract paths via
+    // applyVerdict (reqs 2-4). Effect.runPromise bridges the Effect to
+    // storeImpl's async flow — the canonical Effect-to-Promise bridge.
+    try {
+      const verdict = await Effect.runPromise(
+        ConflictDetector.check(content, input.project_id ?? "global"),
+      )
+      if (verdict.verdict === "UPDATE" || verdict.verdict === "DELETE") {
+        return await applyVerdict(verdict, content, input)
+      }
+    } catch (err) {
+      log.warn("memory: conflict detection failed, falling through to ADD", { error: String(err) })
+    }
+
     // ── Dispatch to SurrealBackend when registered ──
     const backend = getGlobalMemoryBackend()
     if (backend) {
@@ -279,6 +300,43 @@ export namespace Memory {
         persona: input.persona,
         metadata: input.metadata,
       })
+
+      // SDD-03 / Phase M-1 — dual-write to the hypergraph node table (SC-8).
+      // Maps the stored memory to a MEMORY node per SC-8 row 1, including
+      // attributes.confidence = 0.5 (prevents NaN in sdd-06's decay formula).
+      // Graceful-degrades if the hypergraph backend is absent.
+      const hyper = getGlobalHypergraphBackend()
+      if (hyper) {
+        try {
+          const now = Math.floor(Date.now() / 1000)
+          await hyper.store({
+            node_id: result.id,
+            node_type: "MEMORY",
+            created_at: now,
+            updated_at: now,
+            version: 1,
+            status: "ACTIVE",
+            embedding: embedding ?? null,
+            attributes: {
+              content,
+              persona: input.persona,
+              project_id: projectId,
+              scope,
+              confidence: 0.5,
+              usage_count: 0,
+              last_used: now,
+            },
+            valid_from: now,
+            valid_to: Infinity,
+            tx_from: now,
+            tx_to: Infinity,
+            prev_version_id: null,
+            invalidated_by: null,
+          })
+        } catch (err) {
+          log.warn("memory: hypergraph dual-write failed", { error: String(err) })
+        }
+      }
 
       const now = new Date().toISOString()
       return {
@@ -448,16 +506,19 @@ export namespace Memory {
       const rowEmb = bufferToFloat32(row.embedding as Buffer)
       let score = cosineSimilarity(input.queryEmbedding, rowEmb)
 
-      // CN-16: Score penalty — if memory is older than stalePenaltyDays
-      // AND access_count < 2, reduce score by 50%
-      const createdAt = Number(row.time_created ?? 0)
-      const ageMs = now - createdAt
-      const ageDays = ageMs / (24 * 60 * 60 * 1000)
-      const accessCount = row.access_count ?? 0
-
-      if (ageDays > stalePenaltyDays && accessCount < 2) {
-        score *= 0.5
-      }
+      // @deprecated SDD-06 — binary stale penalty removed; the lifecycle
+      // sub-score (memory.scoring.w_lifecycle) subsumes this. DEPRECATED
+      // nodes already get 0.5×, ARCHIVED 0.1× via src/memory/lifecycle/score.ts.
+      // The stalePenaltyDays config field (memory.consolidation.stale_penalty_days)
+      // is kept for backward compat but no longer read by the active scoring
+      // path. See src/memory/lifecycle/decay.ts for the replacement.
+      const _createdAt = Number(row.time_created ?? 0)
+      const _ageMs = now - _createdAt
+      const _ageDays = _ageMs / (24 * 60 * 60 * 1000)
+      const _accessCount = row.access_count ?? 0
+      void stalePenaltyDays
+      void _ageDays
+      void _accessCount
 
       return {
         ...rowToEntry(row),
@@ -522,6 +583,52 @@ export namespace Memory {
         persona: input.persona,
         limit,
       })
+      // SDD-03 / Phase M-1 — dual-read from the hypergraph node table (SC-8).
+      // Queries the node table via SurrealHypergraphBackend.query() for
+      // MEMORY-type nodes matching the seed set, merges by id (preferring node
+      // records), dedupes. Graceful-degrades if hypergraph backend is absent.
+      const hyper = getGlobalHypergraphBackend()
+      if (hyper) {
+        try {
+          const project = input.project_id ?? "global"
+          // Use semantic search results as seeds for hypergraph traversal.
+          const seeds = results.map((r) => r.id)
+          if (seeds.length > 0) {
+            const hyperEdges = await hyper.query(seeds, project, { limit })
+            // Hydrate node records from the hypergraph backend.
+            const nodeIds = new Set<string>()
+            for (const e of hyperEdges) for (const nid of e.node_ids) nodeIds.add(nid)
+            const expanded = await hyper.expand([...nodeIds], project, 1)
+            const hyperResults: MemoryResult[] = []
+            for (const n of expanded.nodes) {
+              if (n.node_type !== "MEMORY") continue
+              const content = String(n.attributes.content ?? "")
+              if (!content) continue
+              hyperResults.push({
+                id: n.node_id,
+                content,
+                persona: String(n.attributes.persona ?? input.persona),
+                scope: String(n.attributes.scope ?? "project"),
+                access_count: Number(n.attributes.usage_count ?? 0),
+                created_at: new Date(n.created_at * 1000).toISOString(),
+                accessed_at: new Date(Number(n.attributes.last_used ?? n.created_at) * 1000).toISOString(),
+                metadata: (n.attributes as Record<string, unknown>) ?? {},
+                score: 0,
+                source: "local",
+              })
+            }
+            // Merge by id, preferring node records.
+            const seen = new Map<string, MemoryResult>()
+            for (const r of hyperResults) seen.set(r.id, r)
+            for (const r of results.map(backendResultToMemoryResult)) {
+              if (!seen.has(r.id)) seen.set(r.id, r)
+            }
+            return [...seen.values()].slice(0, limit)
+          }
+        } catch (err) {
+          log.warn("memory: hypergraph dual-read failed", { error: String(err) })
+        }
+      }
       return results.map(backendResultToMemoryResult)
     }
 

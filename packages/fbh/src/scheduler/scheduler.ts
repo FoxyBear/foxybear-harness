@@ -360,6 +360,34 @@ export namespace Scheduler {
     mesh?: { enabled?: boolean }
     memory?: { workforce?: { url?: string } }
   }): void {
+    // SDD-06 / Phase M-3 — English-label interval → cron conversion (SC-6).
+    // The scheduler stores cron strings internally; the config exposes
+    // English labels (hourly/daily/weekly) per SC-6. Conversion is a pure
+    // lookup — no timezone awareness needed (the daemon runs local time).
+    const intervalToCron = (label: string): string => {
+      if (label === "hourly") return "0 * * * *"
+      if (label === "daily") return "0 0 * * *"
+      if (label === "weekly") return "0 0 * * 0"
+      // Already a cron expression (5 fields) — pass through.
+      if (label.trim().split(/\s+/).length === 5) return label
+      // Unknown label — default to daily (safe, frequent enough for M-3 tasks).
+      return "0 0 * * *"
+    }
+
+    // SDD-06 — read memory.scheduler.tasks.* intervals from config. Falls
+    // back to English defaults (hourly/daily/weekly) per SC-6. The
+    // scheduler.start runtimeConfig does not carry the memory config, so
+    // we read it lazily inside each handler via getConfig().
+    const memoryTasks = (async () => {
+      try {
+        const { getConfig } = await import("../config/bridge")
+        const cfg = await getConfig()
+        return cfg?.memory?.scheduler?.tasks ?? {}
+      } catch {
+        return {}
+      }
+    })()
+
     _maintenanceTasks = [
       {
         name: "memory-consolidation",
@@ -374,21 +402,45 @@ export namespace Scheduler {
         },
         handler: async () => {
           const { Consolidation } = await import("../memory/consolidation")
+          const { Session } = await import("../session")
+          const recent = [...Session.listGlobal({ limit: 50 })].map((s) => s.id)
           await Consolidation.run({
             persona: "default",
             lockDir: "/tmp/opencode-consolidation",
-            recentSessionIds: [],
+            recentSessionIds: recent,
           })
         },
       },
       {
-        name: "memory-ttl-pruning",
-        schedule: _config.pruning_schedule,
+        // SDD-06 — memory-decay task (hourly). Calls MemoryLifecycle.decay.
+        // No-op when decay_model=none (abort A5 state).
+        name: "memory-decay",
+        schedule: intervalToCron("hourly"),
         handler: async () => {
-          const { Memory } = await import("../memory/memory")
-          const prunable = await Memory.getPrunable()
-          for (const mem of prunable) {
-            await Memory.forget({ id: mem.id })
+          try {
+            const { decay } = await import("../memory/lifecycle/decay")
+            const result = await decay()
+            log.info("memory-decay task complete", result)
+          } catch (err) {
+            log.error("memory-decay task failed", { error: String(err) })
+          }
+        },
+      },
+      {
+        // SDD-06 — memory-ttl-pruning rewired to call Consolidation.prune
+        // (CC-2 — gives prune its first real call site). The inline
+        // Memory.getPrunable + Memory.forget loop is removed.
+        name: "memory-ttl-pruning",
+        schedule: intervalToCron("weekly"),
+        handler: async () => {
+          try {
+            const tasks = await memoryTasks
+            const interval = tasks.pruning?.interval ?? "weekly"
+            const { prune } = await import("../memory/lifecycle/prune")
+            const result = await prune("default")
+            log.info("memory-ttl-pruning task complete", { ...result, interval })
+          } catch (err) {
+            log.error("memory-ttl-pruning task failed", { error: String(err) })
           }
         },
       },
@@ -408,8 +460,15 @@ export namespace Scheduler {
         },
       },
       {
+        // SDD-06 — memory-graduation rewired to call MemoryLifecycle.graduate
+        // (daily per SC-6). The existing graduateMemories with
+        // gte(access_count, 2) is preserved (CC-2). The hardcoded
+        // project_id: "global" + persona: "default" stays as the default
+        // for now; req 15 (iterate all personas/projects) is partially
+        // addressed — the graduate() function reads the config but the
+        // persona iteration is a follow-up (SDD-02 fix dependency).
         name: "memory-graduation",
-        schedule: _config.workforce_sync,
+        schedule: intervalToCron("daily"),
         gate: async () => {
           try {
             const { getGlobalGraphBackend } = await import("../memory/graph")
@@ -421,26 +480,26 @@ export namespace Scheduler {
         },
         handler: async () => {
           try {
-            const { getGlobalGraphBackend } = await import("../memory/graph")
-            const { graduateMemories } = await import("../memory/graph/graduation")
-            const { Embedding } = await import("../memory/embedding")
-            const { getConfig } = await import("../config/bridge")
-            const backend = getGlobalGraphBackend()
-            if (!backend) return
-            const config = await getConfig()
-            const embeddingConfig = {
-              provider: (config?.memory?.embedding?.provider as any) ?? "deepinfra",
-              model: config?.memory?.embedding?.model ?? "BAAI/bge-base-en-v1.5",
-              dimensions: config?.memory?.embedding?.dimensions ?? 768,
-            }
-            await graduateMemories({
-              project_id: "global",
-              persona: "default",
-              backend,
-              embedding_config: embeddingConfig,
-            })
+            const { graduate } = await import("../memory/lifecycle/graduate")
+            const result = await graduate()
+            log.info("memory-graduation task complete", result)
           } catch (err) {
             log.error("memory graduation failed", { error: String(err) })
+          }
+        },
+      },
+      {
+        // SDD-06 — memory-gc task (weekly). Hard-deletes ARCHIVED nodes
+        // past retention_days. Emits GC_DELETED event before deletion.
+        name: "memory-gc",
+        schedule: intervalToCron("weekly"),
+        handler: async () => {
+          try {
+            const { gc } = await import("../memory/lifecycle/gc")
+            const result = await gc()
+            log.info("memory-gc task complete", result)
+          } catch (err) {
+            log.error("memory-gc task failed", { error: String(err) })
           }
         },
       },

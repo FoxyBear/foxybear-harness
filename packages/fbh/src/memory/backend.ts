@@ -32,7 +32,7 @@ export interface MemoryBackend {
   getPrunable(ttl_days: number): Promise<MemoryResult[]>
 
   /** §D-08 — One-shot import from the legacy SQLite store. Optional. */
-  migrateFromSqlite?(): Promise<MigrationReport>
+  migrateFromSqlite?(opts?: { dryRun?: boolean }): Promise<MigrationReport>
 }
 
 export interface WriteInput {
@@ -92,4 +92,6 @@ export interface MigrationReport {
   readonly duration_ms: number
   /** False on a no-op (already migrated). */
   readonly ran: boolean
+  /** True when opts.dryRun was passed — no writes performed. */
+  readonly dryRun?: boolean
 }
