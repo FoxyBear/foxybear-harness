@@ -188,16 +188,40 @@ export namespace SessionPrompt {
             project_id: Instance.project.id,
           }
           yield* Effect.promise(() => TraceIngestor.ingest(turn))
-          const text = input.messages
-            .slice(-2)
-            .flatMap((m: any) => m.parts)
-            .filter((p: any) => p.type === "text")
-            .map((p: any) => (p.type === "text" ? p.text : ""))
-            .join("\n")
-            .slice(0, 2000)
+          // SDD-07 — extract the user's input, the LLM's text response, and a
+          // tool summary (name + status, not full I/O) from the last user and
+          // assistant messages. The abstraction context block uses all three.
+          const lastUser = input.messages.findLast((m) => m.info.role === "user")
+          const lastAssistant = input.messages.findLast((m) => m.info.role === "assistant")
+          const text = lastUser
+            ? lastUser.parts
+                .filter((p): p is MessageV2.TextPart => p.type === "text")
+                .map((p) => p.text)
+                .join("\n")
+                .slice(0, 2000)
+            : ""
+          const assistantText = lastAssistant
+            ? lastAssistant.parts
+                .filter((p): p is MessageV2.TextPart => p.type === "text")
+                .map((p) => p.text)
+                .join("\n")
+                .slice(0, 2000)
+            : ""
+          const toolSummary = lastAssistant
+            ? lastAssistant.parts
+                .filter((p): p is MessageV2.ToolPart => p.type === "tool")
+                .map((p) => ({ name: p.tool, status: p.state.status }))
+            : ([] as Array<{ name: string; status: string }>)
           if (text.trim()) {
             yield* Effect.promise(() =>
-              classify({ sessionID: input.sessionID, text, project_id: turn.project_id, persona: input.persona }),
+              classify({
+                sessionID: input.sessionID,
+                text,
+                project_id: turn.project_id,
+                persona: input.persona,
+                response: assistantText,
+                tools: toolSummary,
+              }),
             )
           }
         } catch (err) {

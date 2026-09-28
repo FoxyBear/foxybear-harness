@@ -1,20 +1,23 @@
 /**
- * SDD-04 / Phase N — Gate-Extract-Classify Pipeline.
+ * SDD-07 / Phase N — Gate-Abstract-Store Pipeline.
  *
- * The 4-stage orchestrator and SC-1 single entry point. Replaces the Phase M
- * stub `extractViaLLM` with a real classification: Jev gate → Gemini extract
- * → Jev classify → embed + SurrealHypergraphBackend.store. The pipeline owns
- * the store step — neither the capture hook (SDD-05) nor re-backfill (SDD-06)
- * call SurrealHypergraphBackend.store directly for extracted memories.
+ * The 4-stage orchestrator and SC-1 single entry point. Replaces SDD-04's
+ * raw-fragment extract step with an abstraction step: the small model
+ * summarizes the turn into self-contained memories that a future
+ * independent session can use without seeing the original conversation.
  *
  * Stages:
- *   1. Gate    — Jev.noul on buffer context + current turn (calibrated probability)
- *   2. Extract — Gemini.extract on the redacted full context (JSON, temperature 0)
- *   3. Classify — Jev.choice per fragment over the 7-type map (SC-4)
- *   4. Store   — Embedding.embedSafe + SurrealHypergraphBackend.store as MEMORY node
+ *   1. Gate     — Jev.noul on buffer context + current turn (calibrated probability)
+ *   2. Abstract — Gemini.abstract on user text + LLM response + tool summary (JSON, temperature 0)
+ *   3. Store    — Embedding.embedSafe + SurrealHypergraphBackend.store as MEMORY node
  *
- * confidence and source_path live in attributes (SC-1: NOT top-level NodeRecord
- * fields). Initial confidence is 0.7 for all extracted memories (W-20).
+ * The separate Jev.choice classify step from SDD-04 is removed — the
+ * abstract output already includes the type in its JSON. Graceful
+ * degradation: if abstract errors or returns empty, fall back to the
+ * SDD-04 Gemini.extract path (source_path = "extraction").
+ *
+ * confidence lives in attributes (SC-1: NOT top-level NodeRecord fields).
+ * Per spec #4, confidence = Jev's gate probability (enriches_future).
  *
  * Master: 260926_fbh-phase-n_sdd-00-master.md (SC-1, SC-2, CC-3, CC-6, CC-9).
  */
@@ -33,11 +36,6 @@ import { Log } from "../../util/log"
 
 const log = Log.create({ service: "memory.classify.pipeline" })
 
-// W-20 / W-21: initial confidence for all extracted memories. Gemini
-// extraction is deterministic-quality; the gate+classify chain is calibrated.
-// Lives in attributes.confidence, NOT as a top-level NodeRecord field.
-const CLASSIFY_CONFIDENCE = 0.7
-
 const GATE_INSTRUCTIONS =
   "Would this context, if recalled later, positively enrich a future LLM query?"
 const GATE_CRITERIA = {
@@ -48,18 +46,6 @@ const GATE_CRITERIA = {
 
 const EXTRACT_PROMPT =
   "Extract specific memories from this conversation context. Each memory has a content (the memory text), a type (one of: preference, correction, decision, constraint, pattern, context, none), and a source (user or assistant). Return JSON: { memories: [{ content, type, source }], skipped_reason?: string }. Use 'none' for content with no durable value. Use 'context' for useful working context that isn't a durable fact (hypotheses, intermediate states, what was tried)."
-
-const CLASSIFY_INSTRUCTIONS = "What type of memory is this?"
-const CLASSIFY_CRITERIA = {
-  preference: "User expresses a preference or liking.",
-  correction: "User corrects a previous statement, approach, or belief.",
-  decision: "User makes a decision or choice that persists.",
-  constraint: "User states a constraint, limitation, or boundary.",
-  pattern: "User describes a recurring behavior or workflow.",
-  context:
-    "Useful working context — intermediate state, hypothesis, what was tried (not a durable fact but would help future queries).",
-  none: "No useful context for future queries.",
-}
 
 const FALLBACK_EMBEDDING: Embedding.Config = {
   provider: "deepinfra",
@@ -73,6 +59,8 @@ export interface ClassifyInput {
   text: string
   project_id: string
   persona: string
+  response?: string
+  tools?: Array<{ name: string; status: string }>
 }
 
 export interface ClassifyResult {
@@ -118,11 +106,11 @@ function nowSec(): number {
 }
 
 /**
- * classify — the SC-1 single entry point. Orchestrates gate → extract →
- * classify → store, then updates the circular buffer. Per-stage guards
- * (W-23) ensure a single stage failure doesn't abort the batch; exceptions
- * are logged at warn and swallowed. Never blocks the LLM response (CC-3 —
- * the post-turn hook dispatches via run.fork in SDD-05).
+ * classify — the SC-1 single entry point. Orchestrates gate → abstract →
+ * store, then updates the circular buffer. Per-stage guards (W-23) ensure
+ * a single stage failure doesn't abort the batch; exceptions are logged at
+ * warn and swallowed. Never blocks the LLM response (CC-3 — the post-turn
+ * hook dispatches via run.fork in SDD-05).
  */
 export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
   const cfg = await resolveCfg()
@@ -174,33 +162,71 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
     return { stored: 0, skipped: 1, errors: 0 }
   }
 
-  // Stage 2 — Extract (Gemini JSON). Payload is the same context, redacted (W-18).
-  const { content: payload } = redact(stateRaw)
+  // Stage 2 — Abstract (Gemini JSON, abstraction prompt). Construct a
+  // context block containing the prior user turns (buffer arc), the current
+  // user message, the LLM's response, and a tool summary. Truncate to 4000
+  // chars. The abstract output is a self-contained summary with memory_type
+  // assigned by the small model — no separate Jev.choice classify step.
+  const ctxBlock = [
+    `Prior user turns (context arc):`,
+    Buffer.getContext(input.sessionID),
+    ``,
+    `Current user message:`,
+    input.text,
+    ``,
+    `LLM response (this turn):`,
+    input.response ?? "(no text response)",
+    ``,
+    `Tools used this turn:`,
+    input.tools?.map((t) => `${t.name} → ${t.status}`).join(", ") ?? "(none)",
+  ].join("\n").slice(0, 4000)
+  const { content: payload } = redact(ctxBlock)
+
   let memories: ExtractedMemory[] = []
-  let extractSkip = false
+  let source_path = "abstraction"
+  let abstractFailed = false
   try {
-    const result = await Gemini.extract(EXTRACT_PROMPT, payload)
+    const result = await Gemini.abstract(payload)
     memories = result.memories
-    if (result.skipped_reason) {
-      extractSkip = true
-      log.debug("classify.extract_skip", { reason: result.skipped_reason })
+    if (memories.length === 0) {
+      log.debug("classify.abstract_empty", { reason: result.skipped_reason })
     }
   } catch (err) {
-    // W-9: Gemini failure → regex fallback; pipeline does NOT abort.
-    log.warn("classify.extract_failed", { error: String(err) })
-    const r = await regexFallback(input)
-    Buffer.add(input.sessionID, { text: input.text, role: "user" })
-    return r
+    // W-9: Gemini failure → mark for fallback; pipeline does NOT abort.
+    log.warn("classify.abstract_failed", { error: String(err) })
+    abstractFailed = true
   }
 
-  // W-8: empty memories or skipped_reason → skip Stage 3 + 4.
-  if (extractSkip || memories.length === 0) {
+  // Graceful degradation (spec #6): if abstract errors OR returns empty,
+  // fall back to the SDD-04 Gemini.extract path (verbatim fragments).
+  if (abstractFailed || memories.length === 0) {
+    try {
+      const result = await Gemini.extract(EXTRACT_PROMPT, payload)
+      memories = result.memories
+      source_path = "extraction"
+      if (result.skipped_reason) {
+        log.debug("classify.extract_skip", { reason: result.skipped_reason })
+      }
+    } catch (err) {
+      // W-9: Gemini failure → regex fallback; pipeline does NOT abort.
+      log.warn("classify.extract_failed", { error: String(err) })
+      const r = await regexFallback(input)
+      Buffer.add(input.sessionID, { text: input.text, role: "user" })
+      return r
+    }
+  }
+
+  // W-8: empty memories from both paths → skip Stage 3.
+  if (memories.length === 0) {
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
     return { stored: 0, skipped: 1, errors: 0 }
   }
 
-  // Stage 3+4 — Classify + Store, per fragment. The backend is resolved once;
-  // if null/unhealthy, the pipeline skips store and returns errors: 1.
+  // Stage 3 — Store. The backend is resolved once; if null/unhealthy, the
+  // pipeline skips store and returns errors: 1. The separate Jev.choice
+  // classify step from SDD-04 is removed — the abstract output already
+  // includes the type in its JSON. For the extract fallback, the type
+  // comes from the Gemini extract output's `type` field directly.
   const backend = getGlobalHypergraphBackend()
   if (!backend || !backend.healthy()) {
     log.warn("classify.backend_unhealthy")
@@ -209,28 +235,16 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
   }
 
   for (const frag of memories) {
-    // Stage 3 — Classify (Jev Choice). The Jev choice is authoritative for
-    // memory_type (W-12) — it overrides the Gemini-returned type from Stage 2.
-    let type = ""
-    try {
-      const choice = await Jev.choice(frag.content, CLASSIFY_INSTRUCTIONS, CLASSIFY_CRITERIA)
-      type = choice.choice
-    } catch (err) {
-      // W-13: single fragment classify failure does NOT abort the batch.
-      log.warn("classify.classify_failed", { error: String(err) })
-      out.errors += 1
-      continue
-    }
-
     // W-11: type "none" → skip this fragment, no MEMORY node stored.
-    if (type === "none") {
+    if (frag.type === "none") {
       log.debug("classify.fragment_skip_none")
       out.skipped += 1
       continue
     }
 
-    // Stage 4 — Store. Embed + SurrealHypergraphBackend.store as MEMORY node.
+    // Embed + SurrealHypergraphBackend.store as MEMORY node.
     // W-16: embedding failure → store with embedding = null (keyword fallback).
+    // Per spec #4: confidence = Jev's gate probability (enriches_future).
     let embedding: Float32Array | null = null
     try {
       const emb = await Embedding.embedSafe(frag.content, cfg.embedding)
@@ -250,7 +264,7 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
       status: "ACTIVE",
       embedding,
       attributes: {
-        memory_type: type,
+        memory_type: frag.type,
         content: frag.content,
         source_nodes: [],
         usage_count: 0,
@@ -260,8 +274,8 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
         project_id: input.project_id,
         session_id: input.sessionID,
         persona: input.persona,
-        confidence: CLASSIFY_CONFIDENCE,
-        source_path: "llm",
+        confidence: gateScore,
+        source_path,
       },
       valid_from: now,
       valid_to: Infinity,
