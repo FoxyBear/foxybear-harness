@@ -188,7 +188,8 @@ export namespace SessionPrompt {
             project_id: Instance.project.id,
           }
           yield* Effect.promise(() => TraceIngestor.ingest(turn))
-          const text = turn.withParts
+          const text = input.messages
+            .slice(-2)
             .flatMap((m: any) => m.parts)
             .filter((p: any) => p.type === "text")
             .map((p: any) => (p.type === "text" ? p.text : ""))
