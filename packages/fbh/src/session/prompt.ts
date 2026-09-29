@@ -160,11 +160,13 @@ export namespace SessionPrompt {
         messages: MessageV2.WithParts[]
         persona: string
       }) {
+        const trace = process.env.FBH_MEM_TRACE === "1"
+        const tlog = (msg: string, fields?: any) => { if (trace) log.info(msg, fields) }
         try {
-          log.info("[MEM-TRACE] capture.entry", { sessionID: input.sessionID, msgCount: input.messages.length })
+          tlog("[MEM-TRACE] capture.entry", { sessionID: input.sessionID, msgCount: input.messages.length })
           const { isMemoryEnabled } = yield* Effect.promise(() => import("../memory/config"))
           const enabled = yield* Effect.promise(() => isMemoryEnabled())
-          log.info("[MEM-TRACE] capture.enabled", { enabled, sessionID: input.sessionID })
+          tlog("[MEM-TRACE] capture.enabled", { enabled, sessionID: input.sessionID })
           if (!enabled) return
           const { Consolidation } = yield* Effect.promise(() => import("../memory/consolidation"))
           const adapted = input.messages.map((m) => ({
@@ -180,7 +182,7 @@ export namespace SessionPrompt {
               persona: input.persona,
             }),
           )
-          log.info("[MEM-TRACE] capture.consolidation_done", { sessionID: input.sessionID })
+          tlog("[MEM-TRACE] capture.consolidation_done", { sessionID: input.sessionID })
           const { TraceIngestor } = yield* Effect.promise(() => import("../memory/capture/trace"))
           const { classify } = yield* Effect.promise(() => import("../memory/classify/pipeline"))
           const turn = {
@@ -191,10 +193,10 @@ export namespace SessionPrompt {
             project_id: Instance.project.id,
           }
           yield* Effect.promise(() => TraceIngestor.ingest(turn))
-          log.info("[MEM-TRACE] capture.trace_done", { sessionID: input.sessionID })
+          tlog("[MEM-TRACE] capture.trace_done", { sessionID: input.sessionID })
           const lastUser = input.messages.findLast((m) => m.info.role === "user")
           const lastAssistant = input.messages.findLast((m) => m.info.role === "assistant")
-          log.info("[MEM-TRACE] capture.assistant_found", { sessionID: input.sessionID, found: !!lastAssistant, role: lastAssistant?.info.role, partTypes: lastAssistant?.parts.map((p) => p.type), partCount: lastAssistant?.parts.length ?? 0 })
+          tlog("[MEM-TRACE] capture.assistant_found", { sessionID: input.sessionID, found: !!lastAssistant, role: lastAssistant?.info.role, partTypes: lastAssistant?.parts.map((p) => p.type), partCount: lastAssistant?.parts.length ?? 0 })
           const text = lastUser
             ? lastUser.parts
                 .filter((p): p is MessageV2.TextPart => p.type === "text")
@@ -214,9 +216,9 @@ export namespace SessionPrompt {
                 .filter((p): p is MessageV2.ToolPart => p.type === "tool")
                 .map((p) => ({ name: p.tool, status: p.state.status }))
             : ([] as Array<{ name: string; status: string }>)
-          log.info("[MEM-TRACE] capture.text_extracted", { sessionID: input.sessionID, textLen: text.length, responseLen: assistantText.length, tools: toolSummary.length })
+          tlog("[MEM-TRACE] capture.text_extracted", { sessionID: input.sessionID, textLen: text.length, responseLen: assistantText.length, tools: toolSummary.length })
           if (text.trim()) {
-            log.info("[MEM-TRACE] capture.calling_classify", { sessionID: input.sessionID, textLen: text.length, responseLen: assistantText.length })
+            tlog("[MEM-TRACE] capture.calling_classify", { sessionID: input.sessionID, textLen: text.length, responseLen: assistantText.length })
             yield* Effect.promise(() =>
               classify({
                 sessionID: input.sessionID,
@@ -227,9 +229,9 @@ export namespace SessionPrompt {
                 tools: toolSummary,
               }),
             )
-            log.info("[MEM-TRACE] capture.classify_done", { sessionID: input.sessionID })
+            tlog("[MEM-TRACE] capture.classify_done", { sessionID: input.sessionID })
           } else {
-            log.info("[MEM-TRACE] capture.text_empty", { sessionID: input.sessionID })
+            tlog("[MEM-TRACE] capture.text_empty", { sessionID: input.sessionID })
           }
         } catch (err) {
           log.warn("[MEM-TRACE] capture.failed", { sessionID: input.sessionID, error: String(err) })
@@ -1641,9 +1643,9 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               }
 
               const finished = handle.message.finish && !["tool-calls", "unknown"].includes(handle.message.finish)
-              log.info("[MEM-TRACE] loop.finished_check", { sessionID, finish: handle.message.finish, finished, hasError: !!handle.message.error, step })
+              if (process.env.FBH_MEM_TRACE === "1") log.info("[MEM-TRACE] loop.finished_check", { sessionID, finish: handle.message.finish, finished, hasError: !!handle.message.error, step })
               if (finished && !handle.message.error) {
-                log.info("[MEM-TRACE] loop.forking_capture", { sessionID, msgCount: msgs.length, step })
+                if (process.env.FBH_MEM_TRACE === "1") log.info("[MEM-TRACE] loop.forking_capture", { sessionID, msgCount: msgs.length, step })
                 run.fork(capture({ sessionID, messages: msgs, persona: personaName }))
                 if (format.type === "json_schema") {
                   handle.message.error = new MessageV2.StructuredOutputError({

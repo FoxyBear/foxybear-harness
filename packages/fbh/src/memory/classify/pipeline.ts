@@ -35,6 +35,8 @@ import { getConfig } from "../../config/bridge"
 import { Log } from "../../util/log"
 
 const log = Log.create({ service: "memory.classify.pipeline" })
+const trace = process.env.FBH_MEM_TRACE === "1"
+const tlog = (msg: string, fields?: any) => { if (trace) log.info(msg, fields) }
 
 const GATE_INSTRUCTIONS =
   "Would this context, if recalled later, positively enrich a future LLM query?"
@@ -113,20 +115,20 @@ function nowSec(): number {
  * hook dispatches via run.fork in SDD-05).
  */
 export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
-  log.info("[MEM-TRACE] classify.entry", { sessionID: input.sessionID, textLen: input.text?.length ?? 0, responseLen: input.response?.length ?? 0, tools: input.tools?.length ?? 0, project_id: input.project_id })
+  tlog("[MEM-TRACE] classify.entry", { sessionID: input.sessionID, textLen: input.text?.length ?? 0, responseLen: input.response?.length ?? 0, tools: input.tools?.length ?? 0, project_id: input.project_id })
   const cfg = await resolveCfg()
 
   // SC-2 / CC-6: external_opt_in gates all external LLM calls. When false,
   // no Jev or Gemini invocation — the turn is still buffered for future gates.
   if (!cfg.external_opt_in) {
-    log.info("[MEM-TRACE] classify.opt_in_false", { sessionID: input.sessionID })
+    tlog("[MEM-TRACE] classify.opt_in_false", { sessionID: input.sessionID })
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
     return { stored: 0, skipped: 0, errors: 0 }
   }
 
   // CC-9: circuit breaker open → regex fallback for N turns (2x backoff).
   if (breaker.fallback_turns > 0) {
-    log.info("[MEM-TRACE] classify.circuit_open", { sessionID: input.sessionID, fallback_turns: breaker.fallback_turns })
+    tlog("[MEM-TRACE] classify.circuit_open", { sessionID: input.sessionID, fallback_turns: breaker.fallback_turns })
     breaker.fallback_turns -= 1
     const r = await regexFallback(input)
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
@@ -139,19 +141,19 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
   const ctx = Buffer.getContext(input.sessionID)
   const stateRaw = [ctx, input.text].filter(Boolean).join("\n")
   const { content: state } = redact(stateRaw)
-  log.info("[MEM-TRACE] classify.gate_calling", { sessionID: input.sessionID, stateLen: state.length })
+  tlog("[MEM-TRACE] classify.gate_calling", { sessionID: input.sessionID, stateLen: state.length })
 
   let gateScore = 0
   try {
     gateScore = await Jev.noul(state, GATE_INSTRUCTIONS, GATE_CRITERIA)
     breaker.consecutive = 0
-    log.info("[MEM-TRACE] classify.gate_result", { sessionID: input.sessionID, score: gateScore, threshold: cfg.gate_threshold })
+    tlog("[MEM-TRACE] classify.gate_result", { sessionID: input.sessionID, score: gateScore, threshold: cfg.gate_threshold })
   } catch (err) {
     breaker.consecutive += 1
-    log.warn("[MEM-TRACE] classify.gate_failed", { sessionID: input.sessionID, error: String(err), consecutive: breaker.consecutive })
+    tlog("[MEM-TRACE] classify.gate_failed", { sessionID: input.sessionID, error: String(err), consecutive: breaker.consecutive })
     if (breaker.consecutive >= cfg.max_failures) {
       breaker.fallback_turns = cfg.max_failures * 2
-      log.warn("[MEM-TRACE] classify.circuit_opening", { sessionID: input.sessionID, fallback_turns: breaker.fallback_turns })
+      tlog("[MEM-TRACE] classify.circuit_opening", { sessionID: input.sessionID, fallback_turns: breaker.fallback_turns })
     }
     const r = await regexFallback(input)
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
@@ -160,12 +162,12 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
 
   // W-4: gate score <= threshold → skip Stage 2 + 3, no MEMORY node stored.
   if (gateScore <= cfg.gate_threshold) {
-    log.info("[MEM-TRACE] classify.gate_skip", { sessionID: input.sessionID, score: gateScore, threshold: cfg.gate_threshold })
+    tlog("[MEM-TRACE] classify.gate_skip", { sessionID: input.sessionID, score: gateScore, threshold: cfg.gate_threshold })
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
     return { stored: 0, skipped: 1, errors: 0 }
   }
 
-  log.info("[MEM-TRACE] classify.gate_passed", { sessionID: input.sessionID, score: gateScore })
+  tlog("[MEM-TRACE] classify.gate_passed", { sessionID: input.sessionID, score: gateScore })
 
   // Stage 2 — Abstract (Gemini JSON, abstraction prompt). Construct a
   // context block containing the prior user turns (buffer arc), the current
@@ -191,32 +193,32 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
   let source_path = "abstraction"
   let abstractFailed = false
   try {
-    log.info("[MEM-TRACE] classify.abstract_calling", { sessionID: input.sessionID, payloadLen: payload.length })
+    tlog("[MEM-TRACE] classify.abstract_calling", { sessionID: input.sessionID, payloadLen: payload.length })
     const result = await Gemini.abstract(payload)
     memories = result.memories
-    log.info("[MEM-TRACE] classify.abstract_result", { sessionID: input.sessionID, memories: memories.length, reason: result.skipped_reason })
+    tlog("[MEM-TRACE] classify.abstract_result", { sessionID: input.sessionID, memories: memories.length, reason: result.skipped_reason })
     if (memories.length === 0) {
-      log.info("[MEM-TRACE] classify.abstract_empty", { sessionID: input.sessionID, reason: result.skipped_reason })
+      tlog("[MEM-TRACE] classify.abstract_empty", { sessionID: input.sessionID, reason: result.skipped_reason })
     }
   } catch (err) {
-    log.warn("[MEM-TRACE] classify.abstract_failed", { sessionID: input.sessionID, error: String(err) })
+    tlog("[MEM-TRACE] classify.abstract_failed", { sessionID: input.sessionID, error: String(err) })
     abstractFailed = true
   }
 
   // Graceful degradation (spec #6): if abstract errors OR returns empty,
   // fall back to the SDD-04 Gemini.extract path (verbatim fragments).
   if (abstractFailed || memories.length === 0) {
-    log.info("[MEM-TRACE] classify.fallback_extract", { sessionID: input.sessionID, abstractFailed, memories: memories.length })
+    tlog("[MEM-TRACE] classify.fallback_extract", { sessionID: input.sessionID, abstractFailed, memories: memories.length })
     try {
       const result = await Gemini.extract(EXTRACT_PROMPT, payload)
       memories = result.memories
       source_path = "extraction"
-      log.info("[MEM-TRACE] classify.extract_result", { sessionID: input.sessionID, memories: memories.length, source_path })
+      tlog("[MEM-TRACE] classify.extract_result", { sessionID: input.sessionID, memories: memories.length, source_path })
       if (result.skipped_reason) {
-        log.info("[MEM-TRACE] classify.extract_skip", { sessionID: input.sessionID, reason: result.skipped_reason })
+        tlog("[MEM-TRACE] classify.extract_skip", { sessionID: input.sessionID, reason: result.skipped_reason })
       }
     } catch (err) {
-      log.warn("[MEM-TRACE] classify.extract_failed", { sessionID: input.sessionID, error: String(err) })
+      tlog("[MEM-TRACE] classify.extract_failed", { sessionID: input.sessionID, error: String(err) })
       const r = await regexFallback(input)
       Buffer.add(input.sessionID, { text: input.text, role: "user" })
       return r
@@ -225,7 +227,7 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
 
   // W-8: empty memories from both paths → skip Stage 3.
   if (memories.length === 0) {
-    log.info("[MEM-TRACE] classify.no_memories", { sessionID: input.sessionID })
+    tlog("[MEM-TRACE] classify.no_memories", { sessionID: input.sessionID })
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
     return { stored: 0, skipped: 1, errors: 0 }
   }
@@ -233,11 +235,11 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
   // Stage 3 — Store.
   const backend = getGlobalHypergraphBackend()
   if (!backend || !backend.healthy()) {
-    log.warn("[MEM-TRACE] classify.backend_unhealthy", { sessionID: input.sessionID, backend: !!backend, healthy: backend?.healthy() })
+    tlog("[MEM-TRACE] classify.backend_unhealthy", { sessionID: input.sessionID, backend: !!backend, healthy: backend?.healthy() })
     Buffer.add(input.sessionID, { text: input.text, role: "user" })
     return { stored: 0, skipped: 0, errors: 1 }
   }
-  log.info("[MEM-TRACE] classify.storing", { sessionID: input.sessionID, memories: memories.length, source_path })
+  tlog("[MEM-TRACE] classify.storing", { sessionID: input.sessionID, memories: memories.length, source_path })
 
   for (const frag of memories) {
     // W-11: type "none" → skip this fragment, no MEMORY node stored.
@@ -293,16 +295,16 @@ export async function classify(input: ClassifyInput): Promise<ClassifyResult> {
     try {
       await backend.store(node)
       out.stored += 1
-      log.info("[MEM-TRACE] classify.stored_one", { sessionID: input.sessionID, type: frag.type, content: frag.content.slice(0, 80) })
+      tlog("[MEM-TRACE] classify.stored_one", { sessionID: input.sessionID, type: frag.type, content: frag.content.slice(0, 80) })
     } catch (err) {
-      log.warn("[MEM-TRACE] classify.store_failed", { sessionID: input.sessionID, error: String(err) })
+      tlog("[MEM-TRACE] classify.store_failed", { sessionID: input.sessionID, error: String(err) })
       out.errors += 1
     }
   }
 
   // Step 6 (SC-1): record the current turn in the buffer for future gates.
   Buffer.add(input.sessionID, { text: input.text, role: "user" })
-  log.info("[MEM-TRACE] classify.complete", { sessionID: input.sessionID, stored: out.stored, skipped: out.skipped, errors: out.errors })
+  tlog("[MEM-TRACE] classify.complete", { sessionID: input.sessionID, stored: out.stored, skipped: out.skipped, errors: out.errors })
   return out
 }
 
