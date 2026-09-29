@@ -194,6 +194,7 @@ export namespace SessionPrompt {
           log.info("[MEM-TRACE] capture.trace_done", { sessionID: input.sessionID })
           const lastUser = input.messages.findLast((m) => m.info.role === "user")
           const lastAssistant = input.messages.findLast((m) => m.info.role === "assistant")
+          log.info("[MEM-TRACE] capture.assistant_found", { sessionID: input.sessionID, found: !!lastAssistant, role: lastAssistant?.info.role, partTypes: lastAssistant?.parts.map((p) => p.type), partCount: lastAssistant?.parts.length ?? 0 })
           const text = lastUser
             ? lastUser.parts
                 .filter((p): p is MessageV2.TextPart => p.type === "text")
