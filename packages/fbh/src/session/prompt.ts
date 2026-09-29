@@ -1640,7 +1640,9 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               }
 
               const finished = handle.message.finish && !["tool-calls", "unknown"].includes(handle.message.finish)
+              log.info("[MEM-TRACE] loop.finished_check", { sessionID, finish: handle.message.finish, finished, hasError: !!handle.message.error, step })
               if (finished && !handle.message.error) {
+                log.info("[MEM-TRACE] loop.forking_capture", { sessionID, msgCount: msgs.length, step })
                 run.fork(capture({ sessionID, messages: msgs, persona: personaName }))
                 if (format.type === "json_schema") {
                   handle.message.error = new MessageV2.StructuredOutputError({
