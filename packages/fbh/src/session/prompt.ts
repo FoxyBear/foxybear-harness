@@ -161,8 +161,10 @@ export namespace SessionPrompt {
         persona: string
       }) {
         try {
+          log.info("[MEM-TRACE] capture.entry", { sessionID: input.sessionID, msgCount: input.messages.length })
           const { isMemoryEnabled } = yield* Effect.promise(() => import("../memory/config"))
           const enabled = yield* Effect.promise(() => isMemoryEnabled())
+          log.info("[MEM-TRACE] capture.enabled", { enabled, sessionID: input.sessionID })
           if (!enabled) return
           const { Consolidation } = yield* Effect.promise(() => import("../memory/consolidation"))
           const adapted = input.messages.map((m) => ({
@@ -178,6 +180,7 @@ export namespace SessionPrompt {
               persona: input.persona,
             }),
           )
+          log.info("[MEM-TRACE] capture.consolidation_done", { sessionID: input.sessionID })
           const { TraceIngestor } = yield* Effect.promise(() => import("../memory/capture/trace"))
           const { classify } = yield* Effect.promise(() => import("../memory/classify/pipeline"))
           const turn = {
@@ -188,9 +191,7 @@ export namespace SessionPrompt {
             project_id: Instance.project.id,
           }
           yield* Effect.promise(() => TraceIngestor.ingest(turn))
-          // SDD-07 — extract the user's input, the LLM's text response, and a
-          // tool summary (name + status, not full I/O) from the last user and
-          // assistant messages. The abstraction context block uses all three.
+          log.info("[MEM-TRACE] capture.trace_done", { sessionID: input.sessionID })
           const lastUser = input.messages.findLast((m) => m.info.role === "user")
           const lastAssistant = input.messages.findLast((m) => m.info.role === "assistant")
           const text = lastUser
@@ -212,7 +213,9 @@ export namespace SessionPrompt {
                 .filter((p): p is MessageV2.ToolPart => p.type === "tool")
                 .map((p) => ({ name: p.tool, status: p.state.status }))
             : ([] as Array<{ name: string; status: string }>)
+          log.info("[MEM-TRACE] capture.text_extracted", { sessionID: input.sessionID, textLen: text.length, responseLen: assistantText.length, tools: toolSummary.length })
           if (text.trim()) {
+            log.info("[MEM-TRACE] capture.calling_classify", { sessionID: input.sessionID, textLen: text.length, responseLen: assistantText.length })
             yield* Effect.promise(() =>
               classify({
                 sessionID: input.sessionID,
@@ -223,9 +226,12 @@ export namespace SessionPrompt {
                 tools: toolSummary,
               }),
             )
+            log.info("[MEM-TRACE] capture.classify_done", { sessionID: input.sessionID })
+          } else {
+            log.info("[MEM-TRACE] capture.text_empty", { sessionID: input.sessionID })
           }
         } catch (err) {
-          log.warn("memory capture failed", { sessionID: input.sessionID, error: String(err) })
+          log.warn("[MEM-TRACE] capture.failed", { sessionID: input.sessionID, error: String(err) })
         }
       })
 
