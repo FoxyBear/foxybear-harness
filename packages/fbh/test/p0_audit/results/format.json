@@ -1,0 +1,290 @@
+[
+  {
+    "component": "format",
+    "input_id": "a",
+    "input_description": "empty results array — AR-14 returns ''",
+    "input": {
+      "results": []
+    },
+    "output": "",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.757Z"
+  },
+  {
+    "component": "format",
+    "input_id": "b",
+    "input_description": "single result 1 day ago — no staleness warning",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791316174758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [2026-10-06, local] test memory content",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "c",
+    "input_description": "single result 5 days ago — AR-13 staleness suffix appended",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1790970574758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [2026-10-02, local] test memory content (memory from 5 days ago — verify before acting)",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "d",
+    "input_description": "five results of mixed age",
+    "input": {
+      "results": [
+        {
+          "id": "d1",
+          "content": "fresh memory",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791316174758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        },
+        {
+          "id": "d2",
+          "content": "stale memory 1",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791143374758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        },
+        {
+          "id": "d3",
+          "content": "stale memory 2",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1790797774758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        },
+        {
+          "id": "d4",
+          "content": "today memory",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791402574758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        },
+        {
+          "id": "d5",
+          "content": "very stale memory",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1790538574758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [2026-10-06, local] fresh memory\n2. [2026-10-04, local] stale memory 1 (memory from 3 days ago — verify before acting)\n3. [2026-09-30, local] stale memory 2 (memory from 7 days ago — verify before acting)\n4. [2026-10-07, local] today memory\n5. [2026-09-27, local] very stale memory (memory from 10 days ago — verify before acting)",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "e",
+    "input_description": "degraded: true — degraded note prepended",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791402574758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ],
+      "opts": {
+        "degraded": true
+      }
+    },
+    "output": "## Relevant Memories\n> Note: Project/global memories unavailable (daemon offline). Showing instance memories only.\n1. [2026-10-07, local] test memory content",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "f",
+    "input_description": "result with source: 'local'",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791402574758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [2026-10-07, local] test memory content",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "g",
+    "input_description": "result with source: 'workforce'",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791402574758",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "workforce"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [2026-10-07, workforce] test memory content",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "h",
+    "input_description": "result with created_at: '0' — formatDate returns 'unknown'",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "0",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [unknown, local] test memory content",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "i",
+    "input_description": "result with created_at: '' — formatDate returns 'unknown'",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "",
+          "accessed_at": "1791402574758",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [unknown, local] test memory content",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.758Z"
+  },
+  {
+    "component": "format",
+    "input_id": "j",
+    "input_description": "result with valid timestamp created_at",
+    "input": {
+      "results": [
+        {
+          "id": "m1",
+          "content": "test memory content",
+          "persona": "audit",
+          "scope": "general",
+          "access_count": 0,
+          "created_at": "1791229774759",
+          "accessed_at": "1791402574759",
+          "metadata": {},
+          "score": 0.9,
+          "source": "local"
+        }
+      ]
+    },
+    "output": "## Relevant Memories\n1. [2026-10-05, local] test memory content (memory from 2 days ago — verify before acting)",
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.759Z"
+  }
+]

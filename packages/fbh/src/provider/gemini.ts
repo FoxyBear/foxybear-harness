@@ -25,7 +25,7 @@ import { Provider } from "./provider"
 const log = Log.create({ service: "provider.gemini" })
 
 const DEFAULT_MODEL = "google/gemini-2.5-flash"
-const ENDPOINT = process.env.FBH_GEMINI_ENDPOINT ?? "https://openrouter.ai/api/v1/chat/completions"
+const endpoint = () => process.env.FBH_GEMINI_ENDPOINT ?? "https://openrouter.ai/api/v1/chat/completions"
 const QUEUE_DEPTH = 50
 const RATE_PER_SEC = 5
 const RATE_INTERVAL_MS = 1000 / RATE_PER_SEC
@@ -126,7 +126,9 @@ async function resolve_cfg(): Promise<NonNullable<typeof cfg>> {
   let apiKey = layer2?.api_key ?? ""
   if (apiKey.startsWith("{file:")) {
     const filePath = apiKey.replace(/^\{file:/, "").replace(/\}$/, "")
-    try { apiKey = (await Bun.file(filePath).text()).trim() } catch {}
+    try {
+      apiKey = (await Bun.file(filePath).text()).trim()
+    } catch {}
   }
   cfg = {
     provider: layer2?.provider ?? "openrouter",
@@ -218,8 +220,8 @@ function filter_abstracted(parsed: unknown): ExtractedMemory[] {
 // For Gemini 2.5 Flash the spike validated $0.30/M both directions.
 function cost_usd(tokens_in: number, tokens_out: number): number {
   return new Decimal(0)
-    .add(new Decimal(tokens_in).mul(0.30).div(1_000_000))
-    .add(new Decimal(tokens_out).mul(0.30).div(1_000_000))
+    .add(new Decimal(tokens_in).mul(0.3).div(1_000_000))
+    .add(new Decimal(tokens_out).mul(0.3).div(1_000_000))
     .toNumber()
 }
 
@@ -242,7 +244,7 @@ async function attempt(
   filter: (parsed: unknown) => ExtractedMemory[] = filter_memories,
 ): Promise<{ ok: true; memories: ExtractedMemory[] } | { ok: false }> {
   try {
-    const res = await fetch(ENDPOINT, {
+    const res = await fetch(endpoint(), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${c.api_key}`,
@@ -251,7 +253,7 @@ async function attempt(
       body: JSON.stringify(body),
     })
     if (!res.ok) return { ok: false }
-    const data = await res.json() as any
+    const data = (await res.json()) as any
     // OpenRouter chat API returns { choices: [{ message: { content: "..." } }] }
     // The content is a JSON string (JSON mode)
     const content = data.choices?.[0]?.message?.content
@@ -390,7 +392,10 @@ export namespace Gemini {
   // extract: the single entry point per master SC-1. Returns memories + an
   // optional skipped_reason from the closed set (req 3). The pipeline
   // (sdd-04) treats skipped_reason as a soft skip, not an exception.
-  export async function extract(systemPrompt: string, userContent: string): Promise<{ memories: ExtractedMemory[]; skipped_reason?: string }> {
+  export async function extract(
+    systemPrompt: string,
+    userContent: string,
+  ): Promise<{ memories: ExtractedMemory[]; skipped_reason?: string }> {
     return call(systemPrompt, userContent)
   }
 

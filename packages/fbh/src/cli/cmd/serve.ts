@@ -9,7 +9,12 @@ import { Runner } from "../../daemon/runner"
 import { Scheduler } from "../../scheduler/scheduler"
 import { Mesh } from "../../mesh/mesh"
 import { createGraphBackend, setGlobalGraphBackend } from "../../memory/graph"
-import { createMemoryBackend, setGlobalMemoryBackend, setGlobalHypergraphBackend, getGlobalHypergraphBackend } from "../../memory/backend-registry"
+import {
+  createMemoryBackend,
+  setGlobalMemoryBackend,
+  setGlobalHypergraphBackend,
+  getGlobalHypergraphBackend,
+} from "../../memory/backend-registry"
 import { getGlobalConfig } from "../../config/bridge"
 import { Global } from "../../global"
 import { spawn } from "child_process"
@@ -38,7 +43,9 @@ async function startDaemon(args: NetworkOptions & { background?: boolean }) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
     } catch {
       console.error(`Error: SurrealDB server is not reachable at ${url}`)
-      console.error(`Start it with:\n  ~/.surrealdb/surreal start --user root --pass root surrealkv:~/.local/share/foxybear/memory-server`)
+      console.error(
+        `Start it with:\n  ~/.surrealdb/surreal start --user root --pass root surrealkv:~/.local/share/foxybear/memory-server`,
+      )
       process.exit(1)
     }
   }
@@ -78,63 +85,17 @@ async function startDaemon(args: NetworkOptions & { background?: boolean }) {
           const backendType = (config?.memory?.graph_backend ?? "sqlite") as "sqlite" | "surreal"
           const { getGlobalGraphBackend } = await import("../../memory/graph")
           const graphBackend = getGlobalGraphBackend()
-          const sharedDb = backendType === "surreal" && (graphBackend as any)?.getDb?.()
-            ? (graphBackend as any).getDb()
-            : undefined
+          const sharedDb =
+            backendType === "surreal" && (graphBackend as any)?.getDb?.() ? (graphBackend as any).getDb() : undefined
           const backend = await createMemoryBackend(backendType, { db: sharedDb, surreal: surrealConfig })
           if (backend) {
             await backend.init()
             setGlobalMemoryBackend(backend)
-            // SDD-02 / Phase M-0 — migration wire-up (WHAT #1-#4, #15-#18).
-            // Gated by memory.enabled. Dry-run mode reports planned writes
-            // without taking them. Non-dry-run takes a backup first, then
-            // compares actual vs. planned row counts; mismatch → ABORT A1.
-            const { isMemoryEnabled } = await import("../../memory/config")
-            if (backendType === "surreal" && backend.migrateFromSqlite && await isMemoryEnabled()) {
-              const migrateCfg = config?.memory?.migrate
-              if (migrateCfg?.dry_run) {
-                const report = await backend.migrateFromSqlite({ dryRun: true })
-                console.log("memory migration dry-run", report)
-              } else {
-                const { backupBeforeMigrate } = await import("../../memory/migrate-backup")
-                const { checkAbortA1 } = await import("../../memory/m0-abort")
-                let backupDir: string | undefined
-                try {
-                  backupDir = await backupBeforeMigrate()
-                } catch (err) {
-                  console.error("backup verification failed, aborting migration", { error: String(err) })
-                  await checkAbortA1("backup_verification_failed", { backupDir })
-                  return
-                }
-                const dryRunReport = await backend.migrateFromSqlite({ dryRun: true })
-                const report = await backend.migrateFromSqlite()
-                if (
-                  report.memories < dryRunReport.memories ||
-                  report.entities < dryRunReport.entities ||
-                  report.edges < dryRunReport.edges
-                ) {
-                  await checkAbortA1("dry_run_mismatch_or_data_loss", { backupDir })
-                  return
-                }
-                console.log("memory migration", {
-                  ran: report.ran,
-                  memories: report.memories,
-                  duration_ms: report.duration_ms,
-                })
-              }
-            }
-            // SDD-03 / Phase M-1 — wire SurrealHypergraphBackend (SC-5).
-            // Constructed, initialized, backfilled (idempotent — checks marker)
-            // and registered as the global hypergraph backend. Backfill runs
-            // once on first boot; subsequent boots skip via the marker file.
-            if (backendType === "surreal" && await isMemoryEnabled()) {
+            if (backendType === "surreal" && config?.memory?.enabled === true) {
               try {
                 const { SurrealHypergraphBackend } = await import("../../memory/surreal-hypergraph-backend")
                 const hyper = new SurrealHypergraphBackend(surrealConfig ?? {})
                 await hyper.init()
-                await hyper.backfill().catch((err) => {
-                  console.error("hypergraph backfill failed", { error: String(err) })
-                })
                 setGlobalHypergraphBackend(hyper)
               } catch (err) {
                 console.error("hypergraph backend init failed", { error: String(err) })
@@ -185,11 +146,7 @@ async function startDaemon(args: NetworkOptions & { background?: boolean }) {
         fatal: false,
         async init() {
           if (config?.scheduler?.enabled) {
-            // SDD-02 / Phase M-0 — gate scheduler start on memory.enabled (WHAT #15).
-            // When memory is off, the scheduler stays dormant even if scheduler.enabled
-            // is true. M-0 wire-up is opt-in.
-            const { isMemoryEnabled } = await import("../../memory/config")
-            if (!(await isMemoryEnabled())) return
+            if (config?.memory?.enabled !== true) return
             await Scheduler.start(config.scheduler, {
               mesh: config.mesh ? { enabled: config.mesh.enabled } : undefined,
             })

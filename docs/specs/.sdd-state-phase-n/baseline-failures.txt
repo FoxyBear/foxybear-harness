@@ -1,0 +1,548 @@
+permission.task with real config files > loads task permissions from opencode.json config
+permission.task with real config files > loads task permissions with wildcard patterns from config
+permission.task with real config files > evaluate respects task permission from config
+permission.task with real config files > mixed permission config with task and other tools
+permission.task with real config files > task tool disabled when global deny comes last in config
+permission.task with real config files > task tool NOT disabled when specific allow comes last in config
+skill > discovers skills from .opencode/skill/ directory
+skill > returns skill directories from Skill.dirs
+skill > discovers multiple skills from .opencode/skill/ directory
+skill > properly resolves directories that skills live in
+keeps server and tui plugin merge semantics aligned
+loads tui config with the same precedence order as server config paths
+loads .opencode/tui.json
+compaction thresholds — custom > 25. custom thresholds — explicit values used correctly
+compaction thresholds — validation > 26. all-explicit inversion rejected through config service load
+compaction thresholds — validation > 26. partial-config-against-defaults inversion rejected through config service load
+agent color parsed from project config
+Agent.get includes color from config
+loads JSON config file
+ignores legacy tui keys in opencode config
+loads JSONC config file
+jsonc overrides json in the same directory
+handles environment variable substitution
+preserves env variables when adding $schema to config
+handles file inclusion substitution
+handles file inclusion with replacement tokens
+validates config schema and throws on invalid fields
+throws error for invalid JSON
+handles agent configuration
+treats agent variant as model-scoped setting (not provider option)
+handles command configuration
+migrates autoshare to share field
+migrates mode field to agent field
+loads config from .opencode directory
+loads agents from .opencode/agents (plural)
+loads commands from .opencode/command (singular)
+loads commands from .opencode/commands (plural)
+resolves scoped npm plugins in config
+merges plugin arrays from global and local configs
+does not error when only custom agent is a subagent
+merges instructions arrays from global and local configs
+deduplicates duplicate instructions from global and local configs
+deduplicates duplicate plugins from global and local configs
+keeps plugin origins aligned with merged plugin list
+migrates legacy tools config to permissions - allow
+migrates legacy tools config to permissions - deny
+migrates legacy write tool to edit permission
+managed settings override user settings
+missing managed settings file is not an error
+migrates legacy edit tool to edit permission
+migrates legacy patch tool to edit permission
+migrates legacy multiedit tool to edit permission
+migrates mixed legacy tools config
+merges legacy tools with existing permission config
+permission config preserves key order
+project config can override MCP server enabled status
+MCP config deep merges preserving base config properties
+local .opencode config can override MCP from project config
+project config overrides remote well-known config
+deduplicatePluginOrigins > loads auto-discovered local plugins as file urls
+FBH_DISABLE_PROJECT_CONFIG > FBH_CONFIG_DIR still works when flag is set
+plugin.install.task > writes both server and tui config entries
+plugin.install.task > writes default options from exports config metadata
+plugin.install.task > preserves JSONC comments when adding plugins to server and tui config
+plugin.install.task > preserves JSONC comments when force replacing plugin version
+plugin.install.task > supports resolver target pointing to a file
+plugin.install.task > keeps file plugin entries and still adds npm plugin
+plugin.install.task > force replaces configured package version and keeps tuple options
+plugin.install.task > writes local scope under directory when vcs is not git
+plugin.install.task > writes local scope under directory when worktree is root slash
+plugin.install.task > writes tui local scope under directory when worktree is root slash
+plugin.install.task > writes only tui config for tui-only plugins
+plugin.install.task > writes tui config for oc-themes-only packages
+plugin.install.task > force replaces version in both server and tui configs
+plugin.install.task > returns false and keeps config unchanged for invalid JSONC
+plugin.auth-override > user plugin overrides built-in github-copilot auth
+plugin.install.concurrent > serializes concurrent server config updates across processes
+plugin.install.concurrent > serializes concurrent server+tui config updates across processes
+plugin.install.concurrent > preserves updates when existing config uses .json
+plugin.loader.shared > loads a file:// plugin function export
+plugin.loader.shared > deduplicates same function exported as default and named
+plugin.loader.shared > uses only default v1 server plugin when present
+plugin.loader.shared > resolves npm plugin specs with explicit and default versions
+plugin.loader.shared > loads npm server plugin from package ./server export
+plugin.loader.shared > loads npm server plugin from package server export without leading dot
+plugin.loader.shared > loads npm server plugin from package main without leading dot
+plugin.loader.shared > skips legacy codex and copilot auth plugin specs
+plugin.loader.shared > skips broken plugin when install fails
+plugin.loader.shared > continues loading plugins when plugin init throws
+plugin.loader.shared > continues loading plugins when plugin module has invalid export
+plugin.loader.shared > continues loading plugins when plugin import fails
+plugin.loader.shared > loads object plugin via plugin.server
+plugin.loader.shared > passes tuple plugin options into server plugin
+plugin.loader.shared > initializes server plugins in config order
+plugin.workspace > plugin can install a workspace adaptor
+plugin.trigger > runs synchronous hooks without crashing
+plugin.trigger > awaits asynchronous hooks
+provider loaded from config with apiKey option
+disabled_providers excludes provider
+         (fail) enabled_providers restricts to only listed providers
+model whitelist filters models for provider
+model blacklist excludes specific models
+custom model alias via config
+custom provider with npm package
+env variable takes precedence, config merges options
+defaultModel respects config model setting
+provider with baseURL from config
+model cost defaults to zero when not specified
+model options are merged from existing model
+provider removed when all models filtered out
+getModel uses realIdByKey for aliased models
+provider api field sets model api.url
+explicit baseURL overrides api field
+model inherits properties from existing database model
+          (fail) disabled_providers prevents loading even with env var
+enabled_providers with empty array allows no providers
+whitelist and blacklist can be combined
+model modalities default correctly
+model with custom cost values
+getSmallModel respects config small_model override
+multiple providers can be configured simultaneously
+provider with custom npm package
+model alias name defaults to alias key when id differs
+provider with multiple env var options only includes apiKey when single env
+provider with single env var includes apiKey automatically
+model cost overrides existing cost values
+completely new provider not in database can be configured
+          include: (fail) disabled_providers and enabled_providers interaction
+model with tool_call false
+model defaults tool_call to true when not specified
+model headers are preserved
+provider env fallback - second env var used if first missing
+provider name defaults to id when not in database
+model limit defaults to zero when not specified
+provider options are deeply merged
+custom model inherits npm package from models.dev provider config
+custom model inherits api.url from models.dev provider
+model variants can be disabled via config
+model variants can be customized via config
+disabled key is stripped from variant config
+all variants can be disabled via config
+variant config merges with generated variants
+variants filtered in second pass for database models
+custom model with variants enabled and disabled
+Google Vertex: retains baseURL for custom proxy
+Google Vertex: supports OpenAI compatible models
+cloudflare-ai-gateway forwards config metadata options
+plugin config providers persist after instance dispose
+  (fail) plugin config enabled and disabled providers are honored
+Bedrock: config region takes precedence over AWS_REGION env var
+Bedrock: loads when bearer token from auth.json is present
+Bedrock: includes custom endpoint in options when specified
+plan agent denies edits except .opencode/plans/*
+custom agent from config creates new agent
+custom agent config overrides native agent properties
+agent disable removes agent from list
+agent permission config merges with defaults
+global permission config applies to all agents
+agent steps/maxSteps config sets steps property
+agent mode can be overridden
+agent name can be overridden
+agent prompt can be set from config
+unknown agent properties are placed into options
+agent options merge correctly
+multiple custom agents can be defined
+Agent.list keeps the default agent first and sorts the rest by name
+legacy tools config converts to permissions
+legacy tools config maps write/edit/patch/multiedit to edit permission
+Truncate.GLOB is allowed even when user denies external_directory globally
+Truncate.GLOB is allowed even when user denies external_directory per-agent
+explicit Truncate.GLOB deny is respected
+skill directories are allowed for external_directory
+defaultAgent respects default_agent config set to plan
+defaultAgent respects default_agent config set to custom agent with mode all
+defaultAgent throws when default_agent points to subagent
+defaultAgent throws when default_agent points to hidden agent
+defaultAgent throws when default_agent points to non-existent agent
+defaultAgent returns plan when build is disabled and default_agent not set
+defaultAgent throws when all primary agents are disabled
+BrowserOpenFailed event is published when open() throws
+BrowserOpenFailed event is NOT published when open() succeeds
+open() is called with the authorization URL
+disconnect sets status to disabled and removes client
+connect() after disconnect() re-establishes the server
+init connects available servers even when one fails
+disabled server is marked as disabled without attempting connection
+server that fails to connect is marked as failed
+Worktree > makeWorktreeInfo > returns info with name, branch, and directory
+Worktree > makeWorktreeInfo > uses provided name as base
+Worktree > create + remove lifecycle > create returns worktree info and remove cleans up
+Worktree > create + remove lifecycle > create returns after setup and fires Event.Ready after bootstrap
+Worktree > create + remove lifecycle > create with custom name
+Project.fromDirectory > should handle git repository with commits
+Project.fromDirectory with worktrees > worktree should share project ID with main repo
+SDD-04: Migration > V1 — dry-run: no files created in foxybear paths
+SDD-04: Migration > V2 — full migrate: config + personas + agent + commands copied
+SDD-04: Migration > V3 — DB copy + rename prefix opencode → fbh
+SDD-04: Migration > V4 — auth.json copied, contents not in migration log
+SDD-04: Migration > V5 — SurrealDB + memory-backup copied, /opencode/ path rewritten to /foxybear/
+SDD-04: Migration > V5b — state dir copied (prompt-history, kv, plugin-meta, model, locks)
+SDD-04: Migration > V5c — storage dir copied (session_diff + migration marker)
+SDD-04: Migration > V5d — agent/mode/skill dirs migrated
+SDD-04: Migration > V5e — snapshot + tool-output skipped
+SDD-04: Migration > V6 — PID not copied, stale PID warned
+SDD-04: Migration > V7 — logs + cache skipped
+SDD-04: Migration > V8 — API keys untouched (not copied, not logged)
+SDD-04: Migration > V9 — idempotent: re-run is no-op (targets already exist)
+SDD-04: Migration > V13 — no original data lost (source checksums unchanged)
+SDD-05: Verify & Cleanup > V1 — build: fbh binary exists
+SDD-05: Verify & Cleanup > V2 — typecheck green (package)
+SDD-05: Verify & Cleanup > V4 — fbh --help prints fbh as program name, zero opencode in help text
+SDD-05: Verify & Cleanup > V8 — fbh migrate subcommand registered
+SDD-05: Verify & Cleanup > V15 — .foxybear/ config dir: backward-compat read of .opencode/ preserved
+SDD-03: Core Deep Rebrand > V1 — XDG keystone: global/index.ts app = 'foxybear' + FBH_TEST_HOME
+SDD-03: Core Deep Rebrand > V4 — schema URLs: foxybear.ai (OQ1=YES)
+SDD-03: Core Deep Rebrand > V7 — internal host: zero opencode.internal
+SDD-03: Core Deep Rebrand > V8 — DB filename: fbh.db, zero opencode.db in src
+SDD-03: Core Deep Rebrand > V10 — user agent: x-fbh-client, zero x-opencode-client
+SDD-03: Core Deep Rebrand > V13 — managed config + MDM: foxybear paths, ai.foxybear.managed
+SDD-03: Core Deep Rebrand > V14 — well-known: .well-known/fbh, zero .well-known/opencode
+SDD-03: Core Deep Rebrand > V15 — opencode provider removed (OQ6=remove)
+Format > status() returns empty list when formatter is disabled
+Format > status() excludes formatters marked as disabled in config
+Format > status() excludes uv when ruff is disabled
+Format > status() excludes ruff when uv is disabled
+Format > status() initializes formatter state per directory
+Format > runs matching formatters sequentially for the same file
+tool.task > description sorts subagents by name and is stable across calls
+tool.task > description hides denied subagents for the caller
+tool.task > execute shapes child permissions for task, todowrite, and primary tools
+tool.registry > loads tools from .opencode/tool (singular)
+tool.registry > loads tools from .opencode/tools (plural)
+tool.registry > loads tools with external dependencies without crashing
+tool.skill > description lists skill location URL
+tool.skill > description sorts skills by name and is stable across calls
+tool.skill > execute returns skill content block with files
+ShareNext > request uses legacy share API without active org account
+ShareNext > create posts share, persists it, and returns the result
+ShareNext > remove deletes the persisted share and calls the delete endpoint
+ShareNext > ShareNext coalesces rapid diff events into one delayed sync with latest data
+graduated compaction — tier triggers > 16. full compact triggers at 90% — create() called, compaction message created
+graduated compaction — TierChanged event > 27. downward transition after compaction — tier classification (compact → none)
+graduated compaction — single-owner > 33. at 92%, tier is 'compact' and create() produces compaction message
+loop calls LLM and returns assistant message
+static loop returns assistant text through local provider
+static loop consumes queued replies across turns
+loop continues when finish is tool-calls
+loop continues when finish is stop but assistant has tool parts
+failed subtask preserves metadata on error tool state
+running subtask preserves metadata after tool-call transition
+running task tool preserves metadata after tool-call transition
+loop sets status to busy then idle
+cancel interrupts loop and resolves with an assistant message
+cancel records MessageAbortedError on interrupted process
+cancel finalizes subtask tool state
+cancel with queued callers resolves all cleanly
+concurrent loop callers all receive same error result
+prompt submitted during an active run is included in the next LLM input
+assertNotBusy throws BusyError when loop running
+shell rejects with BusyError when loop running
+loop waits while shell runs and starts after shell exits
+shell completion resumes queued loop callers
+cancel interrupts shell and resolves cleanly
+cancel persists aborted shell result when shell ignores TERM
+cancel finalizes interrupted bash tool output through normal truncation
+cancel interrupts loop queued behind shell
+session.prompt regression > does not loop empty assistant turns for a simple reply
+session.prompt regression > records aborted errors when prompt is cancelled mid-stream
+session.prompt agent variant > applies agent variant only when using agent model
+session.compaction.isOverflow > returns false when compaction.auto is disabled
+session.processor effect tests capture llm input cleanly
+session.processor effect tests preserve text start time
+session.processor effect tests stop after token overflow requests compaction
+session.processor effect tests capture reasoning from http mock
+session.processor effect tests reset reasoning state across retries
+session.processor effect tests do not retry unknown json errors
+session.processor effect tests retry recognized structured json errors
+session.processor effect tests publish retry status updates
+session.processor effect tests compact on structured context overflow
+session.processor effect tests mark pending tools as aborted on cleanup
+session.processor effect tests record aborted errors and idle state
+session.processor effect tests mark interruptions aborted without manual abort
+session.llm.stream > sends temperature, tokens, and reasoning options for openai-compatible models
+session.llm.stream > service stream cancellation cancels provider response body promptly
+session.llm.stream > keeps tools enabled by prompt permissions
+session.llm.stream > sends responses API payload for OpenAI models
+session.llm.stream > accepts user image attachments as data URLs for OpenAI models
+session.llm.stream > sends messages API payload for Anthropic Compatible models
+session.llm.stream > sends Google API payload for Gemini models
+tool execution produces non-empty session diff (snapshot race)
+session.system > skills output is sorted by name and stable across calls
+enabled_providers restricts to only listed providers
+disabled_providers prevents loading even with env var
+disabled_providers and enabled_providers interaction
+plugin config enabled and disabled providers are honored
+SDD-02: Package Rebrand > V1b — no @opencode-ai scope references in package.json files
+SDD-02 M-0 Wire-Up > V15 — Feature flag (memory.enabled, default false) > isMemoryEnabled() helper exists in src/memory/
+SDD-02 M-0 Wire-Up > V15 — Feature flag (memory.enabled, default false) > isMemoryEnabled function is defined in the codebase
+SDD-02 M-0 Wire-Up > V15 — Feature flag (memory.enabled, default false) > config memory.enabled flag is referenced in the codebase
+SDD-02 M-0 Wire-Up > V16 — migrateFromSqlite dry-run option > surreal-backend.ts migrateFromSqlite accepts dryRun option
+SDD-02 M-0 Wire-Up > V17 — backupBeforeMigrate helper > backupBeforeMigrate helper exists in src/memory/
+SDD-02 M-0 Wire-Up > V17 — backupBeforeMigrate helper > backupBeforeMigrate function is defined in the codebase
+SDD-02 M-0 Wire-Up > V19 — Telemetry + Abort A1 helpers > emitTelemetry helper exists in src/memory/
+SDD-02 M-0 Wire-Up > V19 — Telemetry + Abort A1 helpers > checkAbortA1 helper exists in src/memory/
+SDD-02 M-0 Wire-Up > V19 — Telemetry + Abort A1 helpers > checkAbortA1 function is defined in the codebase
+SDD-02 M-0 Wire-Up > V5 — Scheduler re-enabled with real recentSessionIds > scheduler.ts no longer passes recentSessionIds: [] stub
+SDD-02 M-0 Wire-Up > V6-V7 — AutoRecall wired into session prompt > prompt.ts imports or calls AutoRecall.autoRecall
+SDD-02 M-0 Wire-Up > V6-V7 — AutoRecall wired into session prompt > prompt.ts imports or calls AutoRecall.formatForInjection
+SDD-02 M-0 Wire-Up > V9-V10 — Consolidation.extractTurn wired into session prompt > prompt.ts imports or calls Consolidation.extractTurn
+SDD-02 M-0 Wire-Up > V12 — Typecheck green > bun run typecheck exits 0
+SDD-02 M-0 Wire-Up > V14 — Feature flag off → no M-0 code paths fire > memory.enabled defaults to false (or absent) in config schema
+SDD-02 M-0 Wire-Up > Call site verification (CC-2 — dormant code is wired) > AutoRecall.autoRecall has a call site outside its own definition
+SDD-02 M-0 Wire-Up > Call site verification (CC-2 — dormant code is wired) > Consolidation.extractTurn has a call site outside its own definition
+SDD-02 M-0 Wire-Up > Call site verification (CC-2 — dormant code is wired) > Consolidation.run is called from scheduler with non-empty recentSessionIds
+SDD-01 P-0 Dormant-Code Audit > V20 — No source modifications during audit > git diff --stat -- src/ shows no modifications
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > src/memory/schema/ directory exists
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > schema/enums.ts exists with NodeType and HyperedgeType
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > schema/base.ts exists with BaseNode and BaseHyperedge
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > schema/nodes.ts exists with 6 active Schema.Class exports
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > schema/hyperedges.ts exists with 4 active Schema.Class exports
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > schema/lifecycle.ts exists with is_live function
+SDD-03 M-1 Hypergraph Schema > V2 — Schema types defined, subsetting enforced (CC-13) > bi-temporal fields present in BaseNode (SC-2)
+SDD-03 M-1 Hypergraph Schema > V4 — SurrealHypergraphBackend (composition, project_id, CC-13) > surreal-hypergraph-backend.ts exists
+SDD-03 M-1 Hypergraph Schema > V4 — SurrealHypergraphBackend (composition, project_id, CC-13) > SurrealHypergraphBackend uses COMPOSITION (not extends SurrealGraphBackend)
+SDD-03 M-1 Hypergraph Schema > V4 — SurrealHypergraphBackend (composition, project_id, CC-13) > store method rejects RESERVED node types (CC-13)
+SDD-03 M-1 Hypergraph Schema > V4 — SurrealHypergraphBackend (composition, project_id, CC-13) > query/expand/neighbors methods take project_id (SC-5)
+SDD-03 M-1 Hypergraph Schema > V4 — SurrealHypergraphBackend (composition, project_id, CC-13) > query method uses is_live filter (SC-2)
+SDD-03 M-1 Hypergraph Schema > V11 — Backend registry extension > backend-registry.ts has setGlobalHypergraphBackend/getGlobalHypergraphBackend
+SDD-03 M-1 Hypergraph Schema > V5 — Backfill (idempotent, confidence=0.5, ACTIVE types only) > backfill method exists in SurrealHypergraphBackend
+SDD-03 M-1 Hypergraph Schema > V5 — Backfill (idempotent, confidence=0.5, ACTIVE types only) > backfill sets confidence = 0.5 on MEMORY nodes (SC-8)
+SDD-03 M-1 Hypergraph Schema > V5 — Backfill (idempotent, confidence=0.5, ACTIVE types only) > backfill maps graph_edge to ACTIVE types only (CC-13 — no NARY_FACT/COMMUNITY_REPORT/GENERALIZES)
+SDD-03 M-1 Hypergraph Schema > V5 — Backfill (idempotent, confidence=0.5, ACTIVE types only) > backfill marker file path uses memory-migration-hypergraph.json
+SDD-03 M-1 Hypergraph Schema > V8-V9 — Memory.store/recall dual-write/dual-read > Memory.store writes to node table (dual-write)
+SDD-03 M-1 Hypergraph Schema > V8-V9 — Memory.store/recall dual-write/dual-read > Memory.recall reads from node table (dual-read)
+SDD-03 M-1 Hypergraph Schema > V7 — Bi-temporal is_live filter > is_live function checks tx_to, valid_to, and status
+SDD-03 M-1 Hypergraph Schema > V10 — Typecheck green > bun run typecheck exits 0
+SDD-03 M-1 Hypergraph Schema > V13 — Style guide compliance (CC-9) > snake_case for SurrealDB field names in schema
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log exists at docs/decisions/260921_fbh-phase-m_probe-results.md
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has pre-registered thresholds (field a)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has corpus summary (field b)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has rubric + inter-rater agreement (field c)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has temporary capture heuristics (field d)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has raw per-stratum per-arm metrics (field e)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has bootstrap CI bounds (field f)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has latency P95 (field g)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > decision log has verdict (field h)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V9 — Decision log written (reqs 17-18) > raw machine-readable results JSON exists
+SDD-04 Pre-Registered Retrieval-Quality Probe > V8 + V11 — Verdict produced (req 16) > verdict is one of PASS, PASS_WITH_ROUTING, RELATIONAL_ONLY, FAIL
+SDD-04 Pre-Registered Retrieval-Quality Probe > V10 — Pre-registration invariants (CC-11, reqs 1-2) > thresholds in decision log match SC-12 (relational ΔMRR ≥ +0.05 AND ΔRecall@5 ≥ +0.05)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V10 — Pre-registration invariants (CC-11, reqs 1-2) > thresholds in decision log match SC-12 (long-range non-regression ΔRecall@5 ≥ -0.01)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V10 — Pre-registration invariants (CC-11, reqs 1-2) > thresholds in decision log match SC-12 (adversarial FP rate ≤ 20%)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V10 — Pre-registration invariants (CC-11, reqs 1-2) > thresholds in decision log match SC-12 (latency P95 ≤ 100ms)
+SDD-04 Pre-Registered Retrieval-Quality Probe > V10 — Pre-registration invariants (CC-11, reqs 1-2) > registration timestamp precedes labeling-start timestamp
+SDD-04 Pre-Registered Retrieval-Quality Probe > V1 — Corpus assembled (reqs 3-5) > corpus JSON exists in probe dir
+SDD-04 Pre-Registered Retrieval-Quality Probe > V1 — Corpus assembled (reqs 3-5) > corpus has ≥ 50 sessions OR 4 weeks of telemetry
+SDD-04 Pre-Registered Retrieval-Quality Probe > V1 — Corpus assembled (reqs 3-5) > corpus has ≥ 2 distinct project_id values
+SDD-04 Pre-Registered Retrieval-Quality Probe > V3 — Labeling complete (reqs 7-10) > labels JSON exists with 100 queries across 4 strata
+SDD-04 Pre-Registered Retrieval-Quality Probe > V3 — Labeling complete (reqs 7-10) > labels include relational, long-range, single-hop, adversarial strata
+SDD-04 Pre-Registered Retrieval-Quality Probe > V5 — Four arms ran (reqs 11, 13) > arm-vector results JSON exists
+SDD-04 Pre-Registered Retrieval-Quality Probe > V5 — Four arms ran (reqs 11, 13) > arm-hybrid results JSON exists
+SDD-04 Pre-Registered Retrieval-Quality Probe > V5 — Four arms ran (reqs 11, 13) > arm-hypergraph results JSON exists
+SDD-04 Pre-Registered Retrieval-Quality Probe > V5 — Four arms ran (reqs 11, 13) > arm-pure-hypergraph results JSON exists
+SDD-04 Pre-Registered Retrieval-Quality Probe > V6 — Metrics computed (req 13) > scores JSON exists with per-stratum metrics
+SDD-04 Pre-Registered Retrieval-Quality Probe > V7 — Latency P95 (req 15) > latency JSON exists or latency recorded in decision log
+SDD-04 Pre-Registered Retrieval-Quality Probe > V12 — Green suite (CC-4) > probe dir exists
+SDD-05 M-2 Auto-Capture Pipeline > TraceIngestor (6 active node types, 4 active hyperedge types) > src/memory/capture/ directory exists
+SDD-05 M-2 Auto-Capture Pipeline > TraceIngestor (6 active node types, 4 active hyperedge types) > TraceIngestor is defined in the codebase
+SDD-05 M-2 Auto-Capture Pipeline > TraceIngestor (6 active node types, 4 active hyperedge types) > TraceIngestor emits the 6 active node types (MESSAGE, ACTION, ERROR, MEMORY, PROCEDURE, ENTITY)
+SDD-05 M-2 Auto-Capture Pipeline > TraceIngestor (6 active node types, 4 active hyperedge types) > TraceIngestor emits the 4 active hyperedge types (COLLABORATION, ERROR_CORRECTION, EVIDENCE, PROCEDURE)
+SDD-05 M-2 Auto-Capture Pipeline > TraceIngestor (6 active node types, 4 active hyperedge types) > TraceIngestor does NOT emit reserved node types (CC-13)
+SDD-05 M-2 Auto-Capture Pipeline > LLM extraction (hybrid mode, async) > src/memory/extraction/ directory exists
+SDD-05 M-2 Auto-Capture Pipeline > LLM extraction (hybrid mode, async) > EntityExtractor or LLM extraction function is defined
+SDD-05 M-2 Auto-Capture Pipeline > LLM extraction (hybrid mode, async) > hybrid mode is supported (regex for low-value, LLM for high-value)
+SDD-05 M-2 Auto-Capture Pipeline > LLM extraction (hybrid mode, async) > async extraction (does not block LLM response)
+SDD-05 M-2 Auto-Capture Pipeline > Data governance (CC-12, B4) > secrets-redaction filter exists
+SDD-05 M-2 Auto-Capture Pipeline > Data governance (CC-12, B4) > external_opt_in config flag exists (default false)
+SDD-05 M-2 Auto-Capture Pipeline > Data governance (CC-12, B4) > CLI disclosure when background LLM extraction is enabled
+SDD-05 M-2 Auto-Capture Pipeline > Dependency chains (ContextWeaver-style) > ActionNode dependency chains are implemented
+SDD-05 M-2 Auto-Capture Pipeline > Initial-confidence policy > initial confidence set by extraction-path provenance class
+SDD-05 M-2 Auto-Capture Pipeline > Initial-confidence policy > tool outputs get higher initial confidence (0.7) than LLM-inferred (0.5)
+SDD-05 M-2 Auto-Capture Pipeline > Config consumed (CC-6) > memory.extraction config is read and consumed
+SDD-05 M-2 Auto-Capture Pipeline > Config consumed (CC-6) > changing config value changes behavior (mode regex vs llm vs hybrid)
+SDD-05 M-2 Auto-Capture Pipeline > Typecheck green > bun run typecheck exits 0
+SDD-06 M-3 Lifecycle Engine > Lifecycle service + decay > src/memory/lifecycle/ directory exists
+SDD-06 M-3 Lifecycle Engine > Lifecycle service + decay > MemoryLifecycle service or decay function is defined
+SDD-06 M-3 Lifecycle Engine > Lifecycle service + decay > simple exponential + rehearsal decay formula is implemented (DEFAULT)
+SDD-06 M-3 Lifecycle Engine > Lifecycle service + decay > Prism replicator-decay is experimental behind config flag
+SDD-06 M-3 Lifecycle Engine > Lifecycle service + decay > decay is clamped to [0, 1]
+SDD-06 M-3 Lifecycle Engine > Lifecycle service + decay > confidence + status updated atomically, STATUS_TRANSITION event appended
+SDD-06 M-3 Lifecycle Engine > Lifecycle transitions (SC-3 staged model) > transitions follow ACTIVE→DEPRECATED→ARCHIVED→DELETED (no skips)
+SDD-06 M-3 Lifecycle Engine > Lifecycle transitions (SC-3 staged model) > no direct ACTIVE→ARCHIVED transition (must go through DEPRECATED)
+SDD-06 M-3 Lifecycle Engine > Soft-delete via invalidated_by + INVALIDATE event > soft-delete sets tx_to, status=DELETED, invalidated_by, emits INVALIDATE event
+SDD-06 M-3 Lifecycle Engine > Soft-delete via invalidated_by + INVALIDATE event > no INVALIDATES hyperedge created (it's not a hyperedge type)
+SDD-06 M-3 Lifecycle Engine > GC (hard-delete ARCHIVED past retention) > gc function exists and hard-deletes ARCHIVED past retention_days
+SDD-06 M-3 Lifecycle Engine > GC (hard-delete ARCHIVED past retention) > gc emits GC_DELETED event before hard-delete (audit trail preserved)
+SDD-06 M-3 Lifecycle Engine > Graduation (access_count >= 2 default, force-promote at 5, semantic-shift shadow) > graduation uses access_count >= 2 as default trigger
+SDD-06 M-3 Lifecycle Engine > Graduation (access_count >= 2 default, force-promote at 5, semantic-shift shadow) > force-promote at 5 accesses exists
+SDD-06 M-3 Lifecycle Engine > Graduation (access_count >= 2 default, force-promote at 5, semantic-shift shadow) > semantic-shift shadow metric is implemented (logged, not gating)
+SDD-06 M-3 Lifecycle Engine > Composite value scoring > score function exists in src/memory/lifecycle/
+SDD-06 M-3 Lifecycle Engine > Composite value scoring > score combines semantic + role + confidence + provenance + recency + usage + lifecycle
+SDD-06 M-3 Lifecycle Engine > Scheduler tasks > memory-decay task registered (hourly)
+SDD-06 M-3 Lifecycle Engine > Scheduler tasks > memory-gc task registered (weekly)
+SDD-06 M-3 Lifecycle Engine > Scheduler tasks > memory-ttl-pruning task calls Consolidation.prune (not inline)
+SDD-06 M-3 Lifecycle Engine > Scheduler tasks > scheduler tasks use English-label intervals (hourly/daily/weekly)
+SDD-06 M-3 Lifecycle Engine > Stale penalty removed > binary stale penalty at memory.ts:458 is removed or deprecated
+SDD-06 M-3 Lifecycle Engine > Config consumed (CC-6) > memory.decay config is read and consumed
+SDD-06 M-3 Lifecycle Engine > Config consumed (CC-6) > memory.decay_model config flag exists (simple/prism/none)
+SDD-06 M-3 Lifecycle Engine > Config consumed (CC-6) > memory.scheduler.tasks config with English intervals exists
+SDD-06 M-3 Lifecycle Engine > Coupled-loop simulation spike (CC-15) > coupled-loop simulation test file exists
+SDD-06 M-3 Lifecycle Engine > Coupled-loop simulation spike (CC-15) > coupled-loop sim tests decay + graduation + conflict interaction
+SDD-06 M-3 Lifecycle Engine > Coupled-loop simulation spike (CC-15) > coupled-loop sim asserts stability criteria (bounded [0,1], no collapse, convergence)
+SDD-06 M-3 Lifecycle Engine > Typecheck green > bun run typecheck exits 0
+SDD-07 M-4 Context Packing & Injection > BudgetAwarePacker > src/memory/packing/ directory exists
+SDD-07 M-4 Context Packing & Injection > BudgetAwarePacker > ContextPacker or pack function is defined
+SDD-07 M-4 Context Packing & Injection > BudgetAwarePacker > pack signature is pack(query, project_id, budget)
+SDD-07 M-4 Context Packing & Injection > BudgetAwarePacker > slash commands return empty PackedContext
+SDD-07 M-4 Context Packing & Injection > Session service (Context.Tag + Effect.provideService) > Session service is defined (Context.Tag or Context.Service)
+SDD-07 M-4 Context Packing & Injection > Session service (Context.Tag + Effect.provideService) > Session provides sessionID + persona
+SDD-07 M-4 Context Packing & Injection > Probe findings PF-1 through PF-7 (production requirements) > PF-1: HNSW KNN operator <|K,COSINE|> used for seed query (NOT ORDER BY cosine)
+SDD-07 M-4 Context Packing & Injection > Probe findings PF-1 through PF-7 (production requirements) > PF-2: in-memory adjacency map for expand()
+SDD-07 M-4 Context Packing & Injection > Probe findings PF-1 through PF-7 (production requirements) > PF-3: expand depth=1 (not depth=2)
+SDD-07 M-4 Context Packing & Injection > Probe findings PF-1 through PF-7 (production requirements) > PF-4: fanout cap at 10
+SDD-07 M-4 Context Packing & Injection > Probe findings PF-1 through PF-7 (production requirements) > PF-6: session-scoped LRU cache for seed queries
+SDD-07 M-4 Context Packing & Injection > TypedFormatter (extends formatForInjection) > TypedFormatter is defined
+SDD-07 M-4 Context Packing & Injection > TypedFormatter (extends formatForInjection) > produces ## Relevant Memories block (delegates to formatForInjection)
+SDD-07 M-4 Context Packing & Injection > TypedFormatter (extends formatForInjection) > produces typed blocks for Actions, Errors, Procedures
+SDD-07 M-4 Context Packing & Injection > TypedFormatter (extends formatForInjection) > preserves dates, sources, staleness warnings
+SDD-07 M-4 Context Packing & Injection > ProvenanceTracker (no rehearse method) > ProvenanceTracker is defined
+SDD-07 M-4 Context Packing & Injection > ProvenanceTracker (no rehearse method) > feedback increments usage_count directly (no rehearse method)
+SDD-07 M-4 Context Packing & Injection > Schema subsetting (CC-13) > packer operates on 6 active node types only
+SDD-07 M-4 Context Packing & Injection > Schema subsetting (CC-13) > ENTITY is expansion-input only (filtered out before formatting)
+SDD-07 M-4 Context Packing & Injection > L0-L3 retrieval hierarchy (TencentDB concept) > L3 bootstrap first (high-confidence AGENT/INSIGHT/PROCEDURE)
+SDD-07 M-4 Context Packing & Injection > Budget enforcement > budget_tokens config exists (default 1024)
+SDD-07 M-4 Context Packing & Injection > Budget enforcement > type_diversity config exists (default true)
+SDD-07 M-4 Context Packing & Injection > Budget enforcement > expansion_mode config exists (hypergraph/one_hop/top_k)
+SDD-07 M-4 Context Packing & Injection > Wire into prompt.ts > ContextPacker.pack is called from prompt.ts
+SDD-07 M-4 Context Packing & Injection > Wire into prompt.ts > packed.text injected into system array before handle.process
+SDD-07 M-4 Context Packing & Injection > Abort A6 (pack P95 > 300ms unfixable → top_k) > expansion_mode top_k degrade path exists
+SDD-07 M-4 Context Packing & Injection > Typecheck green > bun run typecheck exits 0
+SDD-08 M-6 Verification & Benchmark > Benchmark harness > src/memory/bench/ directory exists
+SDD-08 M-6 Verification & Benchmark > Benchmark harness > bench function is defined
+SDD-08 M-6 Verification & Benchmark > Benchmark harness > harness computes AgentMemBench metrics (Recall@k, MRR, nDCG, F1, Faithfulness, Footprint, Latency)
+SDD-08 M-6 Verification & Benchmark > A/B tests — injection (with vs without memory) > injection A/B results JSON exists
+SDD-08 M-6 Verification & Benchmark > A/B tests — injection (with vs without memory) > injection A/B records Faithfulness + F1 for both arms
+SDD-08 M-6 Verification & Benchmark > A/B tests — relational (with vs without hypergraph) > relational A/B results JSON exists
+SDD-08 M-6 Verification & Benchmark > A/B tests — relational (with vs without hypergraph) > relational A/B records Recall@5 for both arms (KV vs hypergraph)
+SDD-08 M-6 Verification & Benchmark > Long-range recall (KV axis, regression guard) > long-range results JSON exists
+SDD-08 M-6 Verification & Benchmark > Long-range recall (KV axis, regression guard) > long-range records Recall@5 for both KV and hypergraph arms
+SDD-08 M-6 Verification & Benchmark > Threshold tuning sweeps > decay tuning sweep results exist
+SDD-08 M-6 Verification & Benchmark > Threshold tuning sweeps > conflict tuning sweep results exist (pre-calibration for M-5)
+SDD-08 M-6 Verification & Benchmark > Threshold tuning sweeps > budget tuning sweep results exist
+SDD-08 M-6 Verification & Benchmark > Threshold tuning sweeps > semantic-shift tuning sweep results exist
+SDD-08 M-6 Verification & Benchmark > Contradiction-rate measurement (evidence for M-5) > contradiction-rate results JSON exists
+SDD-08 M-6 Verification & Benchmark > Contradiction-rate measurement (evidence for M-5) > contradiction-rate records the rate + severity distribution
+SDD-08 M-6 Verification & Benchmark > Contradiction-rate measurement (evidence for M-5) > A8 decision recorded (defer M-5 or activate M-5 based on 5% threshold)
+SDD-08 M-6 Verification & Benchmark > Live smoke test (CC-5) > smoke test checklist file exists
+SDD-08 M-6 Verification & Benchmark > Live smoke test (CC-5) > smoke checklist has rows for 12a-12d assertions
+SDD-08 M-6 Verification & Benchmark > Results documentation > results doc exists at docs/research/260922_fbh-phase-m_benchmark.md
+SDD-08 M-6 Verification & Benchmark > Results documentation > results doc records aggregate metrics for A/B arms
+SDD-08 M-6 Verification & Benchmark > Results documentation > results doc records relational vs long-range results
+SDD-08 M-6 Verification & Benchmark > Results documentation > results doc records contradiction rate + A8 decision
+SDD-08 M-6 Verification & Benchmark > Results documentation > results doc records AgentMemBench caveat (graph for relational, not bulk recall)
+SDD-08 M-6 Verification & Benchmark > Abort A7 (schedule slip) > A7 status recorded (elapsed days, provisional value evidence)
+SDD-08 M-6 Verification & Benchmark > Typecheck green > bun run typecheck exits 0
+SDD-09 M-5 Conflict Detection > Activation gate (M5_ACTIVATE from sdd-08) > contradiction-rate evidence exists from sdd-08
+SDD-09 M-5 Conflict Detection > ConflictDetector service > src/memory/conflict/ directory exists
+SDD-09 M-5 Conflict Detection > ConflictDetector service > ConflictDetector or check function is defined
+SDD-09 M-5 Conflict Detection > ConflictDetector service > check signature is check(content, project_id) → ADD/UPDATE/DELETE
+SDD-09 M-5 Conflict Detection > Wiring into Memory.store > Memory.store invokes ConflictDetector.check
+SDD-09 M-5 Conflict Detection > MOSAIC neighbor lookup > neighbor lookup uses cosine similarity, scoped to project_id
+SDD-09 M-5 Conflict Detection > Contradiction scoring + thresholds > cosine_threshold config exists (default 0.3, calibrated 0.20 from M-6)
+SDD-09 M-5 Conflict Detection > Contradiction scoring + thresholds > delete_threshold config exists (default 0.1, distinct from archived_threshold)
+SDD-09 M-5 Conflict Detection > Contradiction scoring + thresholds > ADD when cosine >= cosine_threshold
+SDD-09 M-5 Conflict Detection > Contradiction scoring + thresholds > UPDATE when cosine < cosine_threshold and >= delete_threshold
+SDD-09 M-5 Conflict Detection > Contradiction scoring + thresholds > DELETE when cosine < delete_threshold
+SDD-09 M-5 Conflict Detection > llm_verify fallback > llm_verify config flag exists
+SDD-09 M-5 Conflict Detection > llm_verify fallback > llm_verify ADD fallback on LLM unavailable
+SDD-09 M-5 Conflict Detection > Bi-temporal soft-delete (UPDATE/DELETE) > UPDATE creates new node with prev_version_id back-pointer
+SDD-09 M-5 Conflict Detection > Bi-temporal soft-delete (UPDATE/DELETE) > DELETE sets tx_to=now, status=DELETED, invalidated_by, emits INVALIDATE event
+SDD-09 M-5 Conflict Detection > Bi-temporal soft-delete (UPDATE/DELETE) > no hard-delete on conflict (GC-only on ARCHIVED past retention)
+SDD-09 M-5 Conflict Detection > HiGram path localization > localize function identifies evidence path (hyperedges referencing target)
+SDD-09 M-5 Conflict Detection > HiGram path localization > localized subgraph recorded in event payload (audit trail)
+SDD-09 M-5 Conflict Detection > Cross-project isolation > conflict check scoped to project_id (no cross-project contamination)
+SDD-09 M-5 Conflict Detection > Effect.runPromise for Effect-returning check > check uses Effect.runPromise (not raw await on Effect)
+SDD-09 M-5 Conflict Detection > Config consumed (CC-6) > memory.conflict config is read and consumed
+SDD-09 M-5 Conflict Detection > Typecheck green > bun run typecheck exits 0
+session action routes > abort route calls SessionPrompt.cancel
+Vcs > branch() returns current branch name
+SDD-02: Package Rebrand > V10 — idempotent: re-running scope rename is a no-op (static check)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > src/memory/classify/ directory exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > src/memory/classify/pipeline.ts exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > pipeline.ts exports classify function
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyInput interface exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyResult interface exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyInput has sessionID, text, project_id, persona
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyResult has stored, skipped, errors
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V2 — Pipeline orchestrates Jev gate (stage 1) > pipeline imports or calls Jev.noul for the gate
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V2 — Pipeline orchestrates Jev gate (stage 1) > pipeline uses gate_threshold from config
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V2 — Pipeline orchestrates Jev gate (stage 1) > pipeline skips extraction if gate fails (enriches_future < threshold)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V3 — Pipeline orchestrates Gemini extract (stage 2) > pipeline imports or calls Gemini.extract
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V3 — Pipeline orchestrates Gemini extract (stage 2) > pipeline only calls extract when gate passes
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V4 — Pipeline orchestrates Jev classify (stage 3) > pipeline imports or calls Jev.choice for classification
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V4 — Pipeline orchestrates Jev classify (stage 3) > pipeline skips storing memories with type 'none'
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline calls SurrealHypergraphBackend.store or backend store
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline embeds memories before storing
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline stores as MEMORY node type
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline sets confidence in attributes (not top-level)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V6 — Pipeline uses circular buffer (SC-1) > pipeline calls Buffer.getContext for Jev state
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V6 — Pipeline uses circular buffer (SC-1) > pipeline calls Buffer.add after processing
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V6 — Pipeline uses circular buffer (SC-1) > pipeline uses sessionID for buffer calls (session-scoped)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V7 — Secrets redaction before LLM calls (CC-6) > pipeline calls redact before sending content to Jev or Gemini
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V8 — Pipeline is async (CC-3) > classify function is async
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V9 — external_opt_in handling (SC-2) > pipeline reads external_opt_in from config
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V10 — Circuit breaker (CC-9) > pipeline handles circuit breaker fallback to regex
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > src/memory/classify/ directory exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > src/memory/classify/pipeline.ts exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > pipeline.ts exports classify function
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyInput interface exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyResult interface exists
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyInput has sessionID, text, project_id, persona
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V1 — Pipeline file + entry point exist (SC-1) > ClassifyResult has stored, skipped, errors
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V2 — Pipeline orchestrates Jev gate (stage 1) > pipeline imports or calls Jev.noul for the gate
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V2 — Pipeline orchestrates Jev gate (stage 1) > pipeline uses gate_threshold from config
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V2 — Pipeline orchestrates Jev gate (stage 1) > pipeline skips extraction if gate fails (enriches_future < threshold)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V3 — Pipeline orchestrates Gemini extract (stage 2) > pipeline imports or calls Gemini.extract
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V3 — Pipeline orchestrates Gemini extract (stage 2) > pipeline only calls extract when gate passes
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V4 — Pipeline orchestrates Jev classify (stage 3) > pipeline imports or calls Jev.choice for classification
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V4 — Pipeline orchestrates Jev classify (stage 3) > pipeline skips storing memories with type 'none'
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline calls SurrealHypergraphBackend.store or backend store
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline embeds memories before storing
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline stores as MEMORY node type
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V5 — Pipeline owns the store (stage 4, SC-1) > pipeline sets confidence in attributes (not top-level)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V6 — Pipeline uses circular buffer (SC-1) > pipeline calls Buffer.getContext for Jev state
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V6 — Pipeline uses circular buffer (SC-1) > pipeline calls Buffer.add after processing
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V6 — Pipeline uses circular buffer (SC-1) > pipeline uses sessionID for buffer calls (session-scoped)
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V7 — Secrets redaction before LLM calls (CC-6) > pipeline calls redact before sending content to Jev or Gemini
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V8 — Pipeline is async (CC-3) > classify function is async
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V9 — external_opt_in handling (SC-2) > pipeline reads external_opt_in from config
+SDD-04 Phase N — Gate-Extract-Classify Pipeline > V10 — Circuit breaker (CC-9) > pipeline handles circuit breaker fallback to regex
+SDD-05 Phase N — Wire Into Capture > V1 — Capture hook calls classify (SC-1) > prompt.ts imports or references classify from pipeline
+SDD-05 Phase N — Wire Into Capture > V2 — Stubs no longer called (CC-2) > prompt.ts does NOT call EntityExtractor.extract
+SDD-05 Phase N — Wire Into Capture > V2 — Stubs no longer called (CC-2) > prompt.ts does NOT call persistMemories
+SDD-05 Phase N — Wire Into Capture > V7 — external_opt_in default true (SC-2) > foxybear.ts has external_opt_in default true
+SDD-06 Phase N — Re-backfill > V1 — Backfill script calls classify (SC-1) > backfill-hypergraph.ts imports or references classify from pipeline
+SDD-06 Phase N — Re-backfill > V1 — Backfill script calls classify (SC-1) > backfill-hypergraph.ts does NOT call EntityExtractor.extract
+SDD-06 Phase N — Re-backfill > V1 — Backfill script calls classify (SC-1) > backfill-hypergraph.ts does NOT call persistEntities
+SDD-06 Phase N — Re-backfill > V1 — Backfill script calls classify (SC-1) > backfill-hypergraph.ts does NOT call persistMemories
+SDD-06 Phase N — Re-backfill > V4 — Pipeline path matches SC-1 > backfill-hypergraph.ts imports classify from src/memory/classify/pipeline

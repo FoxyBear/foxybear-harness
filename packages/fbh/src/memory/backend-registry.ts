@@ -8,7 +8,7 @@
  */
 
 import type { MemoryBackend } from "./backend"
-import type { SurrealHypergraphBackend } from "./surreal-hypergraph-backend"
+import type { HypergraphBackend } from "./hypergraph-backend"
 import { Log } from "../util/log"
 
 const log = Log.create({ service: "memory.backend-registry" })
@@ -33,7 +33,7 @@ export function getGlobalMemoryBackend(): MemoryBackend | null {
   return (g[BACKEND_KEY] as MemoryBackend | null) ?? null
 }
 
-export function setGlobalHypergraphBackend(backend: SurrealHypergraphBackend | null): void {
+export function setGlobalHypergraphBackend(backend: HypergraphBackend | null): void {
   g[HYPERGRAPH_KEY] = backend
   if (backend) {
     log.info("global hypergraph backend registered", { type: backend.constructor.name })
@@ -42,8 +42,8 @@ export function setGlobalHypergraphBackend(backend: SurrealHypergraphBackend | n
   }
 }
 
-export function getGlobalHypergraphBackend(): SurrealHypergraphBackend | null {
-  return (g[HYPERGRAPH_KEY] as SurrealHypergraphBackend | null) ?? null
+export function getGlobalHypergraphBackend(): HypergraphBackend | null {
+  return (g[HYPERGRAPH_KEY] as HypergraphBackend | null) ?? null
 }
 
 export type MemoryBackendType = "sqlite" | "surreal" | "remote"

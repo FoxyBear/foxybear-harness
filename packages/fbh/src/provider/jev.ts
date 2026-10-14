@@ -21,7 +21,7 @@ import { getConfig } from "../config/bridge"
 
 const log = Log.create({ service: "provider.jev" })
 
-const ENDPOINT = process.env.FBH_JEV_ENDPOINT ?? "https://openrouter.ai/api/alpha/decisions"
+const endpoint = () => process.env.FBH_JEV_ENDPOINT ?? "https://openrouter.ai/api/alpha/decisions"
 
 const RATE_PER_SEC = 10
 const RATE_CAPACITY = 10
@@ -152,7 +152,9 @@ async function resolve_layer1(): Promise<{ provider: string; model: string; api_
   let apiKey = layer1?.api_key ?? ""
   if (apiKey.startsWith("{file:")) {
     const filePath = apiKey.replace(/^\{file:/, "").replace(/\}$/, "")
-    try { apiKey = (await Bun.file(filePath).text()).trim() } catch {}
+    try {
+      apiKey = (await Bun.file(filePath).text()).trim()
+    } catch {}
   }
   return {
     provider: layer1?.provider ?? "openrouter",
@@ -215,7 +217,7 @@ async function call(
   const start = performance.now()
   let latency_ms = 0
   try {
-    const res = await fetch(ENDPOINT, {
+    const res = await fetch(endpoint(), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${cfg.api_key}`,
@@ -232,15 +234,39 @@ async function call(
     if (res.status === 429) {
       log.warn("jev.http_429", { question, status: 429 })
       record(latency_ms, false, "http")
-      push_call({ ts: Date.now(), model: cfg.model, question, latency_ms, tokens_in: 0, tokens_out: 0, cost_usd: 0, success: false })
+      push_call({
+        ts: Date.now(),
+        model: cfg.model,
+        question,
+        latency_ms,
+        tokens_in: 0,
+        tokens_out: 0,
+        cost_usd: 0,
+        success: false,
+      })
       log.warn("jev.call_failed", { model: cfg.model, question, latency_ms, error_kind: "http", error_status: 429 })
       throw new JevHttpError({ status: 429, body: "", question })
     }
     if (res.status >= 400) {
       const body = await res.text()
       record(latency_ms, false, "http")
-      push_call({ ts: Date.now(), model: cfg.model, question, latency_ms, tokens_in: 0, tokens_out: 0, cost_usd: 0, success: false })
-      log.warn("jev.call_failed", { model: cfg.model, question, latency_ms, error_kind: "http", error_status: res.status })
+      push_call({
+        ts: Date.now(),
+        model: cfg.model,
+        question,
+        latency_ms,
+        tokens_in: 0,
+        tokens_out: 0,
+        cost_usd: 0,
+        success: false,
+      })
+      log.warn("jev.call_failed", {
+        model: cfg.model,
+        question,
+        latency_ms,
+        error_kind: "http",
+        error_status: res.status,
+      })
       throw new JevHttpError({ status: res.status, body, question })
     }
 
@@ -248,7 +274,16 @@ async function call(
     const parsed = safe_parse(body, question)
     if (!parsed.ok) {
       record(latency_ms, false, "schema")
-      push_call({ ts: Date.now(), model: cfg.model, question, latency_ms, tokens_in: 0, tokens_out: 0, cost_usd: 0, success: false })
+      push_call({
+        ts: Date.now(),
+        model: cfg.model,
+        question,
+        latency_ms,
+        tokens_in: 0,
+        tokens_out: 0,
+        cost_usd: 0,
+        success: false,
+      })
       log.warn("jev.call_failed", { model: cfg.model, question, latency_ms, error_kind: "schema", error_status: 0 })
       throw new JevSchemaError({ question, body: JSON.stringify(body) })
     }
@@ -258,16 +293,40 @@ async function call(
     const tokens_out = usage?.completion_tokens ?? 0
     const cost_usd = ((tokens_in + tokens_out) / 1_000_000) * COST_PER_M
     record(latency_ms, true)
-    push_call({ ts: Date.now(), model: cfg.model, question, latency_ms, tokens_in, tokens_out, cost_usd, success: true })
+    push_call({
+      ts: Date.now(),
+      model: cfg.model,
+      question,
+      latency_ms,
+      tokens_in,
+      tokens_out,
+      cost_usd,
+      success: true,
+    })
     log.info("jev.call", { model: cfg.model, question, latency_ms, tokens_in, tokens_out, cost_usd })
     return parsed.value
   } catch (err) {
-    if (err instanceof JevHttpError || err instanceof JevSchemaError || err instanceof JevCircuitOpenError || err instanceof JevRateLimitedError || err instanceof JevConfigError) {
+    if (
+      err instanceof JevHttpError ||
+      err instanceof JevSchemaError ||
+      err instanceof JevCircuitOpenError ||
+      err instanceof JevRateLimitedError ||
+      err instanceof JevConfigError
+    ) {
       throw err
     }
     latency_ms = performance.now() - start
     record(latency_ms, false, "network")
-    push_call({ ts: Date.now(), model: cfg.model, question, latency_ms, tokens_in: 0, tokens_out: 0, cost_usd: 0, success: false })
+    push_call({
+      ts: Date.now(),
+      model: cfg.model,
+      question,
+      latency_ms,
+      tokens_in: 0,
+      tokens_out: 0,
+      cost_usd: 0,
+      success: false,
+    })
     log.warn("jev.call_failed", { model: cfg.model, question, latency_ms, error_kind: "network", error_status: 0 })
     throw new JevHttpError({ status: 0, body: String(err), question })
   }

@@ -306,7 +306,7 @@ export namespace Memory {
       // attributes.confidence = 0.5 (prevents NaN in sdd-06's decay formula).
       // Graceful-degrades if the hypergraph backend is absent.
       const hyper = getGlobalHypergraphBackend()
-      if (hyper) {
+      if (hyper && hyper.healthy()) {
         try {
           const now = Math.floor(Date.now() / 1000)
           await hyper.store({
@@ -333,8 +333,8 @@ export namespace Memory {
             prev_version_id: null,
             invalidated_by: null,
           })
-        } catch (err) {
-          log.warn("memory: hypergraph dual-write failed", { error: String(err) })
+        } catch {
+          // Hypergraph dual-write is best-effort; classify is the primary capture path
         }
       }
 
@@ -583,50 +583,39 @@ export namespace Memory {
         persona: input.persona,
         limit,
       })
-      // SDD-03 / Phase M-1 — dual-read from the hypergraph node table (SC-8).
-      // Queries the node table via SurrealHypergraphBackend.query() for
-      // MEMORY-type nodes matching the seed set, merges by id (preferring node
-      // records), dedupes. Graceful-degrades if hypergraph backend is absent.
       const hyper = getGlobalHypergraphBackend()
-      if (hyper) {
+      if (hyper && hyper.healthy()) {
         try {
           const project = input.project_id ?? "global"
-          // Use semantic search results as seeds for hypergraph traversal.
-          const seeds = results.map((r) => r.id)
-          if (seeds.length > 0) {
-            const hyperEdges = await hyper.query(seeds, project, { limit })
-            // Hydrate node records from the hypergraph backend.
-            const nodeIds = new Set<string>()
-            for (const e of hyperEdges) for (const nid of e.node_ids) nodeIds.add(nid)
-            const expanded = await hyper.expand([...nodeIds], project, 1)
-            const hyperResults: MemoryResult[] = []
-            for (const n of expanded.nodes) {
-              if (n.node_type !== "MEMORY") continue
-              const content = String(n.attributes.content ?? "")
-              if (!content) continue
-              hyperResults.push({
-                id: n.node_id,
-                content,
-                persona: String(n.attributes.persona ?? input.persona),
-                scope: String(n.attributes.scope ?? "project"),
-                access_count: Number(n.attributes.usage_count ?? 0),
-                created_at: new Date(n.created_at * 1000).toISOString(),
-                accessed_at: new Date(Number(n.attributes.last_used ?? n.created_at) * 1000).toISOString(),
-                metadata: (n.attributes as Record<string, unknown>) ?? {},
-                score: 0,
-                source: "local",
-              })
-            }
-            // Merge by id, preferring node records.
-            const seen = new Map<string, MemoryResult>()
-            for (const r of hyperResults) seen.set(r.id, r)
-            for (const r of results.map(backendResultToMemoryResult)) {
-              if (!seen.has(r.id)) seen.set(r.id, r)
-            }
-            return [...seen.values()].slice(0, limit)
+          const nodeRows = await hyper.searchMemoryNodes(queryEmbedding, project, limit)
+          const nodeResults: MemoryResult[] = nodeRows.map((n) => ({
+            id: n.node_id,
+            content: n.content,
+            persona: String(n.attributes?.persona ?? input.persona),
+            scope: String(n.attributes?.scope ?? "project"),
+            access_count: Number(n.attributes?.usage_count ?? 0),
+            created_at: n.created_at > 0
+              ? String(n.created_at * 1000)
+              : String(Date.now()),
+            accessed_at: n.attributes?.last_used != null
+              ? String(Number(n.attributes.last_used) * 1000)
+              : n.created_at > 0
+                ? String(n.created_at * 1000)
+                : String(Date.now()),
+            metadata: { ...n.attributes, memory_type: n.memory_type },
+            score: n.score,
+            source: "local" as const,
+          }))
+          const seen = new Map<string, MemoryResult>()
+          for (const r of nodeResults) seen.set(r.id, r)
+          for (const r of results.map(backendResultToMemoryResult)) {
+            if (!seen.has(r.id)) seen.set(r.id, r)
           }
-        } catch (err) {
-          log.warn("memory: hypergraph dual-read failed", { error: String(err) })
+          return [...seen.values()]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit)
+        } catch {
+          // silent degradation — return memory table results only
         }
       }
       return results.map(backendResultToMemoryResult)

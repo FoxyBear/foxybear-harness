@@ -1,0 +1,204 @@
+[
+  {
+    "component": "graduation",
+    "input_id": "a",
+    "input_description": "no eligible memories (access_count < 2 for all) — promoted=0",
+    "input": {
+      "project_id": "proj-a",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 0,
+      "entities_created": 0,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.789Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "b",
+    "input_description": "single eligible memory with one entity (TypeScript) — new entity created in project graph",
+    "input": {
+      "project_id": "proj-b",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 1,
+      "entities_created": 1,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 222,
+    "timestamp": "2026-10-07T19:49:35.422Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "c",
+    "input_description": "eligible memory with entity already in project graph — upsert path at graduation.ts:84",
+    "input": {
+      "project_id": "proj-c",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 0,
+      "entities_created": 0,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:35.793Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "d",
+    "input_description": "eligible memory with contradiction (different DB) — contradictions_handled, old edges invalidated",
+    "input": {
+      "project_id": "proj-d",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 0,
+      "entities_created": 0,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:36.239Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "e",
+    "input_description": "eligible memory with SUPERSEDES relationship — supersessions_handled++",
+    "input": {
+      "project_id": "proj-e",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 1,
+      "entities_created": 2,
+      "edges_created": 1,
+      "contradictions_handled": 0,
+      "supersessions_handled": 1
+    },
+    "error": null,
+    "duration_ms": 401,
+    "timestamp": "2026-10-07T19:49:36.853Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "f",
+    "input_description": "eligible memory whose embedding fails — entity created without embedding (try/catch at graduation.ts:88-90)",
+    "input": {
+      "project_id": "proj-f",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 1,
+      "entities_created": 1,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 7,
+    "timestamp": "2026-10-07T19:49:36.877Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "g",
+    "input_description": "two eligible memories in the same project",
+    "input": {
+      "project_id": "proj-g",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 1,
+      "entities_created": 1,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 201,
+    "timestamp": "2026-10-07T19:49:37.524Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "h",
+    "input_description": "eligible memory with zero extractable entities — continue at graduation.ts:59",
+    "input": {
+      "project_id": "proj-h",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 0,
+      "entities_created": 0,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:37.735Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "i",
+    "input_description": "two eligible memories — per-candidate try/catch (graduation.ts:124-129) ensures both are attempted",
+    "input": {
+      "project_id": "proj-i",
+      "persona": "audit"
+    },
+    "output": {
+      "promoted": 1,
+      "entities_created": 1,
+      "edges_created": 0,
+      "contradictions_handled": 0,
+      "supersessions_handled": 0
+    },
+    "error": null,
+    "duration_ms": 191,
+    "timestamp": "2026-10-07T19:49:38.375Z"
+  },
+  {
+    "component": "graduation",
+    "input_id": "j",
+    "input_description": "two eligible memories across two project_ids — project isolation",
+    "input": {
+      "project_ids": [
+        "proj-j1",
+        "proj-j2"
+      ],
+      "persona": "audit"
+    },
+    "output": {
+      "proj1": {
+        "promoted": 1,
+        "entities_created": 1,
+        "edges_created": 0,
+        "contradictions_handled": 0,
+        "supersessions_handled": 0
+      },
+      "proj2": {
+        "promoted": 0,
+        "entities_created": 0,
+        "edges_created": 0,
+        "contradictions_handled": 0,
+        "supersessions_handled": 0
+      }
+    },
+    "error": null,
+    "duration_ms": 224,
+    "timestamp": "2026-10-07T19:49:38.968Z"
+  }
+]

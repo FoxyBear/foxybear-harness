@@ -1,0 +1,276 @@
+[
+  {
+    "component": "migrate",
+    "input_id": "a",
+    "input_description": "fresh state: marker absent, 0 SQLite rows — ran: true, creates marker",
+    "input": {
+      "markerAbsent": true,
+      "sqliteRows": 0
+    },
+    "output": {
+      "report": {
+        "memories": 0,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 0,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 0,
+        "entities": 0,
+        "edges": 0
+      }
+    },
+    "error": null,
+    "duration_ms": 3,
+    "timestamp": "2026-10-07T19:49:34.424Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "b",
+    "input_description": "marker present — ran: false at surreal-backend.ts:386 (idempotent)",
+    "input": {
+      "markerPresent": true
+    },
+    "output": {
+      "report": {
+        "memories": 0,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 0,
+        "ran": false
+      },
+      "markerExists": true
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:34.424Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "c",
+    "input_description": "marker absent with 1 SQLite memory row (Phase A rebrand memory) — migrates to Surreal memory table",
+    "input": {
+      "markerAbsent": true,
+      "sqliteMemories": 1
+    },
+    "output": {
+      "report": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 180,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 1,
+        "entities": 18,
+        "edges": 0
+      }
+    },
+    "error": null,
+    "duration_ms": 181,
+    "timestamp": "2026-10-07T19:49:34.612Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "d",
+    "input_description": "marker absent, memory with Buffer embedding — bufferToFloat32 roundtrips",
+    "input": {
+      "embeddingType": "Buffer"
+    },
+    "output": {
+      "report": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 6,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0
+      }
+    },
+    "error": null,
+    "duration_ms": 7,
+    "timestamp": "2026-10-07T19:49:34.634Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "e",
+    "input_description": "marker absent, memory with empty Buffer embedding (column NOT NULL; spec 'null' approximated by empty Buffer) — bufferToFloat32(Buffer.alloc(0))",
+    "input": {
+      "embeddingType": "empty-Buffer"
+    },
+    "output": {
+      "report": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 5,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0
+      }
+    },
+    "error": null,
+    "duration_ms": 7,
+    "timestamp": "2026-10-07T19:49:34.651Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "f",
+    "input_description": "marker absent, project_id='global' memory — scope: 'global' mapping at surreal-backend.ts:411",
+    "input": {
+      "project_id": "global"
+    },
+    "output": {
+      "report": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 6,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0
+      },
+      "scopes": [
+        {
+          "scope": "global"
+        }
+      ]
+    },
+    "error": null,
+    "duration_ms": 7,
+    "timestamp": "2026-10-07T19:49:34.671Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "g",
+    "input_description": "marker absent, project-scoped memory — scope: 'project' mapping",
+    "input": {
+      "project_id": "my-project"
+    },
+    "output": {
+      "report": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 6,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0
+      },
+      "rows": [
+        {
+          "project_id": "my-project",
+          "scope": "project"
+        }
+      ]
+    },
+    "error": null,
+    "duration_ms": 7,
+    "timestamp": "2026-10-07T19:49:34.688Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "h",
+    "input_description": "marker absent, 1 entity row — entity:⟨id⟩ creation with angle-bracket ULID escape at surreal-backend.ts:451",
+    "input": {
+      "entityRows": 1
+    },
+    "output": {
+      "report": {
+        "memories": 0,
+        "entities": 1,
+        "edges": 0,
+        "duration_ms": 4,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 0,
+        "entities": 1,
+        "edges": 0
+      }
+    },
+    "error": null,
+    "duration_ms": 5,
+    "timestamp": "2026-10-07T19:49:34.704Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "i",
+    "input_description": "marker absent, 1 edge row — RELATE query at surreal-backend.ts:463",
+    "input": {
+      "edgeRows": 1,
+      "entityRows": 2
+    },
+    "output": {
+      "report": {
+        "memories": 0,
+        "entities": 2,
+        "edges": 1,
+        "duration_ms": 14,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 0,
+        "entities": 2,
+        "edges": 1
+      }
+    },
+    "error": null,
+    "duration_ms": 15,
+    "timestamp": "2026-10-07T19:49:34.729Z"
+  },
+  {
+    "component": "migrate",
+    "input_id": "j",
+    "input_description": "marker absent, memory with time_created=0 (column NOT NULL; spec 'null' approximated by 0) — new Date(0).toISOString() fallback at surreal-backend.ts:425",
+    "input": {
+      "time_created": 0
+    },
+    "output": {
+      "report": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0,
+        "duration_ms": 5,
+        "ran": true
+      },
+      "markerCreated": true,
+      "surrealCounts": {
+        "memories": 1,
+        "entities": 0,
+        "edges": 0
+      },
+      "created_at": [
+        {
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    "error": null,
+    "duration_ms": 7,
+    "timestamp": "2026-10-07T19:49:34.752Z"
+  }
+]

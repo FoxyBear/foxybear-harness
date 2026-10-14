@@ -1,0 +1,220 @@
+[
+  {
+    "component": "prunable",
+    "input_id": "a",
+    "input_description": "ttl_days: 90 against rows all younger than 90 days — returns []",
+    "input": {
+      "ttl_days": 90
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.725Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "b",
+    "input_description": "ttl_days: 90 against one row 91 days old — returns that row",
+    "input": {
+      "ttl_days": 90
+    },
+    "output": {
+      "count": 1,
+      "ids": [
+        "p-b2"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.725Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "c",
+    "input_description": "ttl_days: 0 — all rows prunable (cutoff = now)",
+    "input": {
+      "ttl_days": 0
+    },
+    "output": {
+      "count": 2,
+      "ids": [
+        "p-c1",
+        "p-c2"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.726Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "d",
+    "input_description": "ttl_days: 36500 (100 years) — no rows prunable",
+    "input": {
+      "ttl_days": 36500
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.726Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "e",
+    "input_description": "no ttl_days arg — falls back to cfg.ttlDays (default 90)",
+    "input": {
+      "ttl_days": null
+    },
+    "output": {
+      "count": 1,
+      "ids": [
+        "p-e2"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.726Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "f",
+    "input_description": "row with accessed_at: 0 (epoch) — 0 < cutoff → prunable",
+    "input": {
+      "ttl_days": 90,
+      "accessed_at": 0
+    },
+    "output": {
+      "count": 1,
+      "ids": [
+        "p-f1"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.727Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "g",
+    "input_description": "row with accessed_at: null — SQL NULL < cutoff is NULL → NOT prunable (spec expected prunable via coercion to 0)",
+    "input": {
+      "ttl_days": 90,
+      "accessed_at": null
+    },
+    "output": {
+      "count": 0,
+      "ids": []
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.727Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "h",
+    "input_description": "SurrealBackend registered — dispatch hits backend.getPrunable(ttl)",
+    "input": {
+      "ttl_days": 90,
+      "backend": "surreal"
+    },
+    "output": {
+      "count": 11,
+      "ids": [
+        {
+          "id": "01M3GDRVV4QY8SJEFJC26RBK4G",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GEE6T2PVGB2VS5BK1Q7M1T",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GFHGCDEPYVYPTKHTFXV4P4",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GFYX9BJ9653M0757MV4J03",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GJ2RW384BRET73XFSED8RM",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GJQ0ZYRJG5P732KTQJ7SGQ",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GKA8MF9GDCQCKDV0YNW5WD",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GRPCQG4YWQ4RMH2NNB1RQA",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GSAMJW71VREK5VHHCH9XGH",
+          "scope": "instance"
+        },
+        {
+          "id": "01M3GT2MP63EE921D9ZHJ45T4A",
+          "scope": "instance"
+        },
+        {
+          "id": "01M4BYM8XVH8FEG1FT8EZY7XAF",
+          "scope": "instance"
+        }
+      ]
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.980Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "i",
+    "input_description": "no global backend — legacy SQLite path at memory.ts:767-778",
+    "input": {
+      "ttl_days": 90,
+      "backend": "sqlite-legacy"
+    },
+    "output": {
+      "count": 1,
+      "ids": [
+        "p-i1"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.981Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "j",
+    "input_description": "ttl_days: 7 against rows 8 days old — only 8-day row prunable",
+    "input": {
+      "ttl_days": 7
+    },
+    "output": {
+      "count": 1,
+      "ids": [
+        "p-j1"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.982Z"
+  },
+  {
+    "component": "prunable",
+    "input_id": "final-state",
+    "input_description": "final SQLite memory_topics state",
+    "input": {
+      "rows": 2
+    },
+    "output": 2,
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.982Z"
+  }
+]

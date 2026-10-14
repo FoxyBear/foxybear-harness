@@ -1,0 +1,199 @@
+[
+  {
+    "component": "prune",
+    "input_id": "a",
+    "input_description": "empty MemoryTopicsTable — pruned=0, nearDupsMerged=0, indexRemoved=0",
+    "input": {
+      "persona": "audit",
+      "tableState": "empty"
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.671Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "b",
+    "input_description": "single row younger than TTL (1 day old, accessed 1 day ago)",
+    "input": {
+      "persona": "audit",
+      "seededRows": 1,
+      "ageDays": 1
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0,
+      "remainingRows": 1
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.671Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "c",
+    "input_description": "single row older than TTL (91 days) with access_count=0 < 3 — should be pruned",
+    "input": {
+      "persona": "audit",
+      "seededRows": 1,
+      "ageDays": 91,
+      "accessCount": 0
+    },
+    "output": {
+      "pruned": 1,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0,
+      "remainingRows": 0
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.672Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "d",
+    "input_description": "single row older than TTL (91 days) with access_count=3 >= 3 — keep condition, should NOT be pruned",
+    "input": {
+      "persona": "audit",
+      "seededRows": 1,
+      "ageDays": 91,
+      "accessCount": 3
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0,
+      "remainingRows": 1
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.673Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "e",
+    "input_description": "two rows with cosine > 0.95 (identical embeddings) — nearDupsMerged=1, more recently accessed survives",
+    "input": {
+      "persona": "audit",
+      "seededRows": 2,
+      "cosine": 1
+    },
+    "output": {
+      "pruned": 1,
+      "nearDupsMerged": 1,
+      "indexRemoved": 0,
+      "remainingRows": 1,
+      "survivingIds": [
+        "p-e1"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.673Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "f",
+    "input_description": "two rows with cosine < 0.95 (orthogonal embeddings) — both survive",
+    "input": {
+      "persona": "audit",
+      "seededRows": 2,
+      "cosine": 0
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0,
+      "remainingRows": 2,
+      "survivingIds": [
+        "p-f1",
+        "p-f2"
+      ]
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.674Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "g",
+    "input_description": "MemoryIndexTable with 201 entries — indexRemoved=1 (lowest access_count removed)",
+    "input": {
+      "persona": "audit",
+      "seededIndexRows": 201
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 1,
+      "remainingIndexRows": 200
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.681Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "h",
+    "input_description": "MemoryIndexTable with 200 entries — indexRemoved=0 (200 is not > 200)",
+    "input": {
+      "persona": "audit",
+      "seededIndexRows": 200
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0,
+      "remainingIndexRows": 200
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.688Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "i",
+    "input_description": "MemoryIndexTable with 201 entries, 3 share lowest access_count=0 — time_created tiebreaker determines which is removed",
+    "input": {
+      "persona": "audit",
+      "seededIndexRows": 201,
+      "lowestAccessCountEntries": 3
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 1,
+      "remainingIndexRows": 200,
+      "removedDescription": "1 removed (oldest of the 3 with access_count=0)"
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.700Z"
+  },
+  {
+    "component": "prune",
+    "input_id": "j",
+    "input_description": "config ttl_days: 1 against rows 2 days old — harness limitation: cannot override config mid-test, uses default 90; row 2 days old is NOT prunable (2 < 90)",
+    "input": {
+      "persona": "audit",
+      "seededRows": 1,
+      "ageDays": 2,
+      "accessCount": 0
+    },
+    "output": {
+      "pruned": 0,
+      "nearDupsMerged": 0,
+      "indexRemoved": 0,
+      "remainingRows": 1
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.701Z"
+  }
+]

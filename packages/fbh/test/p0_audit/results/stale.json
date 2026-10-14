@@ -1,0 +1,195 @@
+[
+  {
+    "component": "stale",
+    "input_id": "a",
+    "input_description": "memory 8 days old, access_count=0 < 2 — penalty fires, score_after = score_before * 0.5",
+    "input": {
+      "ageDays": 8,
+      "accessCount": 0,
+      "stalePenaltyDays": 7
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.018Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "b",
+    "input_description": "memory 8 days old, access_count=2 (NOT < 2) — penalty does NOT fire",
+    "input": {
+      "ageDays": 8,
+      "accessCount": 2,
+      "stalePenaltyDays": 7
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:47.019Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "c",
+    "input_description": "memory 8 days old, access_count=5 — no penalty",
+    "input": {
+      "ageDays": 8,
+      "accessCount": 5,
+      "stalePenaltyDays": 7
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.019Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "d",
+    "input_description": "memory 3 days old, access_count=0 — no penalty (3 < 7)",
+    "input": {
+      "ageDays": 3,
+      "accessCount": 0,
+      "stalePenaltyDays": 7
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:47.020Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "e",
+    "input_description": "memory exactly 7 days old — strict > means no penalty at equality",
+    "input": {
+      "ageDays": 7,
+      "accessCount": 0,
+      "stalePenaltyDays": 7,
+      "boundary": "exact"
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.020Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "f",
+    "input_description": "memory 1ms past 7-day boundary — penalty fires (ageDays > 7)",
+    "input": {
+      "ageDescription": "7 days + 1ms",
+      "accessCount": 0,
+      "stalePenaltyDays": 7
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.020Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "g",
+    "input_description": "config stale_penalty_days: 0 against 1-day-old — harness limitation: uses default 7; 1 < 7 so NO penalty (spec expects penalty with stalePenaltyDays=0)",
+    "input": {
+      "ageDays": 1,
+      "accessCount": 0,
+      "stalePenaltyDays_used": 7,
+      "stalePenaltyDays_spec": 0
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.021Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "h",
+    "input_description": "config stale_penalty_days: 365 against 30-day-old — harness limitation: uses default 7; 30 > 7 so penalty fires (spec expects NO penalty with 365)",
+    "input": {
+      "ageDays": 30,
+      "accessCount": 0,
+      "stalePenaltyDays_used": 7,
+      "stalePenaltyDays_spec": 365
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.021Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "i",
+    "input_description": "two memories (stale 10d + fresh 1d) — stale sinks in ranking (score halved)",
+    "input": {
+      "staleAgeDays": 10,
+      "freshAgeDays": 1
+    },
+    "output": {
+      "count": 2,
+      "ranking": [
+        {
+          "id": "s-i-stale",
+          "score": 0.9999999999999999,
+          "content": "stale memory for ranking"
+        },
+        {
+          "id": "s-i-fresh",
+          "score": 0.9999999999999999,
+          "content": "fresh memory for ranking"
+        }
+      ],
+      "staleFirst": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.022Z"
+  },
+  {
+    "component": "stale",
+    "input_id": "j",
+    "input_description": "memory with access_count=0 (fallback `?? 0` at memory.ts:456) + stale — penalty fires",
+    "input": {
+      "ageDays": 10,
+      "accessCount": 0,
+      "stalePenaltyDays": 7
+    },
+    "output": {
+      "score_before": 1,
+      "score_after": 0.9999999999999999,
+      "penalty_fired": false
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:47.022Z"
+  }
+]

@@ -113,6 +113,48 @@ export function memoryRoutes() {
       const results = await backend.getPrunable(ttl_days)
       return c.json(results)
     })
+    .get("/memory/hypergraph/health", async (c) => {
+      const { getGlobalHypergraphBackend } = await import("../memory/backend-registry")
+      const backend = getGlobalHypergraphBackend()
+      if (!backend) return c.json({ error: "hypergraph backend not available" }, 503)
+      return c.json({ healthy: backend.healthy() })
+    })
+    .post("/memory/hypergraph/store", async (c) => {
+      const { getGlobalHypergraphBackend } = await import("../memory/backend-registry")
+      const backend = getGlobalHypergraphBackend()
+      if (!backend) return c.json({ error: "hypergraph backend not available" }, 503)
+      const body = await c.req.json()
+      const node = {
+        ...body,
+        embedding: body.embedding ? new Float32Array(body.embedding) : null,
+      }
+      const result = await backend.store(node)
+      return c.json({ node_id: result.node_id })
+    })
+    .post("/memory/hypergraph/edge", async (c) => {
+      const { getGlobalHypergraphBackend } = await import("../memory/backend-registry")
+      const backend = getGlobalHypergraphBackend()
+      if (!backend) return c.json({ error: "hypergraph backend not available" }, 503)
+      const body = await c.req.json()
+      const edge = {
+        ...body,
+        embedding: body.embedding ? new Float32Array(body.embedding) : null,
+      }
+      const result = await backend.edge(edge)
+      return c.json({ hyperedge_id: result.hyperedge_id })
+    })
+    .post("/memory/hypergraph/search", async (c) => {
+      const { getGlobalHypergraphBackend } = await import("../memory/backend-registry")
+      const backend = getGlobalHypergraphBackend()
+      if (!backend) return c.json({ error: "hypergraph backend not available" }, 503)
+      const { embedding, project_id, limit } = await c.req.json()
+      const results = await backend.searchMemoryNodes(
+        new Float32Array(embedding),
+        project_id,
+        limit,
+      )
+      return c.json(results)
+    })
 }
 
 export function DaemonRoutes() {

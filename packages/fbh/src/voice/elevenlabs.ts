@@ -64,9 +64,7 @@ const defaultFactory: ClientFactory = async (cfg, key) => {
 }
 
 const defaultBackoff = (attempt: number, retryAfter?: number) =>
-  new Promise<void>((r) =>
-    setTimeout(r, retryAfter ?? Math.min(1000 * 2 ** attempt, 10000) + Math.random() * 100),
-  )
+  new Promise<void>((r) => setTimeout(r, retryAfter ?? Math.min(1000 * 2 ** attempt, 10000) + Math.random() * 100))
 
 function split(text: string): { sentences: string[]; rest: string } {
   const out: string[] = []
@@ -220,11 +218,11 @@ export class VoiceTTS {
     return opts
   }
 
-  private degrade(): void {
+  private degrade(reason: string): void {
     if (this.degraded) return
     this.degraded = true
     this.onDegraded()
-    this.bus("tts.degraded", { reason: "non_retryable" })
+    this.bus("tts.degraded", { reason: "non_retryable", detail: reason })
     void this.sink.write({ data: new Uint8Array(0), format: this.cfg.outputFormat, isFinal: true })
   }
 
@@ -237,7 +235,7 @@ export class VoiceTTS {
       try {
         this.client = await this.factory(this.cfg, this.key)
       } catch (e) {
-        this.degrade()
+        this.degrade(`client_factory_failed: ${e instanceof Error ? e.message : String(e)}`)
         return
       }
     }
@@ -268,7 +266,7 @@ export class VoiceTTS {
         if (this.dead || this.epoch !== token) return
         const s = statusOf(err)
         if (isFatal(s)) {
-          this.degrade()
+          this.degrade(`http_${s}: ${err instanceof Error ? err.message : String(err)}`)
           return
         }
         if (s === 400) {

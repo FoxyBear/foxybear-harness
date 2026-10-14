@@ -1,5 +1,6 @@
 import { DaemonPid } from "../daemon/pid"
-import { createMemoryBackend, setGlobalMemoryBackend } from "./backend-registry"
+import { createMemoryBackend, setGlobalMemoryBackend, setGlobalHypergraphBackend } from "./backend-registry"
+import { RemoteHypergraphBackend } from "./remote-hypergraph-backend"
 import { NoOpMemoryBackend } from "./noop-backend"
 import { Log } from "../util/log"
 
@@ -31,6 +32,15 @@ export async function initMemoryBackendFromConfig(
           await backend.init()
           setGlobalMemoryBackend(backend)
           Log.Default.info("memory backend initialized (remote proxy)", { port: daemonPort })
+          try {
+            const hyper = new RemoteHypergraphBackend(`http://127.0.0.1:${daemonPort}`)
+            await hyper.init()
+            setGlobalHypergraphBackend(hyper)
+          } catch (err) {
+            Log.Default.warn("remote hypergraph backend init failed", {
+              error: err instanceof Error ? err.message : err,
+            })
+          }
           return
         }
       } catch (err) {

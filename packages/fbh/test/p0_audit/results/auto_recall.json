@@ -1,0 +1,267 @@
+[
+  {
+    "component": "auto_recall",
+    "input_id": "a",
+    "input_description": "query matching a stored memory",
+    "input": {
+      "query": "TypeScript backend",
+      "persona": "audit",
+      "sessionID": "ar-a"
+    },
+    "output": [
+      {
+        "id": "ar-a",
+        "content": "The user prefers TypeScript for backend development",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402583172",
+        "accessed_at": "1791402583377",
+        "metadata": {},
+        "score": 0.8601402642380285,
+        "source": "local"
+      }
+    ],
+    "error": null,
+    "duration_ms": 206,
+    "timestamp": "2026-10-07T19:49:43.378Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "b",
+    "input_description": "query with no match",
+    "input": {
+      "query": "rust frontend wasm",
+      "persona": "audit",
+      "sessionID": "ar-b"
+    },
+    "output": [
+      {
+        "id": "ar-b",
+        "content": "The user prefers TypeScript for backend development",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402583550",
+        "accessed_at": "1791402583738",
+        "metadata": {},
+        "score": 0.6136965982487534,
+        "source": "local"
+      }
+    ],
+    "error": null,
+    "duration_ms": 188,
+    "timestamp": "2026-10-07T19:49:43.738Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "c",
+    "input_description": "slash-command query '/help' — AR-02 skip returns []",
+    "input": {
+      "query": "/help",
+      "persona": "audit",
+      "sessionID": "ar-c"
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:43.738Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "d",
+    "input_description": "same query twice in same turn — AR-03/08 cache hit (compare durations: 2nd should be faster)",
+    "input": {
+      "query": "Bun runtime",
+      "persona": "audit",
+      "sessionID": "ar-d"
+    },
+    "output": {
+      "first": {
+        "count": 1,
+        "durationMs": 202
+      },
+      "second": {
+        "count": 1,
+        "durationMs": 0
+      },
+      "cacheHit": true
+    },
+    "error": null,
+    "duration_ms": 202,
+    "timestamp": "2026-10-07T19:49:44.117Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "e",
+    "input_description": "embedding provider failure (ollama with bad model) — AR-07 graceful degradation returns []",
+    "input": {
+      "query": "test query",
+      "persona": "audit",
+      "sessionID": "ar-e",
+      "embeddingConfig": {
+        "provider": "ollama",
+        "model": "nonexistent-model-xyz",
+        "dimensions": 768
+      }
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:44.119Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "f",
+    "input_description": "workforceUrl set against unreachable endpoint (http://localhost:1) — AR-11 returns local only",
+    "input": {
+      "query": "local memory",
+      "persona": "audit",
+      "sessionID": "ar-f",
+      "workforceUrl": "http://localhost:1"
+    },
+    "output": [
+      {
+        "id": "ar-f",
+        "content": "local memory for workforce test",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402584323",
+        "accessed_at": "1791402584520",
+        "metadata": {},
+        "score": 0.9137227729888784,
+        "source": "local"
+      }
+    ],
+    "error": null,
+    "duration_ms": 198,
+    "timestamp": "2026-10-07T19:49:44.522Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "g",
+    "input_description": "workforceUrl set against reachable endpoint returning results — AR-10/12 merged + deduped",
+    "input": {
+      "query": "memory content",
+      "persona": "audit",
+      "sessionID": "ar-g",
+      "workforceUrl": "http://localhost:51676"
+    },
+    "output": [
+      {
+        "id": "ar-g",
+        "content": "local memory for merge test",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402584717",
+        "accessed_at": "1791402584908",
+        "metadata": {},
+        "score": 0.9086374305968934,
+        "source": "local"
+      },
+      {
+        "id": "workforce-01M4BYMATDEX7JE433HXWEEHJS",
+        "content": "workforce memory: memory content",
+        "persona": "audit",
+        "scope": "workforce",
+        "access_count": 0,
+        "created_at": "1791402584909",
+        "accessed_at": "1791402584909",
+        "metadata": {
+          "source": "workforce"
+        },
+        "score": 0.85,
+        "source": "workforce"
+      }
+    ],
+    "error": null,
+    "duration_ms": 657,
+    "timestamp": "2026-10-07T19:49:45.374Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "h",
+    "input_description": "project_id set with no project-scoped memories — global scope fallback",
+    "input": {
+      "query": "global memory",
+      "persona": "audit",
+      "sessionID": "ar-h",
+      "project_id": "no-such-project"
+    },
+    "output": [
+      {
+        "id": "ar-h",
+        "content": "global scoped memory",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402585566",
+        "accessed_at": "1791402586275",
+        "metadata": {},
+        "score": 1,
+        "source": "local"
+      }
+    ],
+    "error": null,
+    "duration_ms": 709,
+    "timestamp": "2026-10-07T19:49:46.275Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "i",
+    "input_description": "project_id set with project-scoped memories",
+    "input": {
+      "query": "project memory",
+      "persona": "audit",
+      "sessionID": "ar-i",
+      "project_id": "proj-i"
+    },
+    "output": [
+      {
+        "id": "ar-i",
+        "content": "project scoped memory",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402586463",
+        "accessed_at": "1791402586655",
+        "metadata": {},
+        "score": 0.9119383264343135,
+        "source": "local"
+      }
+    ],
+    "error": null,
+    "duration_ms": 192,
+    "timestamp": "2026-10-07T19:49:46.655Z"
+  },
+  {
+    "component": "auto_recall",
+    "input_id": "j",
+    "input_description": "requestor_elevated: true — forward-compat log line at recall.ts:194, no behavioral effect",
+    "input": {
+      "query": "elevated memory",
+      "persona": "audit",
+      "sessionID": "ar-j",
+      "requestor_elevated": true
+    },
+    "output": [
+      {
+        "id": "ar-j",
+        "content": "memory for elevated test",
+        "persona": "audit",
+        "scope": "general",
+        "access_count": 1,
+        "created_at": "1791402586842",
+        "accessed_at": "1791402587012",
+        "metadata": {},
+        "score": 0.9356440977894483,
+        "source": "local"
+      }
+    ],
+    "error": null,
+    "duration_ms": 170,
+    "timestamp": "2026-10-07T19:49:47.012Z"
+  }
+]

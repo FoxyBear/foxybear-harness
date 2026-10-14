@@ -1,0 +1,270 @@
+[
+  {
+    "component": "run",
+    "input_id": "a",
+    "input_description": "empty recentSessionIds — gather produces 0 candidates",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": []
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 2
+    },
+    "error": null,
+    "duration_ms": 2,
+    "timestamp": "2026-10-07T19:49:42.328Z"
+  },
+  {
+    "component": "run",
+    "input_id": "b",
+    "input_description": "single session ID (no messages in DB → 0 candidates)",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": [
+        "sess-1"
+      ]
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 0
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.330Z"
+  },
+  {
+    "component": "run",
+    "input_id": "c",
+    "input_description": "50 session IDs (no messages in DB → 0 candidates)",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": [
+        "sess-0",
+        "sess-1",
+        "sess-2",
+        "sess-3",
+        "sess-4",
+        "sess-5",
+        "sess-6",
+        "sess-7",
+        "sess-8",
+        "sess-9",
+        "sess-10",
+        "sess-11",
+        "sess-12",
+        "sess-13",
+        "sess-14",
+        "sess-15",
+        "sess-16",
+        "sess-17",
+        "sess-18",
+        "sess-19",
+        "sess-20",
+        "sess-21",
+        "sess-22",
+        "sess-23",
+        "sess-24",
+        "sess-25",
+        "sess-26",
+        "sess-27",
+        "sess-28",
+        "sess-29",
+        "sess-30",
+        "sess-31",
+        "sess-32",
+        "sess-33",
+        "sess-34",
+        "sess-35",
+        "sess-36",
+        "sess-37",
+        "sess-38",
+        "sess-39",
+        "sess-40",
+        "sess-41",
+        "sess-42",
+        "sess-43",
+        "sess-44",
+        "sess-45",
+        "sess-46",
+        "sess-47",
+        "sess-48",
+        "sess-49"
+      ]
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 2
+    },
+    "error": null,
+    "duration_ms": 2,
+    "timestamp": "2026-10-07T19:49:42.332Z"
+  },
+  {
+    "component": "run",
+    "input_id": "d",
+    "input_description": "lockDir already locked — CN-14 contention (run overwrites lock, does not check isLockedOut)",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": [],
+      "preLockExists": true
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 1
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.333Z"
+  },
+  {
+    "component": "run",
+    "input_id": "d-post",
+    "input_description": "post-state: lock file after run (should be removed by finally)",
+    "input": {
+      "lockExists": false
+    },
+    "output": false,
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.333Z"
+  },
+  {
+    "component": "run",
+    "input_id": "e",
+    "input_description": "persona: 'default'",
+    "input": {
+      "persona": "default",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": []
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 0
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.334Z"
+  },
+  {
+    "component": "run",
+    "input_id": "f",
+    "input_description": "custom persona: 'audit-custom'",
+    "input": {
+      "persona": "audit-custom",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": []
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 0
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.334Z"
+  },
+  {
+    "component": "run",
+    "input_id": "g",
+    "input_description": "config missing memory.ttl_days — fallback to 90 (no config file in test env)",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": []
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 1
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.335Z"
+  },
+  {
+    "component": "run",
+    "input_id": "h",
+    "input_description": "config with ttl_days: 0 — harness limitation: cannot override config mid-test, uses default 90",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": []
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 0
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.335Z"
+  },
+  {
+    "component": "run",
+    "input_id": "i",
+    "input_description": "config with ttl_days: 365 — harness limitation: cannot override config mid-test, uses default 90",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": []
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 0
+    },
+    "error": null,
+    "duration_ms": 0,
+    "timestamp": "2026-10-07T19:49:42.336Z"
+  },
+  {
+    "component": "run",
+    "input_id": "j",
+    "input_description": "gather returns 0 candidates (no messages in MessageTable)",
+    "input": {
+      "persona": "audit",
+      "lockDir": "/var/folders/gb/0cv5g1d536q6pvgy5l68nkjh0000gn/T/fbh-p0-audit-cd1fkd",
+      "recentSessionIds": [
+        "no-such-session"
+      ]
+    },
+    "output": {
+      "merged": 0,
+      "pruned": 0,
+      "created": 0,
+      "indexUpdated": 0,
+      "durationMs": 1
+    },
+    "error": null,
+    "duration_ms": 1,
+    "timestamp": "2026-10-07T19:49:42.337Z"
+  }
+]

@@ -1,0 +1,318 @@
+[
+  {
+    "component": "extract_turn",
+    "input_id": "a",
+    "input_description": "preference statement: 'I prefer TypeScript over JavaScript'",
+    "input": {
+      "sessionID": "s-a",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "I prefer TypeScript over JavaScript."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "01M4BYMD2GQ2AMQ3EJ5463GRT4",
+        "content": "I prefer TypeScript over JavaScript.",
+        "metadata": {
+          "source": "extraction",
+          "type": "preference",
+          "session_id": "s-a"
+        }
+      }
+    ],
+    "error": null,
+    "duration_ms": 490,
+    "timestamp": "2026-10-07T19:49:47.518Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "b",
+    "input_description": "correction: 'No, actually we use Bun not Node'",
+    "input": {
+      "sessionID": "s-b",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "No, actually we use Bun not Node."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "01M4BYMDJ3DMKTRPB6BQR840J5",
+        "content": "No, actually we use Bun not Node.",
+        "metadata": "{\"source\":\"extraction\",\"type\":\"correction\",\"session_id\":\"s-b\"}"
+      }
+    ],
+    "error": null,
+    "duration_ms": 698,
+    "timestamp": "2026-10-07T19:49:48.216Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "c",
+    "input_description": "decision: 'Let's go with SurrealDB'",
+    "input": {
+      "sessionID": "s-c",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "Let's go with SurrealDB for the graph backend."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "01M4BYME7K1PCH77RW1WBP5V5D",
+        "content": "Let's go with SurrealDB for the graph backend.",
+        "metadata": {
+          "source": "extraction",
+          "type": "decision",
+          "session_id": "s-c"
+        }
+      }
+    ],
+    "error": null,
+    "duration_ms": 488,
+    "timestamp": "2026-10-07T19:49:48.705Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "d",
+    "input_description": "constraint: 'Kuzu doesn't work because Bun friction'",
+    "input": {
+      "sessionID": "s-d",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "Kuzu doesn't work because the Bun friction outweighs the benefits."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "01M4BYMEPN14D9MKAD59NBA50E",
+        "content": "Kuzu doesn't work because the Bun friction outweighs the benefits.",
+        "metadata": {
+          "source": "extraction",
+          "type": "constraint",
+          "session_id": "s-d"
+        }
+      }
+    ],
+    "error": null,
+    "duration_ms": 481,
+    "timestamp": "2026-10-07T19:49:49.186Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "e",
+    "input_description": "pattern: 'Every time we build, use bun test'",
+    "input": {
+      "sessionID": "s-e",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "Every time we build, we should use bun test for the test suite."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "01M4BYMF63ZKWF75X6DSM31X8F",
+        "content": "Every time we build, we should use bun test for the test suite.",
+        "metadata": {
+          "source": "extraction",
+          "type": "pattern",
+          "session_id": "s-e"
+        }
+      }
+    ],
+    "error": null,
+    "duration_ms": 495,
+    "timestamp": "2026-10-07T19:49:49.681Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "f",
+    "input_description": "slash-command first message: '/help' — CN-04 skip",
+    "input": {
+      "sessionID": "s-f",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "/help"
+            }
+          ]
+        }
+      ]
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 101,
+    "timestamp": "2026-10-07T19:49:49.782Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "g",
+    "input_description": "auto_capture: false — CN-06 skip via _testOverrides",
+    "input": {
+      "sessionID": "s-g",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "I prefer Bun over Node."
+            }
+          ]
+        }
+      ],
+      "_testOverrides": {
+        "auto_capture": false
+      }
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 101,
+    "timestamp": "2026-10-07T19:49:49.884Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "h",
+    "input_description": "empty messages array",
+    "input": {
+      "sessionID": "s-h",
+      "persona": "audit",
+      "messages": []
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 101,
+    "timestamp": "2026-10-07T19:49:49.986Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "i",
+    "input_description": "messages array with no user role (only assistant)",
+    "input": {
+      "sessionID": "s-i",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "assistant",
+          "parts": [
+            {
+              "type": "text",
+              "content": "I prefer Bun."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 102,
+    "timestamp": "2026-10-07T19:49:50.089Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "j",
+    "input_description": "MessageV2 shape: info.role + part.text (not part.content) — verifies SDD-02 §HOW D adapter required",
+    "input": {
+      "sessionID": "s-j",
+      "persona": "audit",
+      "messages": [
+        {
+          "info": {
+            "role": "user"
+          },
+          "parts": [
+            {
+              "type": "text",
+              "text": "I prefer Bun over Node."
+            }
+          ]
+        }
+      ]
+    },
+    "output": [],
+    "error": null,
+    "duration_ms": 101,
+    "timestamp": "2026-10-07T19:49:50.191Z"
+  },
+  {
+    "component": "extract_turn",
+    "input_id": "k",
+    "input_description": "timeoutMs: 1 on a preference input — CN-05 timeout fires before extraction completes",
+    "input": {
+      "sessionID": "s-k",
+      "persona": "audit",
+      "messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "I prefer TypeScript over JavaScript."
+            }
+          ]
+        }
+      ],
+      "timeoutMs": 1
+    },
+    "output": [
+      {
+        "id": "01M4BYMG5PKXEQRSS7H8YRBEH6",
+        "content": "I prefer TypeScript over JavaScript.",
+        "metadata": {
+          "source": "extraction",
+          "type": "preference",
+          "session_id": "s-k"
+        }
+      }
+    ],
+    "error": null,
+    "duration_ms": 602,
+    "timestamp": "2026-10-07T19:49:50.794Z"
+  }
+]
